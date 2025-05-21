@@ -1,13 +1,21 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import FeedbackForm from '../components/FeedbackForm';
 import TourSelectionPanel from '../components/TourSelectionPanel';
+import ClientsList from '../components/ClientsList';
 import { useAppContext } from '../contexts/AppContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Info } from 'lucide-react';
 
 const FeedbackPage: React.FC = () => {
-  const { selectedTour, selectedClient } = useAppContext();
+  const { selectedTour, selectedClient, clients, fetchClients } = useAppContext();
+  
+  // Ensure clients are fetched when a tour is selected
+  useEffect(() => {
+    if (selectedTour && clients.length === 0) {
+      fetchClients(selectedTour.tour_id);
+    }
+  }, [selectedTour, clients.length, fetchClients]);
   
   return (
     <div className="container max-w-4xl py-8">
@@ -16,7 +24,11 @@ const FeedbackPage: React.FC = () => {
       <TourSelectionPanel />
       
       {selectedTour && (
-        <div>
+        <div className="space-y-8">
+          {clients.length > 0 && !selectedClient && (
+            <ClientsList selectedTour={selectedTour} clients={clients} />
+          )}
+          
           {!selectedClient ? (
             <Card className="mb-8 animate-fade-in">
               <CardHeader className="bg-muted/30">

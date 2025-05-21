@@ -15,52 +15,43 @@ import { useToast } from './ui/use-toast';
 
 const FeedbackForm: React.FC = () => {
   const { 
-    tours, 
-    clients, 
-    fetchClients, 
-    isLoading,
+    selectedTour,
+    selectedClient,
     isSubmitting, 
-    submitFeedback 
+    submitFeedback,
+    setSelectedClient
   } = useAppContext();
   
   const { toast } = useToast();
   
   // Form state
-  const [selectedTourId, setSelectedTourId] = useState<string>('');
-  const [selectedClientId, setSelectedClientId] = useState<string>('');
-  const [guideName, setGuideName] = useState<string>('');
-  const [driverName, setDriverName] = useState<string>('');
+  const [guideName, setGuideName] = useState<string>(selectedTour?.guide_name || '');
+  const [driverName, setDriverName] = useState<string>(selectedTour?.driver_name || '');
   const [ratingOverall, setRatingOverall] = useState<number>(3.50);
+  const [ratingGuide, setRatingGuide] = useState<number>(3.50);
+  const [ratingDriver, setRatingDriver] = useState<number>(3.50);
   const [ratingFood, setRatingFood] = useState<number>(3.50);
   const [ratingEquipment, setRatingEquipment] = useState<number>(3.50);
   const [comments, setComments] = useState<string>('');
-  const [email, setEmail] = useState<string>('');
+  const [email, setEmail] = useState<string>(selectedClient?.email || '');
   const [willingGoogle, setWillingGoogle] = useState<boolean>(false);
   const [willingTripadvisor, setWillingTripadvisor] = useState<boolean>(false);
   
   // Form submission state
   const [submitted, setSubmitted] = useState<boolean>(false);
   const [submittedFeedback, setSubmittedFeedback] = useState<Feedback | null>(null);
-  
-  // Handle tour selection
-  const handleTourChange = (tourId: string) => {
-    setSelectedTourId(tourId);
-    setSelectedClientId('');
-    fetchClients(tourId);
-  };
-  
-  // Handle client selection
-  const handleClientChange = (clientId: string) => {
-    setSelectedClientId(clientId);
+
+  // Update the form when the selected tour or client changes
+  useEffect(() => {
+    if (selectedTour) {
+      setGuideName(selectedTour.guide_name);
+      setDriverName(selectedTour.driver_name);
+    }
     
-    // Find the selected client to pre-fill email if available
-    const selectedClient = clients.find(client => client.client_id === clientId);
     if (selectedClient && selectedClient.email) {
       setEmail(selectedClient.email);
-    } else {
-      setEmail('');
     }
-  };
+  }, [selectedTour, selectedClient]);
   
   // Copy feedback to clipboard
   const copyFeedback = () => {
@@ -78,12 +69,23 @@ const FeedbackForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!selectedTour || !selectedClient) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Tour and client must be selected first",
+      });
+      return;
+    }
+    
     // Validate ratings are within 1.00-7.00 range
-    if (ratingOverall < 1.00 || ratingOverall > 7.00) {
+    if (ratingOverall < 1.00 || ratingOverall > 7.00 ||
+        ratingGuide < 1.00 || ratingGuide > 7.00 ||
+        ratingDriver < 1.00 || ratingDriver > 7.00) {
       toast({
         variant: "destructive",
         title: "Invalid Rating",
-        description: "Overall rating must be between 1.00 and 7.00",
+        description: "All required ratings must be between 1.00 and 7.00",
       });
       return;
     }
@@ -101,11 +103,13 @@ const FeedbackForm: React.FC = () => {
     try {
       // Prepare feedback data
       const feedbackData: Omit<Feedback, 'id' | 'status' | 'submitted_at'> = {
-        tour_id: selectedTourId,
-        client_id: selectedClientId,
+        tour_id: selectedTour.tour_id,
+        client_id: selectedClient.client_id,
         guide_name: guideName,
         driver_name: driverName,
         rating_overall: ratingOverall,
+        rating_guide: ratingGuide,
+        rating_driver: ratingDriver,
         rating_food: ratingFood !== 0 ? ratingFood : undefined,
         rating_equipment: ratingEquipment !== 0 ? ratingEquipment : undefined,
         comments: comments.trim() || undefined
@@ -125,11 +129,12 @@ const FeedbackForm: React.FC = () => {
   
   // Reset form for a new submission
   const handleReset = () => {
-    setSelectedTourId('');
-    setSelectedClientId('');
-    setGuideName('');
-    setDriverName('');
+    setSelectedClient(null);
+    setGuideName(selectedTour?.guide_name || '');
+    setDriverName(selectedTour?.driver_name || '');
     setRatingOverall(3.50);
+    setRatingGuide(3.50);
+    setRatingDriver(3.50);
     setRatingFood(3.50);
     setRatingEquipment(3.50);
     setComments('');
@@ -141,9 +146,9 @@ const FeedbackForm: React.FC = () => {
   };
   
   return (
-    <div className="container max-w-3xl p-4 mx-auto">
+    <Card className="w-full animate-fade-in">
       {!submitted ? (
-        <Card className="w-full animate-fade-in">
+        <>
           <CardHeader className="text-center bg-tour-primary text-white rounded-t-lg">
             <CardTitle className="text-2xl font-bold">Tour Feedback</CardTitle>
             <CardDescription className="text-white/80">
@@ -155,47 +160,18 @@ const FeedbackForm: React.FC = () => {
           
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-6 pt-6">
-              {/* Tour and Client Selection */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="tour-select">Tour <span className="text-red-500">*</span></Label>
-                  <Select 
-                    value={selectedTourId} 
-                    onValueChange={handleTourChange}
-                    required
-                  >
-                    <SelectTrigger id="tour-select" disabled={isLoading}>
-                      <SelectValue placeholder="Select a tour" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {tours.map(tour => (
-                        <SelectItem key={tour.tour_id} value={tour.tour_id}>
-                          {tour.tour_name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="client-select">Client <span className="text-red-500">*</span></Label>
-                  <Select 
-                    value={selectedClientId} 
-                    onValueChange={handleClientChange}
-                    disabled={!selectedTourId || clients.length === 0 || isLoading}
-                    required
-                  >
-                    <SelectTrigger id="client-select">
-                      <SelectValue placeholder="Select a client" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {clients.map(client => (
-                        <SelectItem key={client.client_id} value={client.client_id}>
-                          {client.full_name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+              {/* Client Information Display */}
+              <div className="p-4 bg-muted/30 rounded-lg">
+                <h3 className="font-medium mb-2">Selected Client:</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Name:</p>
+                    <p className="font-medium">{selectedClient?.full_name || 'No client selected'}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Tour:</p>
+                    <p className="font-medium">{selectedTour?.tour_name || 'No tour selected'}</p>
+                  </div>
                 </div>
               </div>
               
@@ -228,6 +204,20 @@ const FeedbackForm: React.FC = () => {
                   label="Overall Rating"
                   value={ratingOverall}
                   onChange={setRatingOverall}
+                  required
+                />
+                
+                <RatingInput
+                  label="Guide Rating"
+                  value={ratingGuide}
+                  onChange={setRatingGuide}
+                  required
+                />
+                
+                <RatingInput
+                  label="Driver Rating"
+                  value={ratingDriver}
+                  onChange={setRatingDriver}
                   required
                 />
                 
@@ -301,15 +291,15 @@ const FeedbackForm: React.FC = () => {
               <Button 
                 type="submit" 
                 className="bg-tour-primary hover:bg-tour-secondary"
-                disabled={isSubmitting}
+                disabled={isSubmitting || !selectedClient}
               >
                 {isSubmitting ? 'Submitting...' : 'Submit Feedback'}
               </Button>
             </CardFooter>
           </form>
-        </Card>
+        </>
       ) : (
-        <Card className="w-full animate-fade-in">
+        <>
           <CardHeader className="text-center bg-tour-success text-white rounded-t-lg">
             <CardTitle className="text-2xl font-bold">Thank You!</CardTitle>
             <CardDescription className="text-white/80">
@@ -376,9 +366,9 @@ const FeedbackForm: React.FC = () => {
               </Button>
             </div>
           </CardContent>
-        </Card>
+        </>
       )}
-    </div>
+    </Card>
   );
 };
 
