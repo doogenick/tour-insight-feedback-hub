@@ -1,21 +1,53 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAppContext } from '../contexts/AppContext';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
-import { Download, RefreshCw, Upload, Database } from 'lucide-react';
+import { Download, RefreshCw, Upload, Database, ChevronDown, Check, ArrowUp, Filter } from 'lucide-react';
 import { Separator } from './ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import AnalyticsDashboard from './AnalyticsDashboard';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
 
 const AdminPage: React.FC = () => {
   const { 
     syncPendingFeedback, 
     exportFeedback, 
     isLoading, 
-    syncStatus 
+    syncStatus,
+    generateDemoData,
+    demoDataGenerated,
+    tours,
+    fetchFeedback,
+    currentUser,
+    loginUser,
+    logoutUser
   } = useAppContext();
   
   const [exportLoading, setExportLoading] = useState(false);
+  const [loginName, setLoginName] = useState('');
+  const [loginRole, setLoginRole] = useState<'admin' | 'guide' | 'driver' | 'client'>('admin');
+  const [isOpen, setIsOpen] = useState(false);
+  
+  // Generate demo data if none exists and fetch feedback
+  useEffect(() => {
+    if (!demoDataGenerated && tours.length === 0) {
+      generateDemoData();
+    }
+    
+    fetchFeedback();
+  }, [demoDataGenerated, generateDemoData, tours.length, fetchFeedback]);
   
   // Handle CSV export
   const handleExportCsv = async () => {
@@ -38,6 +70,15 @@ const AdminPage: React.FC = () => {
     }
   };
   
+  // Handle login form submission
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (loginName) {
+      loginUser(loginName, loginRole);
+      setIsOpen(false);
+    }
+  };
+  
   return (
     <div className="container max-w-4xl p-4 mx-auto">
       <Card className="w-full animate-fade-in">
@@ -49,11 +90,121 @@ const AdminPage: React.FC = () => {
         </CardHeader>
         
         <CardContent className="p-6">
-          <Tabs defaultValue="export">
-            <TabsList className="grid w-full grid-cols-2 mb-8">
+          {/* User Login/Logout Section */}
+          <div className="flex justify-end mb-6">
+            {currentUser ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="flex items-center gap-2">
+                    {currentUser.name}
+                    <ChevronDown className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>User Settings</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuGroup>
+                    <DropdownMenuItem className="text-muted-foreground">
+                      Role: {currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1)}
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={logoutUser}>
+                    Log Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Dialog open={isOpen} onOpenChange={setIsOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline">Log In</Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <form onSubmit={handleLogin}>
+                    <DialogHeader>
+                      <DialogTitle>Log In</DialogTitle>
+                      <DialogDescription>
+                        Enter your name and select your role to view feedback data.
+                      </DialogDescription>
+                    </DialogHeader>
+                    
+                    <div className="space-y-4 py-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="name">Name</Label>
+                        <Input 
+                          id="name" 
+                          value={loginName} 
+                          onChange={(e) => setLoginName(e.target.value)} 
+                          placeholder="Enter your name"
+                          required
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label>Role</Label>
+                        <div className="grid grid-cols-2 gap-2">
+                          <Button 
+                            type="button"
+                            variant={loginRole === 'admin' ? 'default' : 'outline'}
+                            className="justify-start"
+                            onClick={() => setLoginRole('admin')}
+                          >
+                            {loginRole === 'admin' && <Check className="h-4 w-4 mr-2" />}
+                            Admin
+                          </Button>
+                          
+                          <Button 
+                            type="button"
+                            variant={loginRole === 'guide' ? 'default' : 'outline'}
+                            className="justify-start"
+                            onClick={() => setLoginRole('guide')}
+                          >
+                            {loginRole === 'guide' && <Check className="h-4 w-4 mr-2" />}
+                            Guide
+                          </Button>
+                          
+                          <Button 
+                            type="button"
+                            variant={loginRole === 'driver' ? 'default' : 'outline'}
+                            className="justify-start"
+                            onClick={() => setLoginRole('driver')}
+                          >
+                            {loginRole === 'driver' && <Check className="h-4 w-4 mr-2" />}
+                            Driver
+                          </Button>
+                          
+                          <Button 
+                            type="button"
+                            variant={loginRole === 'client' ? 'default' : 'outline'}
+                            className="justify-start"
+                            onClick={() => setLoginRole('client')}
+                          >
+                            {loginRole === 'client' && <Check className="h-4 w-4 mr-2" />}
+                            Client
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <DialogFooter>
+                      <Button type="submit">Log In</Button>
+                    </DialogFooter>
+                  </form>
+                </DialogContent>
+              </Dialog>
+            )}
+          </div>
+          
+          <Tabs defaultValue="analytics">
+            <TabsList className="grid w-full grid-cols-3 mb-8">
+              <TabsTrigger value="analytics">Analytics</TabsTrigger>
               <TabsTrigger value="export">Export Data</TabsTrigger>
               <TabsTrigger value="sync">Data Synchronization</TabsTrigger>
             </TabsList>
+            
+            <TabsContent value="analytics">
+              <AnalyticsDashboard />
+            </TabsContent>
             
             <TabsContent value="export" className="space-y-6">
               <div className="bg-muted/30 p-6 rounded-lg">
@@ -85,11 +236,12 @@ const AdminPage: React.FC = () => {
                   these would be protected by authentication.
                 </p>
                 <div className="flex flex-wrap gap-4">
-                  <Button variant="outline">
-                    Add Dummy Tour
-                  </Button>
-                  <Button variant="outline">
-                    Add Dummy Clients
+                  <Button 
+                    variant="outline"
+                    onClick={generateDemoData}
+                    disabled={isLoading}
+                  >
+                    Generate Demo Data
                   </Button>
                 </div>
               </div>
