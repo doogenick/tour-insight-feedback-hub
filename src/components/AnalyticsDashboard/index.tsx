@@ -3,11 +3,12 @@ import React, { useEffect } from 'react';
 import { useAppContext } from '../../contexts/AppContext';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
-import { BarChart4, Filter, Users, AlertTriangle } from 'lucide-react';
+import { BarChart4, Filter, Users, AlertTriangle, TrendingUp } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Label } from '../ui/label';
 import ActionableInsights from './ActionableInsights';
 import PerformanceMetrics from './PerformanceMetrics';
+import InsightsDashboard from './InsightsDashboard';
 
 const AnalyticsDashboard: React.FC = () => {
   const { 
@@ -217,19 +218,27 @@ const AnalyticsDashboard: React.FC = () => {
         </Card>
       </div>
       
-      {/* Tabs for Different Analytics */}
-      <Tabs defaultValue="performance">
-        <TabsList className="grid grid-cols-3 mb-8">
+      {/* Enhanced Tabs for Different Analytics */}
+      <Tabs defaultValue="insights">
+        <TabsList className="grid grid-cols-4 mb-8">
+          <TabsTrigger value="insights" className="flex items-center gap-2">
+            <TrendingUp className="h-4 w-4" />
+            Insights
+          </TabsTrigger>
           <TabsTrigger value="performance">Performance</TabsTrigger>
-          <TabsTrigger value="insights">Insights</TabsTrigger>
-          <TabsTrigger value="details">Detailed Feedback</TabsTrigger>
+          <TabsTrigger value="actionable">Actions</TabsTrigger>
+          <TabsTrigger value="details">Details</TabsTrigger>
         </TabsList>
+        
+        <TabsContent value="insights">
+          <InsightsDashboard feedback={feedback} isLoading={isLoading} />
+        </TabsContent>
         
         <TabsContent value="performance">
           <PerformanceMetrics feedback={feedback} isLoading={isLoading} />
         </TabsContent>
         
-        <TabsContent value="insights">
+        <TabsContent value="actionable">
           <ActionableInsights feedback={feedback} isLoading={isLoading} />
         </TabsContent>
         
