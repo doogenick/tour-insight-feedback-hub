@@ -1,6 +1,8 @@
 
 import tourService from './tourService';
 import feedbackService from './feedbackService';
-export * from './types';
+import crewService from './crewService';
+import incidentService from './incidentService';
 
-export { tourService, feedbackService };
+export * from './types';
+export { tourService, feedbackService, crewService, incidentService };

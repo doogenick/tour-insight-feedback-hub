@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAppContext } from '../contexts/AppContext';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card';
@@ -7,6 +6,7 @@ import { Download, RefreshCw, Upload, Database, ChevronDown, Check, ArrowUp, Fil
 import { Separator } from './ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import AnalyticsDashboard from './AnalyticsDashboard';
+import TourManagementDashboard from './TourManagement/TourManagementDashboard';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -80,12 +80,12 @@ const AdminPage: React.FC = () => {
   };
   
   return (
-    <div className="container max-w-4xl p-4 mx-auto">
+    <div className="container max-w-6xl p-4 mx-auto">
       <Card className="w-full animate-fade-in">
         <CardHeader className="text-center bg-tour-primary text-white rounded-t-lg">
           <CardTitle className="text-2xl font-bold">Admin Panel</CardTitle>
           <CardDescription className="text-white/80">
-            Manage tour feedback data
+            Manage tour feedback data, tours, crew, and operations
           </CardDescription>
         </CardHeader>
         
@@ -195,12 +195,17 @@ const AdminPage: React.FC = () => {
             )}
           </div>
           
-          <Tabs defaultValue="analytics">
-            <TabsList className="grid w-full grid-cols-3 mb-8">
+          <Tabs defaultValue="tour-management">
+            <TabsList className="grid w-full grid-cols-4 mb-8">
+              <TabsTrigger value="tour-management">Tour Management</TabsTrigger>
               <TabsTrigger value="analytics">Analytics</TabsTrigger>
               <TabsTrigger value="export">Export Data</TabsTrigger>
               <TabsTrigger value="sync">Data Synchronization</TabsTrigger>
             </TabsList>
+            
+            <TabsContent value="tour-management">
+              <TourManagementDashboard />
+            </TabsContent>
             
             <TabsContent value="analytics">
               <AnalyticsDashboard />

@@ -1,4 +1,3 @@
-
 import { v4 as uuidv4 } from 'uuid';
 import { api, localforage } from './config';
 import { Tour, Client, Feedback } from './types';
@@ -29,12 +28,19 @@ const tourService = {
 
   // Add new tour
   createTour: async (tourData: Omit<Tour, 'tour_id'>): Promise<Tour> => {
+    const newTour: Tour = {
+      ...tourData,
+      tour_id: `TUR${Date.now().toString().slice(-8).toUpperCase()}`,
+    };
+
     try {
-      const response = await api.post('/tours', tourData);
+      const response = await api.post('/tours', newTour);
       return response.data;
     } catch (error) {
       console.error('Error creating tour:', error);
-      throw error;
+      // Store locally if API fails
+      await localforage.setItem(`tour_${newTour.tour_id}`, newTour);
+      return newTour;
     }
   },
 
