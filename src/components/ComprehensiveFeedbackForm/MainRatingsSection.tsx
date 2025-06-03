@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ComprehensiveFeedback } from '../../services/api';
+import { ComprehensiveFeedback } from '../../services/api/types';
 import ComprehensiveRatingRow from './ComprehensiveRatingRow';
 
 interface MainRatingsSectionProps {
@@ -52,8 +52,8 @@ const MainRatingsSection: React.FC<MainRatingsSectionProps> = ({
           <ComprehensiveRatingRow
             key={item.key}
             label={item.label}
-            ratingField={`${item.key}_rating` as keyof ComprehensiveFeedback}
-            commentsField={`${item.key}_comments` as keyof ComprehensiveFeedback}
+            ratingField={`${item.key}_rating`}
+            commentsField={`${item.key}_comments`}
             rating={formData[`${item.key}_rating` as keyof ComprehensiveFeedback] as number || 3}
             comments={formData[`${item.key}_comments` as keyof ComprehensiveFeedback] as string || ''}
             onRatingChange={(value) => updateFormData(`${item.key}_rating` as keyof ComprehensiveFeedback, value)}

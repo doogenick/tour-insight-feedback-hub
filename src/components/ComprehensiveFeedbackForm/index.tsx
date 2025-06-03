@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useAppContext } from '../../contexts/AppContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
-import { ComprehensiveFeedback } from '../../services/api';
+import { ComprehensiveFeedback } from '../../services/api/types';
 import { useToast } from '../ui/use-toast';
 
 import FeedbackHeader from './FeedbackHeader';

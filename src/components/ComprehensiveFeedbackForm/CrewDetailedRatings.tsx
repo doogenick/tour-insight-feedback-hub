@@ -1,7 +1,8 @@
 
 import React from 'react';
-import { ComprehensiveFeedback } from '../../services/api';
+import { ComprehensiveFeedback } from '../../services/api/types';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
+import { Textarea } from '../ui/textarea';
 
 interface CrewDetailedRatingsProps {
   formData: Partial<ComprehensiveFeedback>;
