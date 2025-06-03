@@ -7,6 +7,9 @@ export interface Tour {
   passenger_count: number;
   guide_name: string;
   driver_name: string;
+  truck_name?: string;
+  tour_code?: string;
+  tour_leader?: string;
 }
 
 export interface Client {
@@ -23,6 +26,86 @@ export interface Client {
   created_at?: string;
 }
 
+// New comprehensive feedback interface matching the actual form
+export interface ComprehensiveFeedback {
+  id: string;
+  tour_id: string;
+  client_id: string;
+  
+  // Tour section completed
+  tour_section_completed: 'cape_town_vic_falls' | 'cape_town_windhoek' | 'cape_town_swakopmund_vic_falls' | 'windhoek_vic_falls' | '';
+  
+  // Main ratings (1-7 scale)
+  accommodation_rating: number;
+  accommodation_comments?: string;
+  information_rating: number;
+  information_comments?: string;
+  quality_equipment_rating: number;
+  quality_equipment_comments?: string;
+  truck_comfort_rating: number;
+  truck_comfort_comments?: string;
+  food_quantity_rating: number;
+  food_quantity_comments?: string;
+  food_quality_rating: number;
+  food_quality_comments?: string;
+  driving_rating: number;
+  driving_comments?: string;
+  guiding_rating: number;
+  guiding_comments?: string;
+  organisation_rating: number;
+  organisation_comments?: string;
+  
+  // Individual crew ratings
+  guide_individual_rating: number;
+  guide_individual_comments?: string;
+  driver_individual_rating: number;
+  driver_individual_comments?: string;
+  third_crew_rating?: number;
+  third_crew_comments?: string;
+  
+  // Tour experience ratings
+  pace_rating: number;
+  pace_comments?: string;
+  route_rating: number;
+  route_comments?: string;
+  activity_level_rating: number;
+  activity_level_comments?: string;
+  price_rating: number;
+  price_comments?: string;
+  value_rating: number;
+  value_comments?: string;
+  overview_rating: number;
+  overview_comments?: string;
+  
+  // Crew detailed ratings (professionalism, organisation, people skills, enthusiasm, information)
+  guide_professionalism: number;
+  guide_organisation: number;
+  guide_people_skills: number;
+  guide_enthusiasm: number;
+  guide_information: number;
+  driver_professionalism: number;
+  driver_organisation: number;
+  driver_people_skills: number;
+  driver_enthusiasm: number;
+  driver_information: number;
+  
+  // Additional feedback
+  additional_comments?: string;
+  
+  // Expectations
+  met_expectations: boolean | null;
+  expectations_comment?: string;
+  
+  // Contact preferences
+  email?: string;
+  willing_to_review_google?: boolean;
+  willing_to_review_tripadvisor?: boolean;
+  
+  submitted_at?: string;
+  status: 'Pending' | 'Synced';
+}
+
+// Keep original Feedback interface for backward compatibility
 export interface Feedback {
   id: string;
   tour_id: string;
