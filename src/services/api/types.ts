@@ -26,7 +26,7 @@ export interface Client {
   created_at?: string;
 }
 
-// New comprehensive feedback interface matching the actual form
+// Enhanced comprehensive feedback interface with all form fields
 export interface ComprehensiveFeedback {
   id: string;
   tour_id: string;
@@ -92,14 +92,50 @@ export interface ComprehensiveFeedback {
   // Additional feedback
   additional_comments?: string;
   
-  // Expectations
+  // Page 2 - General Questions
   met_expectations: boolean | null;
   expectations_comment?: string;
   
+  // Value and satisfaction questions
+  value_for_money: boolean | null;
+  value_for_money_comment?: string;
+  truck_satisfaction: boolean | null;
+  truck_satisfaction_comment?: string;
+  tour_leader_knowledge: number; // 1-7 rating
+  tour_leader_knowledge_comment?: string;
+  safety_rating: number; // 1-7 rating
+  safety_comment?: string;
+  would_recommend: boolean | null;
+  would_recommend_comment?: string;
+  
+  // How they heard about us
+  heard_about_source: 'word_of_mouth' | 'internet' | 'travel_agent' | 'brochure' | 'repeat_client' | 'other' | '';
+  heard_about_other?: string;
+  
+  // Repeat travel intentions
+  repeat_travel: boolean | null;
+  repeat_travel_comment?: string;
+  
+  // Open-ended feedback
+  tour_highlight?: string;
+  improvement_suggestions?: string;
+  
+  // Personal details (optional)
+  client_name?: string;
+  client_email?: string;
+  nationality?: string;
+  age?: number;
+  gender?: 'male' | 'female' | 'other' | '';
+  
   // Contact preferences
-  email?: string;
   willing_to_review_google?: boolean;
   willing_to_review_tripadvisor?: boolean;
+  newsletter_signup?: boolean;
+  
+  // Signatures and completion
+  client_signature?: string;
+  client_signature_date?: string;
+  crew_signature?: string;
   
   submitted_at?: string;
   status: 'Pending' | 'Synced';

@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAppContext } from '../../contexts/AppContext';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import { Card, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
 import { ComprehensiveFeedback } from '../../services/api/types';
 import { useToast } from '../ui/use-toast';
@@ -12,6 +12,11 @@ import TourSectionSelector from './TourSectionSelector';
 import MainRatingsSection from './MainRatingsSection';
 import CrewDetailedRatings from './CrewDetailedRatings';
 import PageTwoQuestions from './PageTwoQuestions';
+import AdditionalQuestions from './AdditionalQuestions';
+import OpenEndedFeedback from './OpenEndedFeedback';
+import PersonalDetails from './PersonalDetails';
+import SignatureSection from './SignatureSection';
+import SubmissionActions from './SubmissionActions';
 import SuccessMessage from '../FeedbackForm/SuccessMessage';
 
 const ComprehensiveFeedbackForm: React.FC = () => {
@@ -24,7 +29,7 @@ const ComprehensiveFeedbackForm: React.FC = () => {
   
   const { toast } = useToast();
   
-  // Form state for comprehensive feedback
+  // Enhanced form state for comprehensive feedback
   const [formData, setFormData] = useState<Partial<ComprehensiveFeedback>>({
     tour_section_completed: '',
     accommodation_rating: 3,
@@ -54,10 +59,17 @@ const ComprehensiveFeedbackForm: React.FC = () => {
     driver_people_skills: 3,
     driver_enthusiasm: 3,
     driver_information: 3,
-    met_expectations: null
+    met_expectations: null,
+    value_for_money: null,
+    truck_satisfaction: null,
+    tour_leader_knowledge: 3,
+    safety_rating: 3,
+    would_recommend: null,
+    heard_about_source: '',
+    repeat_travel: null
   });
   
-  const [currentPage, setCurrentPage] = useState<1 | 2>(1);
+  const [currentPage, setCurrentPage] = useState<1 | 2 | 3>(1);
   const [submitted, setSubmitted] = useState<boolean>(false);
 
   // Update form data when context changes
@@ -85,7 +97,17 @@ const ComprehensiveFeedbackForm: React.FC = () => {
   };
   
   const handleNextPage = () => {
-    if (validatePage1()) {
+    if (currentPage === 1 && validatePage1()) {
+      setCurrentPage(2);
+    } else if (currentPage === 2) {
+      setCurrentPage(3);
+    }
+  };
+  
+  const handlePrevPage = () => {
+    if (currentPage === 2) {
+      setCurrentPage(1);
+    } else if (currentPage === 3) {
       setCurrentPage(2);
     }
   };
@@ -127,7 +149,7 @@ const ComprehensiveFeedbackForm: React.FC = () => {
     }
   };
   
-  const handleReset = () => {
+  const handleClearForm = () => {
     setSelectedClient(null);
     setFormData({
       tour_section_completed: '',
@@ -158,7 +180,14 @@ const ComprehensiveFeedbackForm: React.FC = () => {
       driver_people_skills: 3,
       driver_enthusiasm: 3,
       driver_information: 3,
-      met_expectations: null
+      met_expectations: null,
+      value_for_money: null,
+      truck_satisfaction: null,
+      tour_leader_knowledge: 3,
+      safety_rating: 3,
+      would_recommend: null,
+      heard_about_source: '',
+      repeat_travel: null
     });
     setCurrentPage(1);
     setSubmitted(false);
@@ -181,7 +210,7 @@ const ComprehensiveFeedbackForm: React.FC = () => {
               });
             }
           }}
-          onReset={handleReset}
+          onReset={handleClearForm}
         />
       </Card>
     );
@@ -192,7 +221,18 @@ const ComprehensiveFeedbackForm: React.FC = () => {
       <FeedbackHeader />
       
       <CardContent className="p-8">
-        {currentPage === 1 ? (
+        {/* Page Progress Indicator */}
+        <div className="flex justify-center mb-6">
+          <div className="flex items-center space-x-4">
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentPage >= 1 ? 'bg-tour-primary text-white' : 'bg-gray-200'}`}>1</div>
+            <div className={`w-16 h-1 ${currentPage > 1 ? 'bg-tour-primary' : 'bg-gray-200'}`}></div>
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentPage >= 2 ? 'bg-tour-primary text-white' : 'bg-gray-200'}`}>2</div>
+            <div className={`w-16 h-1 ${currentPage > 2 ? 'bg-tour-primary' : 'bg-gray-200'}`}></div>
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentPage >= 3 ? 'bg-tour-primary text-white' : 'bg-gray-200'}`}>3</div>
+          </div>
+        </div>
+
+        {currentPage === 1 && (
           <div className="space-y-8">
             <TourDetailsSection 
               selectedTour={selectedTour}
@@ -228,9 +268,21 @@ const ComprehensiveFeedbackForm: React.FC = () => {
               </Button>
             </div>
           </div>
-        ) : (
+        )}
+
+        {currentPage === 2 && (
           <div className="space-y-8">
             <PageTwoQuestions
+              formData={formData}
+              updateFormData={updateFormData}
+            />
+            
+            <AdditionalQuestions
+              formData={formData}
+              updateFormData={updateFormData}
+            />
+            
+            <OpenEndedFeedback
               formData={formData}
               updateFormData={updateFormData}
             />
@@ -238,17 +290,47 @@ const ComprehensiveFeedbackForm: React.FC = () => {
             <div className="flex justify-center gap-4">
               <Button 
                 variant="outline"
-                onClick={() => setCurrentPage(1)}
+                onClick={handlePrevPage}
                 className="px-8 py-3"
               >
                 Back to Page 1
               </Button>
               <Button 
-                onClick={handleSubmit}
+                onClick={handleNextPage}
                 className="bg-tour-primary hover:bg-tour-secondary px-8 py-3"
-                disabled={isSubmitting}
               >
-                {isSubmitting ? 'Submitting...' : 'Submit Feedback'}
+                Continue to Page 3
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {currentPage === 3 && (
+          <div className="space-y-8">
+            <PersonalDetails
+              formData={formData}
+              updateFormData={updateFormData}
+            />
+            
+            <SignatureSection
+              formData={formData}
+              updateFormData={updateFormData}
+            />
+            
+            <SubmissionActions
+              formData={formData}
+              onClearForm={handleClearForm}
+              onSubmit={handleSubmit}
+              isSubmitting={isSubmitting}
+            />
+            
+            <div className="flex justify-center gap-4">
+              <Button 
+                variant="outline"
+                onClick={handlePrevPage}
+                className="px-8 py-3"
+              >
+                Back to Page 2
               </Button>
             </div>
           </div>
