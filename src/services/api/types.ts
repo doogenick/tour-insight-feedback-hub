@@ -123,6 +123,7 @@ export interface ComprehensiveFeedback {
   // Personal details (optional)
   client_name?: string;
   client_email?: string;
+  email?: string; // Added for compatibility
   nationality?: string;
   age?: number;
   gender?: 'male' | 'female' | 'other' | '';

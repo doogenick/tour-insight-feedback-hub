@@ -5,6 +5,7 @@ import { Card, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
 import { ComprehensiveFeedback } from '../../services/api/types';
 import { useToast } from '../ui/use-toast';
+import { comprehensiveFeedbackService } from '../../services/comprehensiveFeedbackService';
 
 import FeedbackHeader from './FeedbackHeader';
 import TourDetailsSection from './TourDetailsSection';
@@ -23,7 +24,6 @@ const ComprehensiveFeedbackForm: React.FC = () => {
   const { 
     selectedTour,
     selectedClient,
-    isSubmitting, 
     setSelectedClient
   } = useAppContext();
   
@@ -71,11 +71,16 @@ const ComprehensiveFeedbackForm: React.FC = () => {
   
   const [currentPage, setCurrentPage] = useState<1 | 2 | 3>(1);
   const [submitted, setSubmitted] = useState<boolean>(false);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   // Update form data when context changes
   useEffect(() => {
     if (selectedClient?.email) {
-      setFormData(prev => ({ ...prev, email: selectedClient.email }));
+      setFormData(prev => ({ 
+        ...prev, 
+        email: selectedClient.email,
+        client_email: selectedClient.email 
+      }));
     }
   }, [selectedClient]);
   
@@ -122,6 +127,8 @@ const ComprehensiveFeedbackForm: React.FC = () => {
       return;
     }
     
+    setIsSubmitting(true);
+    
     try {
       const feedbackData: Omit<ComprehensiveFeedback, 'id' | 'status' | 'submitted_at'> = {
         ...formData,
@@ -129,8 +136,8 @@ const ComprehensiveFeedbackForm: React.FC = () => {
         client_id: selectedClient.client_id,
       } as Omit<ComprehensiveFeedback, 'id' | 'status' | 'submitted_at'>;
       
-      // For now, we'll just show success - integration with backend will be added later
-      console.log('Comprehensive feedback data:', feedbackData);
+      // Submit using the comprehensive feedback service
+      await comprehensiveFeedbackService.submitFeedback(feedbackData);
       
       toast({
         title: "Success!",
@@ -146,6 +153,8 @@ const ComprehensiveFeedbackForm: React.FC = () => {
         title: "Error",
         description: "Something went wrong. Please try again.",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
   
