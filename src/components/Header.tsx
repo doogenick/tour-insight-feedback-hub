@@ -1,57 +1,58 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Tabs, TabsList, TabsTrigger } from './ui/tabs';
-import { useLocation } from 'react-router-dom';
-import { Wifi, WifiOff } from 'lucide-react';
+import { Button } from './ui/button';
+import { useAppContext } from '../contexts/AppContext';
 
 const Header: React.FC = () => {
-  const location = useLocation();
-  const [isOnline, setIsOnline] = React.useState(navigator.onLine);
-
-  React.useEffect(() => {
-    const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
-
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
-  }, []);
+  const { currentUser, logout } = useAppContext();
 
   return (
-    <header className="bg-white shadow-sm">
-      <div className="container mx-auto px-4 py-3 flex flex-wrap items-center justify-between">
-        <div className="flex items-center">
-          <h1 className="text-xl font-bold text-tour-primary">Tour Feedback</h1>
-          <div className="ml-3 flex items-center">
-            {isOnline ? (
-              <div className="flex items-center text-xs text-tour-success">
-                <Wifi size={14} className="mr-1" />
-                <span>Online</span>
+    <header className="bg-primary text-primary-foreground shadow-sm">
+      <div className="container mx-auto px-4 py-4">
+        <div className="flex items-center justify-between">
+          <Link to="/" className="text-xl font-bold">
+            Nomad Africa Feedback
+          </Link>
+          
+          <nav className="flex items-center space-x-6">
+            <Link to="/" className="hover:text-primary-foreground/80">
+              Home
+            </Link>
+            <Link to="/feedback" className="hover:text-primary-foreground/80">
+              Feedback
+            </Link>
+            {currentUser && (
+              <>
+                <Link to="/admin" className="hover:text-primary-foreground/80">
+                  Admin
+                </Link>
+                <Link to="/analytics" className="hover:text-primary-foreground/80">
+                  Analytics
+                </Link>
+              </>
+            )}
+            
+            {currentUser ? (
+              <div className="flex items-center space-x-4">
+                <span className="text-sm">
+                  Welcome, {currentUser.name}
+                </span>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={logout}
+                  className="text-primary-foreground border-primary-foreground hover:bg-primary-foreground hover:text-primary"
+                >
+                  Logout
+                </Button>
               </div>
             ) : (
-              <div className="flex items-center text-xs text-destructive">
-                <WifiOff size={14} className="mr-1" />
-                <span>Offline</span>
+              <div className="text-sm text-primary-foreground/80">
+                Please log in to access admin features
               </div>
             )}
-          </div>
+          </nav>
         </div>
-
-        <Tabs value={location.pathname} className="w-auto">
-          <TabsList>
-            <TabsTrigger value="/" asChild>
-              <Link to="/">Submit Feedback</Link>
-            </TabsTrigger>
-            <TabsTrigger value="/admin" asChild>
-              <Link to="/admin">Admin</Link>
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
       </div>
     </header>
   );

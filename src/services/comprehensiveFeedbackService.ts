@@ -53,6 +53,31 @@ export interface FeedbackAnalytics {
   };
 }
 
+function calculateAverage(feedback: ComprehensiveFeedback[], field: keyof ComprehensiveFeedback): number {
+  const values = feedback
+    .map(f => f[field] as number)
+    .filter(v => typeof v === 'number' && !isNaN(v));
+  
+  if (values.length === 0) return 0;
+  return Math.round((values.reduce((sum, val) => sum + val, 0) / values.length) * 100) / 100;
+}
+
+function calculateBooleanMetrics(feedback: ComprehensiveFeedback[], field: keyof ComprehensiveFeedback) {
+  const responses = feedback
+    .map(f => f[field])
+    .filter(v => v === true || v === false);
+  
+  const yes = responses.filter(r => r === true).length;
+  const no = responses.filter(r => r === false).length;
+  const total = yes + no;
+  
+  return {
+    yes,
+    no,
+    percentage: total > 0 ? Math.round((yes / total) * 100) : 0
+  };
+}
+
 export const comprehensiveFeedbackService = {
   // Phase 1: Basic storage and retrieval
   async submitFeedback(feedbackData: Omit<ComprehensiveFeedback, 'id' | 'status' | 'submitted_at'>): Promise<ComprehensiveFeedback> {
@@ -146,23 +171,23 @@ export const comprehensiveFeedbackService = {
 
     // Calculate average ratings
     const averageRatings = {
-      accommodation: this.calculateAverage(allFeedback, 'accommodation_rating'),
-      information: this.calculateAverage(allFeedback, 'information_rating'),
-      qualityEquipment: this.calculateAverage(allFeedback, 'quality_equipment_rating'),
-      truckComfort: this.calculateAverage(allFeedback, 'truck_comfort_rating'),
-      foodQuantity: this.calculateAverage(allFeedback, 'food_quantity_rating'),
-      foodQuality: this.calculateAverage(allFeedback, 'food_quality_rating'),
-      driving: this.calculateAverage(allFeedback, 'driving_rating'),
-      guiding: this.calculateAverage(allFeedback, 'guiding_rating'),
-      organisation: this.calculateAverage(allFeedback, 'organisation_rating'),
-      overview: this.calculateAverage(allFeedback, 'overview_rating')
+      accommodation: calculateAverage(allFeedback, 'accommodation_rating'),
+      information: calculateAverage(allFeedback, 'information_rating'),
+      qualityEquipment: calculateAverage(allFeedback, 'quality_equipment_rating'),
+      truckComfort: calculateAverage(allFeedback, 'truck_comfort_rating'),
+      foodQuantity: calculateAverage(allFeedback, 'food_quantity_rating'),
+      foodQuality: calculateAverage(allFeedback, 'food_quality_rating'),
+      driving: calculateAverage(allFeedback, 'driving_rating'),
+      guiding: calculateAverage(allFeedback, 'guiding_rating'),
+      organisation: calculateAverage(allFeedback, 'organisation_rating'),
+      overview: calculateAverage(allFeedback, 'overview_rating')
     };
 
     // Calculate satisfaction metrics
     const satisfactionMetrics = {
-      metExpectations: this.calculateBooleanMetrics(allFeedback, 'met_expectations'),
-      valueForMoney: this.calculateBooleanMetrics(allFeedback, 'value_for_money'),
-      wouldRecommend: this.calculateBooleanMetrics(allFeedback, 'would_recommend')
+      metExpectations: calculateBooleanMetrics(allFeedback, 'met_expectations'),
+      valueForMoney: calculateBooleanMetrics(allFeedback, 'value_for_money'),
+      wouldRecommend: calculateBooleanMetrics(allFeedback, 'would_recommend')
     };
 
     // Extract common feedback
@@ -181,20 +206,20 @@ export const comprehensiveFeedbackService = {
     // Calculate crew performance
     const crewPerformance = {
       guide: {
-        averageRating: this.calculateAverage(allFeedback, 'guide_individual_rating'),
-        professionalism: this.calculateAverage(allFeedback, 'guide_professionalism'),
-        organisation: this.calculateAverage(allFeedback, 'guide_organisation'),
-        peopleSkills: this.calculateAverage(allFeedback, 'guide_people_skills'),
-        enthusiasm: this.calculateAverage(allFeedback, 'guide_enthusiasm'),
-        information: this.calculateAverage(allFeedback, 'guide_information')
+        averageRating: calculateAverage(allFeedback, 'guide_individual_rating'),
+        professionalism: calculateAverage(allFeedback, 'guide_professionalism'),
+        organisation: calculateAverage(allFeedback, 'guide_organisation'),
+        peopleSkills: calculateAverage(allFeedback, 'guide_people_skills'),
+        enthusiasm: calculateAverage(allFeedback, 'guide_enthusiasm'),
+        information: calculateAverage(allFeedback, 'guide_information')
       },
       driver: {
-        averageRating: this.calculateAverage(allFeedback, 'driver_individual_rating'),
-        professionalism: this.calculateAverage(allFeedback, 'driver_professionalism'),
-        organisation: this.calculateAverage(allFeedback, 'driver_organisation'),
-        peopleSkills: this.calculateAverage(allFeedback, 'driver_people_skills'),
-        enthusiasm: this.calculateAverage(allFeedback, 'driver_enthusiasm'),
-        information: this.calculateAverage(allFeedback, 'driver_information')
+        averageRating: calculateAverage(allFeedback, 'driver_individual_rating'),
+        professionalism: calculateAverage(allFeedback, 'driver_professionalism'),
+        organisation: calculateAverage(allFeedback, 'driver_organisation'),
+        peopleSkills: calculateAverage(allFeedback, 'driver_people_skills'),
+        enthusiasm: calculateAverage(allFeedback, 'driver_enthusiasm'),
+        information: calculateAverage(allFeedback, 'driver_information')
       }
     };
 
@@ -204,31 +229,6 @@ export const comprehensiveFeedbackService = {
       satisfactionMetrics,
       commonFeedback,
       crewPerformance
-    };
-  },
-
-  private calculateAverage(feedback: ComprehensiveFeedback[], field: keyof ComprehensiveFeedback): number {
-    const values = feedback
-      .map(f => f[field] as number)
-      .filter(v => typeof v === 'number' && !isNaN(v));
-    
-    if (values.length === 0) return 0;
-    return Math.round((values.reduce((sum, val) => sum + val, 0) / values.length) * 100) / 100;
-  },
-
-  private calculateBooleanMetrics(feedback: ComprehensiveFeedback[], field: keyof ComprehensiveFeedback) {
-    const responses = feedback
-      .map(f => f[field])
-      .filter(v => v === true || v === false);
-    
-    const yes = responses.filter(r => r === true).length;
-    const no = responses.filter(r => r === false).length;
-    const total = yes + no;
-    
-    return {
-      yes,
-      no,
-      percentage: total > 0 ? Math.round((yes / total) * 100) : 0
     };
   },
 
