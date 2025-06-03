@@ -224,6 +224,107 @@ const tourService = {
 };
 
 const feedbackService = {
+  // Get feedback statistics
+  getFeedbackStats: async (): Promise<{
+    totalFeedback: number;
+    averageRating: number;
+    byTour: Record<string, {
+      count: number;
+      averageRating: number;
+      averageGuideRating: number;
+      averageDriverRating: number;
+    }>;
+  }> => {
+    try {
+      const feedback = await feedbackService.getAllFeedback();
+      const byTour: Record<string, any> = {};
+
+      feedback.forEach(item => {
+        if (!byTour[item.tour_id]) {
+          byTour[item.tour_id] = {
+            count: 0,
+            totalRating: 0,
+            totalGuideRating: 0,
+            totalDriverRating: 0
+          };
+        }
+        byTour[item.tour_id].count += 1;
+        byTour[item.tour_id].totalRating += item.rating_overall;
+        byTour[item.tour_id].totalGuideRating += item.rating_guide;
+        byTour[item.tour_id].totalDriverRating += item.rating_driver;
+      });
+
+      // Calculate averages
+      Object.keys(byTour).forEach(tourId => {
+        const tour = byTour[tourId];
+        tour.averageRating = tour.totalRating / tour.count;
+        tour.averageGuideRating = tour.totalGuideRating / tour.count;
+        tour.averageDriverRating = tour.totalDriverRating / tour.count;
+        delete tour.totalRating;
+        delete tour.totalGuideRating;
+        delete tour.totalDriverRating;
+      });
+
+      return {
+        totalFeedback: feedback.length,
+        averageRating: feedback.reduce((sum, item) => sum + item.rating_overall, 0) / (feedback.length || 1),
+        byTour
+      };
+    } catch (error) {
+      console.error('Error getting feedback stats:', error);
+      throw error;
+    }
+  },
+
+  // Get feedback trend over time
+  getFeedbackTrend: async (timeRange: 'week' | 'month' | 'year' = 'month'): Promise<Array<{
+    date: string;
+    count: number;
+    averageRating: number;
+  }>> => {
+    try {
+      const feedback = await feedbackService.getAllFeedback();
+      
+      // Group feedback by date
+      const feedbackByDate: Record<string, { count: number; totalRating: number }> = {};
+      
+      feedback.forEach(item => {
+        if (!item.submitted_at) return;
+        
+        const date = new Date(item.submitted_at);
+        let dateKey: string;
+        
+        // Format date based on time range
+        if (timeRange === 'week') {
+          dateKey = date.toISOString().split('T')[0]; // YYYY-MM-DD
+        } else if (timeRange === 'month') {
+          dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`; // YYYY-MM
+        } else {
+          dateKey = String(date.getFullYear()); // YYYY
+        }
+        
+        if (!feedbackByDate[dateKey]) {
+          feedbackByDate[dateKey] = { count: 0, totalRating: 0 };
+        }
+        
+        feedbackByDate[dateKey].count += 1;
+        feedbackByDate[dateKey].totalRating += item.rating_overall;
+      });
+      
+      // Convert to array and calculate averages
+      const result = Object.entries(feedbackByDate).map(([date, data]) => ({
+        date,
+        count: data.count,
+        averageRating: data.totalRating / data.count
+      }));
+      
+      // Sort by date
+      return result.sort((a, b) => a.date.localeCompare(b.date));
+    } catch (error) {
+      console.error('Error getting feedback trend:', error);
+      throw error;
+    }
+  },
   // Submit feedback with offline capability
   submitFeedback: async (feedbackData: Omit<Feedback, 'id' | 'status' | 'submitted_at'>): Promise<{ success: boolean; message: string; data?: Feedback }> => {
     // Generate a UUID for the feedback
@@ -344,4 +445,228 @@ const feedbackService = {
   }
 };
 
-export { tourService, feedbackService };
+// New analytics service for comprehensive reporting
+const analyticsService = {
+  // Get all feedback with optional filtering
+  async getAllFeedbackWithFilters(filters: {
+    tourId?: string;
+    startDate?: string;
+    endDate?: string;
+    minRating?: number;
+  } = {}): Promise<Feedback[]> {
+    try {
+      let feedback = await feedbackService.getAllFeedback();
+      
+      // Apply filters
+      if (filters.tourId) {
+        feedback = feedback.filter(f => f.tour_id === filters.tourId);
+      }
+      
+      if (filters.startDate) {
+        const start = new Date(filters.startDate);
+        feedback = feedback.filter(f => {
+          if (!f.submitted_at) return false;
+          return new Date(f.submitted_at) >= start;
+        });
+      }
+      
+      if (filters.endDate) {
+        const end = new Date(filters.endDate);
+        end.setHours(23, 59, 59, 999); // End of the day
+        feedback = feedback.filter(f => {
+          if (!f.submitted_at) return false;
+          return new Date(f.submitted_at) <= end;
+        });
+      }
+      
+      if (filters.minRating) {
+        feedback = feedback.filter(f => f.rating_overall >= (filters.minRating || 0));
+      }
+      
+      return feedback;
+    } catch (error) {
+      console.error('Error getting filtered feedback:', error);
+      throw error;
+    }
+  },
+
+  // Get comprehensive feedback summary
+  async getFeedbackSummary(filters: { tourId?: string; startDate?: string; endDate?: string } = {}) {
+    try {
+      const feedback = await this.getAllFeedbackWithFilters(filters);
+      
+      if (feedback.length === 0) {
+        return {
+          totalFeedback: 0,
+          averageRatings: {},
+          ratingDistribution: {},
+          sentimentAnalysis: {},
+          commonThemes: []
+        };
+      }
+      
+      // Calculate average ratings
+      const ratingCategories = ['overall', 'guide', 'driver', 'food', 'equipment'] as const;
+      const averageRatings = {} as Record<typeof ratingCategories[number], number>;
+      
+      ratingCategories.forEach(category => {
+        const key = `rating_${category}` as keyof Feedback;
+        const validFeedbacks = feedback.filter(f => typeof f[key] === 'number');
+        if (validFeedbacks.length > 0) {
+          const sum = validFeedbacks.reduce((acc, f) => acc + (f[key] as number), 0);
+          averageRatings[category] = parseFloat((sum / validFeedbacks.length).toFixed(2));
+        }
+      });
+      
+      // Calculate rating distribution (1-5)
+      const ratingDistribution = {
+        1: 0, 2: 0, 3: 0, 4: 0, 5: 0
+      };
+      
+      feedback.forEach(f => {
+        const rating = Math.round(f.rating_overall);
+        if (rating >= 1 && rating <= 5) {
+          ratingDistribution[rating as keyof typeof ratingDistribution]++;
+        }
+      });
+      
+      // Basic sentiment analysis
+      const sentimentAnalysis = {
+        positive: feedback.filter(f => f.rating_overall >= 4).length,
+        neutral: feedback.filter(f => f.rating_overall === 3).length,
+        negative: feedback.filter(f => f.rating_overall < 3).length
+      };
+      
+      // Extract common themes from comments (simplified)
+      const commonThemes = this.extractCommonThemes(feedback);
+      
+      return {
+        totalFeedback: feedback.length,
+        averageRatings,
+        ratingDistribution,
+        sentimentAnalysis,
+        commonThemes,
+        timePeriod: (() => {
+          const now = new Date();
+          const defaultStart = new Date();
+          defaultStart.setMonth(now.getMonth() - 1);
+          
+          const validTimestamps = feedback
+            .filter(f => f.submitted_at)
+            .map(f => new Date(f.submitted_at!).getTime());
+            
+          const startDate = filters.startDate || 
+            (validTimestamps.length > 0 
+              ? new Date(Math.min(...validTimestamps)).toISOString().split('T')[0]
+              : defaultStart.toISOString().split('T')[0]);
+              
+          const endDate = filters.endDate || 
+            (validTimestamps.length > 0 
+              ? new Date(Math.max(...validTimestamps)).toISOString().split('T')[0]
+              : now.toISOString().split('T')[0]);
+              
+          return {
+            start: startDate,
+            end: endDate
+          };
+        })()
+      };
+    } catch (error) {
+      console.error('Error generating feedback summary:', error);
+      throw error;
+    }
+  },
+  
+  // Helper function to extract common themes from comments
+  private extractCommonThemes(feedback: Feedback[]): string[] {
+    const comments = feedback
+      .filter(f => f.comments && f.comments.trim().length > 0)
+      .map(f => f.comments!.toLowerCase());
+    
+    if (comments.length === 0) return [];
+    
+    // Simple word frequency analysis (in a real app, you might use NLP here)
+    const wordFreq: Record<string, number> = {};
+    const commonWords = new Set(['the', 'and', 'was', 'were', 'this', 'that', 'with', 'for', 'have', 'has', 'had']);
+    
+    comments.forEach(comment => {
+      const words = comment
+        .replace(/[^\w\s]/g, '') // Remove punctuation
+        .split(/\s+/);
+        
+      words.forEach(word => {
+        if (word.length > 3 && !commonWords.has(word)) {
+          wordFreq[word] = (wordFreq[word] || 0) + 1;
+        }
+      });
+    });
+    
+    // Get top 5 most common words/phrases
+    return Object.entries(wordFreq)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([word]) => word);
+  },
+  
+  // Get feedback trend data
+  async getFeedbackTrendData(timeRange: 'week' | 'month' | 'year' = 'month', tourId?: string) {
+    try {
+      const feedback = await this.getAllFeedbackWithFilters(tourId ? { tourId } : {});
+      
+      if (feedback.length === 0) {
+        return [];
+      }
+      
+      // Group by time period
+      const grouped: Record<string, { count: number; sum: number; items: number }> = {};
+      
+      feedback.forEach(f => {
+        if (!f.submitted_at) return;
+        
+        const date = new Date(f.submitted_at);
+        let key: string;
+        
+        switch (timeRange) {
+          case 'week':
+            // Group by week
+            const weekStart = new Date(date);
+            weekStart.setDate(date.getDate() - date.getDay()); // Start of week (Sunday)
+            key = weekStart.toISOString().split('T')[0];
+            break;
+            
+          case 'year':
+            // Group by month
+            key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+            break;
+            
+          case 'month':
+          default:
+            // Group by day
+            key = date.toISOString().split('T')[0];
+        }
+        
+        if (!grouped[key]) {
+          grouped[key] = { count: 0, sum: 0, items: 0 };
+        }
+        
+        grouped[key].count++;
+        grouped[key].sum += f.rating_overall;
+        grouped[key].items++;
+      });
+      
+      // Convert to array and sort by date
+      return Object.entries(grouped)
+        .map(([date, data]) => ({
+          date,
+          count: data.count,
+          averageRating: data.sum / data.items
+        }))
+        .sort((a, b) => a.date.localeCompare(b.date));
+    } catch (error) {
+      console.error('Error getting feedback trend data:', error);
+      throw error;
+    }
+  }
+};
+
+export { tourService, feedbackService, analyticsService };

@@ -1,10 +1,13 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { CardHeader, CardTitle, CardDescription, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
-import { Clipboard, ExternalLink } from 'lucide-react';
+import { Clipboard } from 'lucide-react';
+import ReviewShareButtons from '../ReviewShareButtons';
 
 interface SuccessMessageProps {
+  feedbackId: string;
+  tourName: string;
   willingGoogle: boolean;
   willingTripadvisor: boolean;
   comments: string;
@@ -13,12 +16,25 @@ interface SuccessMessageProps {
 }
 
 const SuccessMessage: React.FC<SuccessMessageProps> = ({
+  feedbackId,
+  tourName,
   willingGoogle,
   willingTripadvisor,
   comments,
   onCopyFeedback,
   onReset
 }) => {
+  const [hasShared, setHasShared] = useState({
+    google: false,
+    tripadvisor: false
+  });
+
+  const handleShareSuccess = (platform: 'google' | 'tripadvisor') => {
+    setHasShared(prev => ({
+      ...prev,
+      [platform]: true
+    }));
+  };
   return (
     <>
       <CardHeader className="text-center bg-tour-success text-white rounded-t-lg">
@@ -40,29 +56,22 @@ const SuccessMessage: React.FC<SuccessMessageProps> = ({
                 Would you mind sharing your experience on:
               </p>
               
-              <div className="flex flex-wrap justify-center gap-4">
-                {willingGoogle && (
-                  <Button 
-                    className="bg-tour-primary hover:bg-tour-secondary flex gap-2 py-6 px-8" 
-                    asChild
-                  >
-                    <a href="https://g.page/YOUR_BUSINESS_NAME/review?rc" target="_blank" rel="noopener noreferrer">
-                      <span>Share on Google</span>
-                      <ExternalLink size={16} />
-                    </a>
-                  </Button>
-                )}
-                
-                {willingTripadvisor && (
-                  <Button 
-                    className="bg-tour-primary hover:bg-tour-secondary flex gap-2 py-6 px-8" 
-                    asChild
-                  >
-                    <a href="https://www.tripadvisor.com/UserReview-gYOUR_CITY_ID-dYOUR_BUSINESS_ID-YOUR_BUSINESS_NAME.html" target="_blank" rel="noopener noreferrer">
-                      <span>Share on TripAdvisor</span>
-                      <ExternalLink size={16} />
-                    </a>
-                  </Button>
+              <div className="space-y-4">
+                <p className="text-sm text-gray-600">
+                  Your feedback helps other travelers and supports our business. Thank you!
+                </p>
+                <div className="flex justify-center">
+                  <ReviewShareButtons
+                    feedbackId={feedbackId}
+                    tourName={tourName}
+                    onShareSuccess={handleShareSuccess}
+                    className="flex-col sm:flex-row gap-4"
+                  />
+                </div>
+                {(hasShared.google || hasShared.tripadvisor) && (
+                  <p className="text-sm text-green-600 font-medium mt-2">
+                    Thank you for sharing your experience! Your review makes a big difference.
+                  </p>
                 )}
               </div>
               

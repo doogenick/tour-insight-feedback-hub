@@ -5,13 +5,16 @@ import { Feedback } from './types';
 
 const feedbackService = {
   // Submit feedback with offline capability
-  submitFeedback: async (feedbackData: Omit<Feedback, 'id' | 'status' | 'submitted_at'>): Promise<{ success: boolean; message: string; data?: Feedback }> => {
+  submitFeedback: async (feedbackData: Omit<Feedback, 'id' | 'status' | 'submitted_at' | 'has_shared_review' | 'tour_end_date' | 'last_review_reminder_sent'>): Promise<{ success: boolean; message: string; data?: Feedback }> => {
     // Generate a UUID for the feedback
     const newFeedback: Feedback = {
       ...feedbackData,
       id: uuidv4(),
       status: 'Pending',
-      submitted_at: new Date().toISOString()
+      submitted_at: new Date().toISOString(),
+      has_shared_review: false,
+      tour_end_date: new Date().toISOString(), // Default to current time, can be overridden
+      last_review_reminder_sent: undefined // No reminders sent yet
     };
 
     // Check if online
@@ -113,13 +116,30 @@ const feedbackService = {
   // Export feedback to CSV
   exportFeedbackToCsv: async (): Promise<Blob> => {
     try {
-      const response = await api.get('/feedback/export-csv', {
+      const response = await api.get('/feedback/export/csv', {
         responseType: 'blob'
       });
       return response.data;
     } catch (error) {
       console.error('Error exporting feedback to CSV:', error);
       throw error;
+    }
+  },
+
+  // Mark a review as shared on a specific platform
+  markReviewAsShared: async (feedbackId: string, platform: 'google' | 'tripadvisor'): Promise<{ success: boolean; message: string }> => {
+    try {
+      const response = await api.patch(`/feedback/${feedbackId}/mark-shared`, { platform });
+      return { 
+        success: true, 
+        message: `Successfully marked review as shared on ${platform}` 
+      };
+    } catch (error) {
+      console.error(`Error marking review as shared on ${platform}:`, error);
+      return { 
+        success: false, 
+        message: `Failed to mark review as shared on ${platform}` 
+      };
     }
   }
 };

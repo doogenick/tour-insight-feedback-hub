@@ -3,7 +3,7 @@ import React, { createContext, useContext, useEffect } from 'react';
 import { Tour, Client, Feedback } from '../services/api';
 import { useTours } from '../hooks/useTours';
 import { useFeedback } from '../hooks/useFeedback';
-import { useAuth, User, UserRole } from '../hooks/useAuth';
+import { useAuth, type User, type UserRole } from '../hooks/useAuth';
 import { useToast } from '../components/ui/use-toast';
 
 interface AppContextProps {
@@ -24,6 +24,8 @@ interface AppContextProps {
   
   // User state
   currentUser: User | null;
+  isAdmin: boolean;
+  isDemoMode: boolean;
   
   // Tour functions
   fetchTours: () => Promise<void>;
@@ -39,7 +41,7 @@ interface AppContextProps {
   exportFeedback: () => Promise<Blob>;
   syncPendingFeedback: () => Promise<void>;
   
-  // Auth functions
+  // Auth functions (kept for backward compatibility)
   loginUser: (name: string, role: UserRole) => void;
   logoutUser: () => void;
 }
@@ -88,11 +90,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     syncStatus: feedbackState.syncStatus,
     
     // Loading and demo state
-    isLoading: tourState.isLoading || feedbackState.isLoading,
+    isLoading: tourState.isLoading || feedbackState.isLoading || authState.isLoading,
     demoDataGenerated: tourState.demoDataGenerated,
     
     // User state
     currentUser: authState.currentUser,
+    isAdmin: authState.isAdmin,
+    isDemoMode: authState.isDemoMode,
     
     // Tour functions
     fetchTours: tourState.fetchTours,
@@ -109,8 +113,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     syncPendingFeedback: feedbackState.syncPendingFeedback,
     
     // Auth functions
-    loginUser: authState.loginUser,
-    logoutUser: authState.logoutUser
+    loginUser: (name: string, role: UserRole) => {
+      authState.loginUser(name, role);
+    },
+    logoutUser: () => {
+      authState.logoutUser();
+    },
   };
 
   return (

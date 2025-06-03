@@ -157,6 +157,9 @@ export interface Feedback {
   comments?: string;
   submitted_at?: string;
   status: 'Pending' | 'Synced';
+  has_shared_review?: boolean;
+  tour_end_date?: string;
+  last_review_reminder_sent?: string;
 }
 
 export interface CrewMember {

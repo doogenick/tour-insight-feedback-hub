@@ -213,6 +213,8 @@ const FeedbackForm: React.FC = () => {
         </>
       ) : (
         <SuccessMessage
+          feedbackId={submittedFeedback?.id || ''}
+          tourName={selectedTour?.tour_name || 'your tour'}
           willingGoogle={willingGoogle}
           willingTripadvisor={willingTripadvisor}
           comments={comments}
