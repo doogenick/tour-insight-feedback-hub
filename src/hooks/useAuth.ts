@@ -83,8 +83,7 @@ export function useAuth() {
     isLoading,
     isDemoMode,
     loginUser,
-    logoutUser: logoutUser,
-    demoLogin,
-    currentUser // Add currentUser to the return object for backward compatibility
+    logoutUser,
+    demoLogin
   };
 }

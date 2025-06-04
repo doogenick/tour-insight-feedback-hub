@@ -1,102 +1,102 @@
 
-import React, { useState } from 'react';
-import { CardHeader, CardTitle, CardDescription, CardContent } from '../ui/card';
+import React from 'react';
+import { CheckCircle, Copy, RotateCcw, ExternalLink } from 'lucide-react';
 import { Button } from '../ui/button';
-import { Clipboard } from 'lucide-react';
-import ReviewShareButtons from '../ReviewShareButtons';
+import { Card, CardContent } from '../ui/card';
 
-interface SuccessMessageProps {
-  feedbackId: string;
-  tourName: string;
-  willingGoogle: boolean;
-  willingTripadvisor: boolean;
-  comments: string;
-  onCopyFeedback: () => void;
+export interface SuccessMessageProps {
+  feedbackId?: string;
+  tourName?: string;
+  willingGoogle?: boolean;
+  willingTripadvisor?: boolean;
+  comments?: string;
+  onCopyFeedback?: () => void;
   onReset: () => void;
 }
 
 const SuccessMessage: React.FC<SuccessMessageProps> = ({
   feedbackId,
   tourName,
-  willingGoogle,
-  willingTripadvisor,
-  comments,
+  willingGoogle = false,
+  willingTripadvisor = false,
+  comments = '',
   onCopyFeedback,
   onReset
 }) => {
-  const [hasShared, setHasShared] = useState({
-    google: false,
-    tripadvisor: false
-  });
-
-  const handleShareSuccess = (platform: 'google' | 'tripadvisor') => {
-    setHasShared(prev => ({
-      ...prev,
-      [platform]: true
-    }));
-  };
   return (
-    <>
-      <CardHeader className="text-center bg-tour-success text-white rounded-t-lg">
-        <CardTitle className="text-2xl font-bold">Thank You!</CardTitle>
-        <CardDescription className="text-white/80">
-          Your feedback has been received and is greatly appreciated.
-        </CardDescription>
-      </CardHeader>
-      
-      <CardContent className="space-y-6 pt-6">
-        <div className="text-center space-y-4">
-          <p className="text-lg">
-            We appreciate your time and valuable feedback.
-          </p>
+    <Card className="w-full max-w-2xl mx-auto bg-green-50 border-green-200">
+      <CardContent className="p-8 text-center">
+        <div className="flex flex-col items-center space-y-6">
+          <CheckCircle className="h-16 w-16 text-green-500" />
           
-          {(willingGoogle || willingTripadvisor) && (
-            <div className="space-y-6 my-8">
-              <p className="text-lg font-medium text-tour-primary">
-                Would you mind sharing your experience on:
+          <div className="space-y-2">
+            <h2 className="text-2xl font-bold text-green-800">Thank You!</h2>
+            <p className="text-green-700">
+              Your feedback has been submitted successfully{tourName ? ` for ${tourName}` : ''}.
+            </p>
+            {feedbackId && (
+              <p className="text-sm text-green-600">
+                Reference ID: {feedbackId}
               </p>
-              
-              <div className="space-y-4">
-                <p className="text-sm text-gray-600">
-                  Your feedback helps other travelers and supports our business. Thank you!
-                </p>
-                <div className="flex justify-center">
-                  <ReviewShareButtons
-                    feedbackId={feedbackId}
-                    tourName={tourName}
-                    onShareSuccess={handleShareSuccess}
-                    className="flex-col sm:flex-row gap-4"
-                  />
-                </div>
-                {(hasShared.google || hasShared.tripadvisor) && (
-                  <p className="text-sm text-green-600 font-medium mt-2">
-                    Thank you for sharing your experience! Your review makes a big difference.
-                  </p>
+            )}
+          </div>
+
+          {(willingGoogle || willingTripadvisor) && (
+            <div className="w-full p-4 bg-green-100 rounded-lg">
+              <h3 className="font-medium text-green-800 mb-3">
+                Help others discover great experiences!
+              </h3>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                {willingGoogle && (
+                  <Button
+                    variant="outline"
+                    className="flex items-center gap-2 border-green-300 text-green-700 hover:bg-green-200"
+                    onClick={() => window.open('https://maps.google.com', '_blank')}
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    Review on Google
+                  </Button>
+                )}
+                {willingTripadvisor && (
+                  <Button
+                    variant="outline"
+                    className="flex items-center gap-2 border-green-300 text-green-700 hover:bg-green-200"
+                    onClick={() => window.open('https://tripadvisor.com', '_blank')}
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    Review on TripAdvisor
+                  </Button>
                 )}
               </div>
-              
-              {comments && (
-                <Button 
-                  variant="outline" 
-                  className="flex gap-2" 
-                  onClick={onCopyFeedback}
-                >
-                  <Clipboard size={16} />
-                  <span>Copy Your Feedback</span>
-                </Button>
-              )}
             </div>
           )}
-          
+
+          {comments && onCopyFeedback && (
+            <div className="w-full p-4 bg-white rounded-lg border border-green-200">
+              <h4 className="font-medium text-gray-800 mb-2">Your Feedback:</h4>
+              <p className="text-sm text-gray-600 mb-3 italic">"{comments}"</p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onCopyFeedback}
+                className="flex items-center gap-2"
+              >
+                <Copy className="h-4 w-4" />
+                Copy Feedback
+              </Button>
+            </div>
+          )}
+
           <Button 
-            className="mt-8 bg-tour-primary hover:bg-tour-secondary" 
             onClick={onReset}
+            className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
           >
+            <RotateCcw className="h-4 w-4" />
             Submit Another Response
           </Button>
         </div>
       </CardContent>
-    </>
+    </Card>
   );
 };
 

@@ -1,13 +1,13 @@
 
 import React from 'react';
-import { FeedbackAnalytics } from '../components/analytics/FeedbackAnalytics';
+import ComprehensiveAnalytics from '../components/analytics/ComprehensiveAnalytics';
 
-const ComprehensiveAnalytics: React.FC = () => {
+const ComprehensiveAnalyticsPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-background py-8">
-      <FeedbackAnalytics />
+      <ComprehensiveAnalytics />
     </div>
   );
 };
 
-export default ComprehensiveAnalytics;
+export default ComprehensiveAnalyticsPage;

@@ -578,7 +578,7 @@ const analyticsService = {
   },
   
   // Helper function to extract common themes from comments
-  private extractCommonThemes(feedback: Feedback[]): string[] {
+  extractCommonThemes(feedback: Feedback[]): string[] {
     const comments = feedback
       .filter(f => f.comments && f.comments.trim().length > 0)
       .map(f => f.comments!.toLowerCase());

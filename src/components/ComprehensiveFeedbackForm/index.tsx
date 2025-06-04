@@ -206,6 +206,8 @@ const ComprehensiveFeedbackForm: React.FC = () => {
     return (
       <Card className="w-full animate-fade-in">
         <SuccessMessage
+          feedbackId={`CF-${Date.now()}`}
+          tourName={selectedTour?.tour_name}
           willingGoogle={formData.willing_to_review_google || false}
           willingTripadvisor={formData.willing_to_review_tripadvisor || false}
           comments={formData.additional_comments || ''}
