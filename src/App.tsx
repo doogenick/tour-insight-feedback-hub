@@ -1,6 +1,6 @@
+
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { Toaster } from 'react-hot-toast';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AppProvider } from './contexts/AppContext';
 import { useAuth } from './hooks/useAuth';
@@ -11,6 +11,7 @@ import NotFound from './pages/NotFound';
 import Header from './components/Header';
 import ComprehensiveAnalytics from './pages/ComprehensiveAnalytics';
 import ProtectedRoute from './components/ProtectedRoute';
+import { Toaster } from './components/ui/toaster';
 
 // Create a client for React Query
 const queryClient = new QueryClient();
@@ -74,7 +75,7 @@ function App() {
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>
-            <Toaster position="top-right" />
+            <Toaster />
           </div>
         </BrowserRouter>
       </AppProvider>
