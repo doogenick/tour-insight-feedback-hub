@@ -1,9 +1,8 @@
 
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AppProvider } from './contexts/AppContext';
-import { useAuth } from './hooks/useAuth';
 import Index from './pages/Index';
 import FeedbackPage from './pages/FeedbackPage';
 import AdminDashboard from './pages/AdminDashboard';
@@ -38,8 +37,6 @@ const DemoModeBanner = () => {
 };
 
 function App() {
-  const { isDemoMode } = useAuth();
-
   return (
     <QueryClientProvider client={queryClient}>
       <AppProvider>
@@ -47,7 +44,7 @@ function App() {
           <div className="min-h-screen bg-background">
             <Header />
             <main className="container mx-auto px-4 py-8">
-              {isDemoMode && <DemoModeBanner />}
+              <DemoModeBanner />
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/feedback" element={<FeedbackPage />} />
@@ -65,7 +62,7 @@ function App() {
                     <p>You don't have permission to view this page.</p>
                     <button 
                       onClick={() => window.history.back()}
-                      className="mt-4 px-4 py-2 bg-tour-primary text-white rounded hover:bg-tour-secondary"
+                      className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                     >
                       Go Back
                     </button>

@@ -1,9 +1,12 @@
 
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import { Tour, Client, Feedback } from '../services/api';
-import { useFeedback } from '../hooks/useFeedback';
-import { useTours } from '../hooks/useTours';
-import { useAuth, User } from '../hooks/useAuth';
+
+export interface User {
+  name: string;
+  role: 'admin' | 'guide' | 'driver' | 'client';
+  email?: string;
+}
 
 interface AppContextType {
   // Tour and Client Selection
@@ -65,24 +68,17 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [selectedTour, setSelectedTour] = useState<Tour | null>(null);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [clients, setClients] = useState<Client[]>([]);
+  const [tours, setTours] = useState<Tour[]>([]);
+  const [feedback, setFeedback] = useState<Feedback[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [syncStatus, setSyncStatus] = useState<{ synced: number; failed: number } | null>(null);
   const [demoDataGenerated, setDemoDataGenerated] = useState<boolean>(false);
-  
-  const { 
-    feedback, 
-    submitFeedback, 
-    fetchFeedback, 
-    syncPendingFeedback, 
-    exportFeedback, 
-    isSubmitting, 
-    syncStatus, 
-    isLoading: feedbackLoading 
-  } = useFeedback();
-  
-  const { tours, fetchTours, isLoading: toursLoading } = useTours();
-  const { currentUser, loginUser, logoutUser } = useAuth();
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   const fetchClients = useCallback(async (tourId: string) => {
     try {
+      setIsLoading(true);
       // Mock implementation - replace with actual API call
       const mockClients: Client[] = [
         {
@@ -102,12 +98,94 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     } catch (error) {
       console.error('Error fetching clients:', error);
       setClients([]);
+    } finally {
+      setIsLoading(false);
     }
+  }, []);
+
+  const fetchTours = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      // Mock implementation
+      const mockTours: Tour[] = [
+        {
+          tour_id: '1',
+          tour_name: 'Cape Town Adventure',
+          guide_name: 'Sarah Johnson',
+          driver_name: 'Mike Wilson',
+          tour_date: '2024-06-15',
+          status: 'upcoming'
+        },
+        {
+          tour_id: '2',
+          tour_name: 'Safari Experience',
+          guide_name: 'David Brown',
+          driver_name: 'Tom Anderson',
+          tour_date: '2024-06-20',
+          status: 'upcoming'
+        }
+      ];
+      setTours(mockTours);
+    } catch (error) {
+      console.error('Error fetching tours:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const fetchFeedback = useCallback(async (tourId?: string) => {
+    try {
+      setIsLoading(true);
+      // Mock implementation
+      setFeedback([]);
+    } catch (error) {
+      console.error('Error fetching feedback:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const submitFeedback = useCallback(async (feedbackData: Omit<Feedback, 'id' | 'status' | 'submitted_at'>) => {
+    try {
+      setIsSubmitting(true);
+      // Mock implementation
+      const newFeedback: Feedback = {
+        ...feedbackData,
+        id: `fb_${Date.now()}`,
+        status: 'submitted',
+        submitted_at: new Date().toISOString()
+      };
+      
+      setFeedback(prev => [...prev, newFeedback]);
+      
+      return {
+        success: true,
+        data: newFeedback,
+        message: 'Feedback submitted successfully!'
+      };
+    } catch (error) {
+      console.error('Error submitting feedback:', error);
+      return {
+        success: false,
+        message: 'Failed to submit feedback'
+      };
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, []);
+
+  const syncPendingFeedback = useCallback(async () => {
+    // Mock implementation
+    setSyncStatus({ synced: 0, failed: 0 });
+  }, []);
+
+  const exportFeedback = useCallback(async (): Promise<Blob> => {
+    // Mock implementation
+    return new Blob(['mock csv data'], { type: 'text/csv' });
   }, []);
 
   const generateDemoData = useCallback(async () => {
     try {
-      // Mock demo data generation
       console.log('Generating demo data...');
       setDemoDataGenerated(true);
       await fetchTours();
@@ -123,22 +201,44 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       setSelectedTour(null);
       setSelectedClient(null);
       setClients([]);
+      setTours([]);
+      setFeedback([]);
     } catch (error) {
       console.error('Error resetting demo data:', error);
     }
   }, []);
 
+  const loginUser = useCallback((name: string, role: string, email?: string) => {
+    const user: User = {
+      name,
+      role: role as User['role'],
+      email
+    };
+    setCurrentUser(user);
+  }, []);
+
+  const logoutUser = useCallback(() => {
+    setCurrentUser(null);
+  }, []);
+
+  // Auto-login demo user if in demo mode
+  React.useEffect(() => {
+    if (import.meta.env.VITE_DEMO_MODE === 'true' && !currentUser) {
+      loginUser('Demo Admin', 'admin', 'demo@example.com');
+    }
+  }, [currentUser, loginUser]);
+
   const value: AppContextType = {
     // Tour and Client Selection
     selectedTour,
     selectedClient,
-    clients: clients || [],
-    tours: tours || [],
+    clients,
+    tours,
     
     // Feedback Management
-    feedback: feedback || [],
-    isSubmitting: isSubmitting || false,
-    isLoading: feedbackLoading || toursLoading || false,
+    feedback,
+    isSubmitting,
+    isLoading,
     syncStatus,
     
     // Demo Data Management
