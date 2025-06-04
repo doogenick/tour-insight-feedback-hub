@@ -97,6 +97,18 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
           full_name: 'Jane Smith',
           email: 'jane@example.com',
           tour_id: tourId
+        },
+        {
+          client_id: '3',
+          full_name: 'Mike Wilson',
+          email: 'mike@example.com',
+          tour_id: tourId
+        },
+        {
+          client_id: '4',
+          full_name: 'Sarah Brown',
+          email: 'sarah@example.com',
+          tour_id: tourId
         }
       ];
       setClients(mockClients);
@@ -113,21 +125,35 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       setIsLoading(true);
       const mockTours: Tour[] = [
         {
-          tour_id: '1',
+          tour_id: 'TAD140525',
           tour_name: 'Cape Town Adventure',
+          date_start: '2025-05-14',
+          date_end: '2025-05-20',
+          passenger_count: 12,
           guide_name: 'Sarah Johnson',
-          driver_name: 'Mike Wilson',
-          status: 'upcoming'
+          driver_name: 'Mike Wilson'
         },
         {
-          tour_id: '2',
+          tour_id: 'ZZK250116R',
           tour_name: 'Safari Experience',
+          date_start: '2026-01-25',
+          date_end: '2026-02-05',
+          passenger_count: 8,
           guide_name: 'David Brown',
-          driver_name: 'Tom Anderson',
-          status: 'upcoming'
+          driver_name: 'Tom Anderson'
+        },
+        {
+          tour_id: 'GDN030312',
+          tour_name: 'Garden Route Explorer',
+          date_start: '2025-03-03',
+          date_end: '2025-03-12',
+          passenger_count: 15,
+          guide_name: 'Emma Davis',
+          driver_name: 'Chris Miller'
         }
       ];
       setTours(mockTours);
+      setDemoDataGenerated(true);
     } catch (error) {
       console.error('Error fetching tours:', error);
     } finally {
@@ -185,7 +211,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const generateDemoData = useCallback(async () => {
     try {
       console.log('Generating demo data...');
-      setDemoDataGenerated(true);
       await fetchTours();
     } catch (error) {
       console.error('Error generating demo data:', error);
