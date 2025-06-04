@@ -1,137 +1,82 @@
 
-import React, { createContext, useContext, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import { Tour, Client, Feedback } from '../services/api';
-import { useTours } from '../hooks/useTours';
 import { useFeedback } from '../hooks/useFeedback';
-import { useAuth, type User, type UserRole } from '../hooks/useAuth';
-import { useToast } from '../components/ui/use-toast';
+import { useTours } from '../hooks/useTours';
 
-interface AppContextProps {
-  // Tour state
-  tours: Tour[];
-  clients: Client[];
+interface AppContextType {
   selectedTour: Tour | null;
   selectedClient: Client | null;
-  
-  // Feedback state
-  feedback: Feedback[];
+  clients: Client[];
+  tours: Tour[];
   isSubmitting: boolean;
-  syncStatus: { synced: number; failed: number } | null;
-  
-  // Loading and demo state
-  isLoading: boolean;
-  demoDataGenerated: boolean;
-  
-  // User state
-  currentUser: User | null;
-  isAdmin: boolean;
-  isDemoMode: boolean;
-  
-  // Tour functions
-  fetchTours: () => Promise<void>;
-  fetchClients: (tourId: string) => Promise<void>;
   setSelectedTour: (tour: Tour | null) => void;
   setSelectedClient: (client: Client | null) => void;
-  generateDemoData: () => Promise<void>;
-  resetDemoData: () => Promise<void>;
-  
-  // Feedback functions
-  fetchFeedback: (tourId?: string) => Promise<void>;
-  submitFeedback: (feedbackData: Omit<Feedback, 'id' | 'status' | 'submitted_at'>) => Promise<{ success: boolean; message: string; data?: Feedback }>;
-  exportFeedback: () => Promise<Blob>;
-  syncPendingFeedback: () => Promise<void>;
-  
-  // Auth functions (kept for backward compatibility)
-  loginUser: (name: string, role: UserRole) => void;
-  logoutUser: () => void;
+  fetchClients: (tourId: string) => Promise<void>;
+  submitFeedback: (feedbackData: Omit<Feedback, 'id' | 'status' | 'submitted_at'>) => Promise<{ success: boolean; data?: Feedback; message: string }>;
 }
 
-const AppContext = createContext<AppContextProps | undefined>(undefined);
+const AppContext = createContext<AppContextType | undefined>(undefined);
 
-export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const tourState = useTours();
-  const feedbackState = useFeedback();
-  const authState = useAuth();
-  const { toast } = useToast();
-  
-  // Fetch tours on component mount
-  useEffect(() => {
-    tourState.fetchTours();
-  }, [tourState.fetchTours]);
-
-  // Listen for online status changes and sync pending feedback
-  useEffect(() => {
-    const handleOnline = () => {
-      toast({
-        title: "You're back online!",
-        description: "Syncing your feedback data...",
-        duration: 3000,
-      });
-      feedbackState.syncPendingFeedback();
-    };
-
-    window.addEventListener('online', handleOnline);
-    
-    return () => {
-      window.removeEventListener('online', handleOnline);
-    };
-  }, [feedbackState, toast]);
-
-  const contextValue: AppContextProps = {
-    // Tour state
-    tours: tourState.tours,
-    clients: tourState.clients,
-    selectedTour: tourState.selectedTour,
-    selectedClient: tourState.selectedClient,
-    
-    // Feedback state
-    feedback: feedbackState.feedback,
-    isSubmitting: feedbackState.isSubmitting,
-    syncStatus: feedbackState.syncStatus,
-    
-    // Loading and demo state
-    isLoading: tourState.isLoading || feedbackState.isLoading || authState.isLoading,
-    demoDataGenerated: tourState.demoDataGenerated,
-    
-    // User state
-    currentUser: authState.currentUser,
-    isAdmin: authState.isAdmin,
-    isDemoMode: authState.isDemoMode,
-    
-    // Tour functions
-    fetchTours: tourState.fetchTours,
-    fetchClients: tourState.fetchClients,
-    setSelectedTour: tourState.setSelectedTour,
-    setSelectedClient: tourState.setSelectedClient,
-    generateDemoData: tourState.generateDemoData,
-    resetDemoData: tourState.resetDemoData,
-    
-    // Feedback functions
-    fetchFeedback: feedbackState.fetchFeedback,
-    submitFeedback: feedbackState.submitFeedback,
-    exportFeedback: feedbackState.exportFeedback,
-    syncPendingFeedback: feedbackState.syncPendingFeedback,
-    
-    // Auth functions
-    loginUser: (name: string, role: UserRole) => {
-      authState.loginUser(name, role);
-    },
-    logoutUser: () => {
-      authState.logoutUser();
-    },
-  };
-
-  return (
-    <AppContext.Provider value={contextValue}>
-      {children}
-    </AppContext.Provider>
-  );
-};
-
-export const useAppContext = (): AppContextProps => {
+export const useAppContext = () => {
   const context = useContext(AppContext);
   if (context === undefined) {
     throw new Error('useAppContext must be used within an AppProvider');
   }
   return context;
+};
+
+interface AppProviderProps {
+  children: ReactNode;
+}
+
+export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
+  const [selectedTour, setSelectedTour] = useState<Tour | null>(null);
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [clients, setClients] = useState<Client[]>([]);
+  
+  const { submitFeedback, isSubmitting } = useFeedback();
+  const { tours } = useTours();
+
+  const fetchClients = useCallback(async (tourId: string) => {
+    try {
+      // Mock implementation - replace with actual API call
+      const mockClients: Client[] = [
+        {
+          client_id: '1',
+          full_name: 'John Doe',
+          email: 'john@example.com',
+          tour_id: tourId
+        },
+        {
+          client_id: '2',
+          full_name: 'Jane Smith',
+          email: 'jane@example.com',
+          tour_id: tourId
+        }
+      ];
+      setClients(mockClients);
+    } catch (error) {
+      console.error('Error fetching clients:', error);
+      setClients([]);
+    }
+  }, []);
+
+  const value: AppContextType = {
+    selectedTour,
+    selectedClient,
+    clients: clients || [],
+    tours: tours || [],
+    isSubmitting: isSubmitting || false,
+    setSelectedTour,
+    setSelectedClient,
+    fetchClients,
+    submitFeedback
+  };
+
+  return (
+    <AppContext.Provider value={value}>
+      {children}
+    </AppContext.Provider>
+  );
 };

@@ -10,7 +10,13 @@ import { Button } from '../components/ui/button';
 import { Info, FileText, ClipboardList } from 'lucide-react';
 
 const FeedbackPage: React.FC = () => {
-  const { selectedTour, selectedClient, clients, fetchClients } = useAppContext();
+  const { 
+    selectedTour, 
+    selectedClient, 
+    clients = [], 
+    fetchClients 
+  } = useAppContext();
+  
   const [formType, setFormType] = useState<'simple' | 'comprehensive'>('comprehensive');
   
   // Ensure clients are fetched when a tour is selected
@@ -46,7 +52,8 @@ const FeedbackPage: React.FC = () => {
               <CardContent className="p-6">
                 <p>
                   You've selected the {selectedTour.tour_name} tour (ID: {selectedTour.tour_id}) 
-                  with {selectedTour.guide_name} as guide and {selectedTour.driver_name} as driver.
+                  {selectedTour.guide_name && ` with ${selectedTour.guide_name} as guide`}
+                  {selectedTour.driver_name && ` and ${selectedTour.driver_name} as driver`}.
                 </p>
                 <p className="mt-2">
                   Now please select a client from the list to complete their feedback form.
