@@ -9,21 +9,16 @@ export interface User {
   email?: string;
 }
 
-// Check if demo mode is enabled
-const isDemoMode = import.meta.env.VITE_DEMO_MODE === 'true';
-
 export function useAuth() {
   const { currentUser, loginUser, logoutUser } = useAppContext();
 
-  // Check if user has admin role
-  const isAdmin = currentUser?.role === 'admin';
-
+  // Mobile demo mode - always admin access
   return {
     currentUser,
-    isAuthenticated: !!currentUser,
-    isAdmin,
+    isAuthenticated: true, // Always authenticated for mobile demo
+    isAdmin: true, // Always admin for mobile demo
     isLoading: false,
-    isDemoMode,
+    isDemoMode: true, // Always demo mode for mobile
     loginUser,
     logoutUser
   };

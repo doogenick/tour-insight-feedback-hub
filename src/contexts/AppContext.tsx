@@ -24,7 +24,7 @@ interface AppContextType {
   // Demo Data Management
   demoDataGenerated: boolean;
   
-  // Authentication
+  // Authentication - Always demo admin for mobile
   currentUser: User | null;
   
   // Methods
@@ -45,7 +45,7 @@ interface AppContextType {
   generateDemoData: () => Promise<void>;
   resetDemoData: () => Promise<void>;
   
-  // Auth Methods
+  // Auth Methods (simplified for mobile demo)
   loginUser: (name: string, role: string, email?: string) => void;
   logoutUser: () => void;
 }
@@ -74,12 +74,17 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [syncStatus, setSyncStatus] = useState<{ synced: number; failed: number } | null>(null);
   const [demoDataGenerated, setDemoDataGenerated] = useState<boolean>(false);
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  
+  // Always set admin user for mobile demo
+  const [currentUser] = useState<User>({
+    name: 'Mobile Admin',
+    role: 'admin',
+    email: 'admin@mobile.demo'
+  });
 
   const fetchClients = useCallback(async (tourId: string) => {
     try {
       setIsLoading(true);
-      // Mock implementation - replace with actual API call
       const mockClients: Client[] = [
         {
           client_id: '1',
@@ -106,14 +111,12 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const fetchTours = useCallback(async () => {
     try {
       setIsLoading(true);
-      // Mock implementation
       const mockTours: Tour[] = [
         {
           tour_id: '1',
           tour_name: 'Cape Town Adventure',
           guide_name: 'Sarah Johnson',
           driver_name: 'Mike Wilson',
-          tour_date: '2024-06-15',
           status: 'upcoming'
         },
         {
@@ -121,7 +124,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
           tour_name: 'Safari Experience',
           guide_name: 'David Brown',
           driver_name: 'Tom Anderson',
-          tour_date: '2024-06-20',
           status: 'upcoming'
         }
       ];
@@ -136,7 +138,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const fetchFeedback = useCallback(async (tourId?: string) => {
     try {
       setIsLoading(true);
-      // Mock implementation
       setFeedback([]);
     } catch (error) {
       console.error('Error fetching feedback:', error);
@@ -148,11 +149,10 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const submitFeedback = useCallback(async (feedbackData: Omit<Feedback, 'id' | 'status' | 'submitted_at'>) => {
     try {
       setIsSubmitting(true);
-      // Mock implementation
       const newFeedback: Feedback = {
         ...feedbackData,
         id: `fb_${Date.now()}`,
-        status: 'submitted',
+        status: 'Pending',
         submitted_at: new Date().toISOString()
       };
       
@@ -175,12 +175,10 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   }, []);
 
   const syncPendingFeedback = useCallback(async () => {
-    // Mock implementation
     setSyncStatus({ synced: 0, failed: 0 });
   }, []);
 
   const exportFeedback = useCallback(async (): Promise<Blob> => {
-    // Mock implementation
     return new Blob(['mock csv data'], { type: 'text/csv' });
   }, []);
 
@@ -208,64 +206,36 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     }
   }, []);
 
+  // Simplified auth methods for mobile demo
   const loginUser = useCallback((name: string, role: string, email?: string) => {
-    const user: User = {
-      name,
-      role: role as User['role'],
-      email
-    };
-    setCurrentUser(user);
+    console.log('Auth disabled for mobile demo - always admin access');
   }, []);
 
   const logoutUser = useCallback(() => {
-    setCurrentUser(null);
+    console.log('Auth disabled for mobile demo - always admin access');
   }, []);
 
-  // Auto-login demo user if in demo mode
-  React.useEffect(() => {
-    if (import.meta.env.VITE_DEMO_MODE === 'true' && !currentUser) {
-      loginUser('Demo Admin', 'admin', 'demo@example.com');
-    }
-  }, [currentUser, loginUser]);
-
   const value: AppContextType = {
-    // Tour and Client Selection
     selectedTour,
     selectedClient,
     clients,
     tours,
-    
-    // Feedback Management
     feedback,
     isSubmitting,
     isLoading,
     syncStatus,
-    
-    // Demo Data Management
     demoDataGenerated,
-    
-    // Authentication
     currentUser,
-    
-    // Methods
     setSelectedTour,
     setSelectedClient,
     fetchClients,
     submitFeedback,
-    
-    // Feedback Methods
     fetchFeedback,
     syncPendingFeedback,
     exportFeedback,
-    
-    // Tour Methods
     fetchTours,
-    
-    // Demo Data Methods
     generateDemoData,
     resetDemoData,
-    
-    // Auth Methods
     loginUser,
     logoutUser
   };
