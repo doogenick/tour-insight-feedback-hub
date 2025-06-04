@@ -1,12 +1,15 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAppContext } from '../contexts/AppContext';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
-import { Download, RefreshCw, Upload, Database, ChevronDown, Check, ArrowUp, Filter } from 'lucide-react';
+import { Download, RefreshCw, Upload, Database, ChevronDown, Check, FileSpreadsheet, FileText } from 'lucide-react';
 import { Separator } from './ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import AnalyticsDashboard from './AnalyticsDashboard';
 import TourManagementDashboard from './TourManagement/TourManagementDashboard';
+import { excelExportService } from '../services/excelExportService';
+import { useToast } from './ui/use-toast';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,9 +19,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
 
 const AdminPage: React.FC = () => {
   const { 
@@ -36,9 +36,8 @@ const AdminPage: React.FC = () => {
   } = useAppContext();
   
   const [exportLoading, setExportLoading] = useState(false);
-  const [loginName, setLoginName] = useState('');
-  const [loginRole, setLoginRole] = useState<'admin' | 'guide' | 'driver' | 'client'>('admin');
-  const [isOpen, setIsOpen] = useState(false);
+  const [summaryLoading, setSummaryLoading] = useState(false);
+  const { toast } = useToast();
   
   // Generate demo data if none exists and fetch feedback
   useEffect(() => {
@@ -49,16 +48,78 @@ const AdminPage: React.FC = () => {
     fetchFeedback();
   }, [demoDataGenerated, generateDemoData, tours.length, fetchFeedback]);
   
-  // Handle CSV export
+  // Handle Excel export
+  const handleExportExcel = async () => {
+    setExportLoading(true);
+    try {
+      const blob = await excelExportService.exportToExcel();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `tour_feedback_export_${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      toast({
+        title: "Export Complete",
+        description: "Feedback data exported successfully. Ready for Excel import.",
+        duration: 5000,
+      });
+    } catch (error) {
+      console.error('Error exporting to Excel:', error);
+      toast({
+        variant: "destructive",
+        title: "Export Error",
+        description: "Failed to export feedback data.",
+      });
+    } finally {
+      setExportLoading(false);
+    }
+  };
+
+  // Handle summary report generation
+  const handleGenerateSummary = async () => {
+    setSummaryLoading(true);
+    try {
+      const summary = await excelExportService.generateSummaryReport();
+      const blob = new Blob([summary], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `feedback_summary_${new Date().toISOString().split('T')[0]}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      toast({
+        title: "Summary Generated",
+        description: "Feedback summary report downloaded successfully.",
+        duration: 5000,
+      });
+    } catch (error) {
+      console.error('Error generating summary:', error);
+      toast({
+        variant: "destructive",
+        title: "Summary Error",
+        description: "Failed to generate summary report.",
+      });
+    } finally {
+      setSummaryLoading(false);
+    }
+  };
+  
+  // Handle legacy CSV export
   const handleExportCsv = async () => {
     setExportLoading(true);
     try {
       const blob = await exportFeedback();
-      // Create a download link
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'tour_feedback.csv';
+      a.download = 'tour_feedback_legacy.csv';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -67,15 +128,6 @@ const AdminPage: React.FC = () => {
       console.error('Error exporting CSV:', error);
     } finally {
       setExportLoading(false);
-    }
-  };
-  
-  // Handle login form submission
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (loginName) {
-      loginUser(loginName, loginRole);
-      setIsOpen(false);
     }
   };
   
@@ -90,109 +142,15 @@ const AdminPage: React.FC = () => {
         </CardHeader>
         
         <CardContent className="p-6">
-          {/* User Login/Logout Section */}
+          {/* User Info Section */}
           <div className="flex justify-end mb-6">
-            {currentUser ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="flex items-center gap-2">
-                    {currentUser.name}
-                    <ChevronDown className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>User Settings</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuGroup>
-                    <DropdownMenuItem className="text-muted-foreground">
-                      Role: {currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1)}
-                    </DropdownMenuItem>
-                  </DropdownMenuGroup>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={logoutUser}>
-                    Log Out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                <DialogTrigger asChild>
-                  <Button variant="outline">Log In</Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <form onSubmit={handleLogin}>
-                    <DialogHeader>
-                      <DialogTitle>Log In</DialogTitle>
-                      <DialogDescription>
-                        Enter your name and select your role to view feedback data.
-                      </DialogDescription>
-                    </DialogHeader>
-                    
-                    <div className="space-y-4 py-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="name">Name</Label>
-                        <Input 
-                          id="name" 
-                          value={loginName} 
-                          onChange={(e) => setLoginName(e.target.value)} 
-                          placeholder="Enter your name"
-                          required
-                        />
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label>Role</Label>
-                        <div className="grid grid-cols-2 gap-2">
-                          <Button 
-                            type="button"
-                            variant={loginRole === 'admin' ? 'default' : 'outline'}
-                            className="justify-start"
-                            onClick={() => setLoginRole('admin')}
-                          >
-                            {loginRole === 'admin' && <Check className="h-4 w-4 mr-2" />}
-                            Admin
-                          </Button>
-                          
-                          <Button 
-                            type="button"
-                            variant={loginRole === 'guide' ? 'default' : 'outline'}
-                            className="justify-start"
-                            onClick={() => setLoginRole('guide')}
-                          >
-                            {loginRole === 'guide' && <Check className="h-4 w-4 mr-2" />}
-                            Guide
-                          </Button>
-                          
-                          <Button 
-                            type="button"
-                            variant={loginRole === 'driver' ? 'default' : 'outline'}
-                            className="justify-start"
-                            onClick={() => setLoginRole('driver')}
-                          >
-                            {loginRole === 'driver' && <Check className="h-4 w-4 mr-2" />}
-                            Driver
-                          </Button>
-                          
-                          <Button 
-                            type="button"
-                            variant={loginRole === 'client' ? 'default' : 'outline'}
-                            className="justify-start"
-                            onClick={() => setLoginRole('client')}
-                          >
-                            {loginRole === 'client' && <Check className="h-4 w-4 mr-2" />}
-                            Client
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <DialogFooter>
-                      <Button type="submit">Log In</Button>
-                    </DialogFooter>
-                  </form>
-                </DialogContent>
-              </Dialog>
-            )}
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <span className="font-medium">{currentUser?.name}</span>
+              <span>•</span>
+              <span className="capitalize">{currentUser?.role}</span>
+              <span>•</span>
+              <span className="text-green-600">Mobile Demo Mode</span>
+            </div>
           </div>
           
           <Tabs defaultValue="tour-management">
@@ -214,18 +172,50 @@ const AdminPage: React.FC = () => {
             <TabsContent value="export" className="space-y-6">
               <div className="bg-muted/30 p-6 rounded-lg">
                 <h3 className="text-lg font-medium mb-3 flex items-center gap-2">
-                  <Download size={20} />
-                  <span>Export Feedback Data</span>
+                  <FileSpreadsheet size={20} />
+                  <span>Excel-Ready Export</span>
                 </h3>
                 <p className="text-muted-foreground mb-6">
-                  Download all feedback data as a CSV file for further analysis or reporting.
+                  Export all feedback data in a format optimized for Excel import. This includes ratings, comments, 
+                  and client information organized for easy analysis.
+                </p>
+                <div className="flex gap-4">
+                  <Button 
+                    onClick={handleExportExcel}
+                    disabled={exportLoading}
+                    className="bg-tour-primary hover:bg-tour-secondary flex items-center gap-2"
+                  >
+                    <FileSpreadsheet className="h-4 w-4" />
+                    {exportLoading ? 'Preparing Export...' : 'Export for Excel'}
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    onClick={handleGenerateSummary}
+                    disabled={summaryLoading}
+                    className="flex items-center gap-2"
+                  >
+                    <FileText className="h-4 w-4" />
+                    {summaryLoading ? 'Generating...' : 'Generate Summary Report'}
+                  </Button>
+                </div>
+              </div>
+              
+              <Separator />
+              
+              <div className="bg-muted/30 p-6 rounded-lg">
+                <h3 className="text-lg font-medium mb-3 flex items-center gap-2">
+                  <Download size={20} />
+                  <span>Legacy Export Options</span>
+                </h3>
+                <p className="text-muted-foreground mb-6">
+                  Alternative export formats for compatibility with existing systems.
                 </p>
                 <Button 
+                  variant="outline"
                   onClick={handleExportCsv}
                   disabled={exportLoading}
-                  className="bg-tour-primary hover:bg-tour-secondary"
                 >
-                  {exportLoading ? 'Preparing Download...' : 'Export All Feedback to CSV'}
+                  {exportLoading ? 'Preparing Download...' : 'Export Legacy CSV'}
                 </Button>
               </div>
               
@@ -237,8 +227,7 @@ const AdminPage: React.FC = () => {
                   <span>Database Management</span>
                 </h3>
                 <p className="text-muted-foreground mb-6">
-                  These functions are for demonstration purposes. In a production environment, 
-                  these would be protected by authentication.
+                  Demo data management functions for testing and development.
                 </p>
                 <div className="flex flex-wrap gap-4">
                   <Button 
@@ -307,7 +296,7 @@ const AdminPage: React.FC = () => {
         
         <CardFooter className="bg-muted/30 p-4 text-center text-sm text-muted-foreground">
           <p className="w-full">
-            Tour Feedback System • Data is securely processed and stored
+            Tour Feedback System • Data is securely processed and stored locally
           </p>
         </CardFooter>
       </Card>

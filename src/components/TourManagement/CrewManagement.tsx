@@ -6,17 +6,16 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Badge } from '../ui/badge';
-import { useToast } from '../ui/use-toast';
+import { Plus, Edit2, Trash2, Users } from 'lucide-react';
 import { CrewMember } from '../../services/api/types';
-import crewService from '../../services/api/crewService';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
-import { Users, UserPlus } from 'lucide-react';
 
-const CrewManagement: React.FC = () => {
-  const [crew, setCrew] = useState<CrewMember[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [newCrewData, setNewCrewData] = useState({
+interface CrewManagementProps {}
+
+const CrewManagement: React.FC<CrewManagementProps> = () => {
+  const [crewMembers, setCrewMembers] = useState<CrewMember[]>([]);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [editingCrew, setEditingCrew] = useState<CrewMember | null>(null);
+  const [formData, setFormData] = useState({
     full_name: '',
     role: 'guide' as 'guide' | 'driver' | 'assistant',
     email: '',
@@ -26,77 +25,119 @@ const CrewManagement: React.FC = () => {
     emergency_contact: '',
     active: true
   });
-  
-  const { toast } = useToast();
 
   useEffect(() => {
-    loadCrew();
+    loadCrewMembers();
   }, []);
 
-  const loadCrew = async () => {
-    setIsLoading(true);
-    try {
-      const crewData = await crewService.getAllCrew();
-      setCrew(crewData);
-    } catch (error) {
-      console.error('Error loading crew:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to load crew members.",
-      });
-    } finally {
-      setIsLoading(false);
+  const loadCrewMembers = () => {
+    // Load from localStorage or use demo data
+    const savedCrew = localStorage.getItem('crew_members');
+    if (savedCrew) {
+      setCrewMembers(JSON.parse(savedCrew));
+    } else {
+      // Demo crew data
+      const demoCrew: CrewMember[] = [
+        {
+          crew_id: 'crew_1',
+          full_name: 'Sarah Johnson',
+          role: 'guide',
+          email: 'sarah@tourcompany.com',
+          phone: '+27 123 456 789',
+          passport_number: 'SA123456',
+          visa_status: 'Valid',
+          emergency_contact: 'John Johnson +27 987 654 321',
+          active: true,
+          created_at: new Date().toISOString()
+        },
+        {
+          crew_id: 'crew_2',
+          full_name: 'Mike Wilson',
+          role: 'driver',
+          email: 'mike@tourcompany.com',
+          phone: '+27 234 567 890',
+          passport_number: 'SA654321',
+          visa_status: 'Valid',
+          emergency_contact: 'Mary Wilson +27 876 543 210',
+          active: true,
+          created_at: new Date().toISOString()
+        },
+        {
+          crew_id: 'crew_3',
+          full_name: 'David Brown',
+          role: 'guide',
+          email: 'david@tourcompany.com',
+          phone: '+27 345 678 901',
+          passport_number: 'SA789012',
+          visa_status: 'Valid',
+          emergency_contact: 'Lisa Brown +27 765 432 109',
+          active: true,
+          created_at: new Date().toISOString()
+        }
+      ];
+      setCrewMembers(demoCrew);
+      localStorage.setItem('crew_members', JSON.stringify(demoCrew));
     }
   };
 
-  const handleAddCrew = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
+  const handleSave = () => {
+    if (!formData.full_name || !formData.role) return;
 
-    try {
-      const newCrew = await crewService.addCrewMember(newCrewData);
-      setCrew([...crew, newCrew]);
-      
-      toast({
-        title: "Crew Member Added",
-        description: `${newCrew.full_name} has been added to the crew.`,
-      });
+    const newCrew: CrewMember = {
+      crew_id: editingCrew ? editingCrew.crew_id : `crew_${Date.now()}`,
+      ...formData,
+      created_at: editingCrew ? editingCrew.created_at : new Date().toISOString()
+    };
 
-      setIsDialogOpen(false);
-      setNewCrewData({
-        full_name: '',
-        role: 'guide',
-        email: '',
-        phone: '',
-        passport_number: '',
-        visa_status: '',
-        emergency_contact: '',
-        active: true
-      });
-    } catch (error) {
-      console.error('Error adding crew member:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to add crew member.",
-      });
-    } finally {
-      setIsLoading(false);
+    let updatedCrew;
+    if (editingCrew) {
+      updatedCrew = crewMembers.map(crew => 
+        crew.crew_id === editingCrew.crew_id ? newCrew : crew
+      );
+    } else {
+      updatedCrew = [...crewMembers, newCrew];
     }
+
+    setCrewMembers(updatedCrew);
+    localStorage.setItem('crew_members', JSON.stringify(updatedCrew));
+    
+    resetForm();
   };
 
-  const getRoleBadgeColor = (role: string) => {
-    switch (role) {
-      case 'guide':
-        return 'bg-blue-100 text-blue-800';
-      case 'driver':
-        return 'bg-green-100 text-green-800';
-      case 'assistant':
-        return 'bg-purple-100 text-purple-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
+  const handleEdit = (crew: CrewMember) => {
+    setEditingCrew(crew);
+    setFormData({
+      full_name: crew.full_name,
+      role: crew.role,
+      email: crew.email || '',
+      phone: crew.phone || '',
+      passport_number: crew.passport_number || '',
+      visa_status: crew.visa_status || '',
+      emergency_contact: crew.emergency_contact || '',
+      active: crew.active
+    });
+    setShowAddForm(true);
+  };
+
+  const handleDelete = (crewId: string) => {
+    const updatedCrew = crewMembers.filter(crew => crew.crew_id !== crewId);
+    setCrewMembers(updatedCrew);
+    localStorage.setItem('crew_members', JSON.stringify(updatedCrew));
+  };
+
+  const resetForm = () => {
+    setFormData({
+      full_name: '',
+      role: 'guide',
+      email: '',
+      phone: '',
+      passport_number: '',
+      visa_status: '',
+      emergency_contact: '',
+      active: true
+    });
+    setEditingCrew(null);
+    setShowAddForm(false);
   };
 
   return (
@@ -108,130 +149,137 @@ const CrewManagement: React.FC = () => {
             Crew Management
           </h3>
           <p className="text-sm text-muted-foreground">
-            Manage your tour crew members and their details.
+            Manage your tour crew members and their details
           </p>
         </div>
-        
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="flex items-center gap-2">
-              <UserPlus className="h-4 w-4" />
-              Add Crew Member
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <form onSubmit={handleAddCrew}>
-              <DialogHeader>
-                <DialogTitle>Add New Crew Member</DialogTitle>
-                <DialogDescription>
-                  Enter the details for the new crew member.
-                </DialogDescription>
-              </DialogHeader>
-              
-              <div className="space-y-4 py-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="crew_name">Full Name</Label>
-                    <Input
-                      id="crew_name"
-                      value={newCrewData.full_name}
-                      onChange={(e) => setNewCrewData({...newCrewData, full_name: e.target.value})}
-                      placeholder="Enter full name"
-                      required
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="crew_role">Role</Label>
-                    <Select value={newCrewData.role} onValueChange={(value: 'guide' | 'driver' | 'assistant') => setNewCrewData({...newCrewData, role: value})}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="guide">Tour Guide</SelectItem>
-                        <SelectItem value="driver">Driver</SelectItem>
-                        <SelectItem value="assistant">Assistant</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="crew_email">Email</Label>
-                    <Input
-                      id="crew_email"
-                      type="email"
-                      value={newCrewData.email}
-                      onChange={(e) => setNewCrewData({...newCrewData, email: e.target.value})}
-                      placeholder="email@example.com"
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="crew_phone">Phone</Label>
-                    <Input
-                      id="crew_phone"
-                      value={newCrewData.phone}
-                      onChange={(e) => setNewCrewData({...newCrewData, phone: e.target.value})}
-                      placeholder="+1234567890"
-                    />
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="crew_passport">Passport Number</Label>
-                  <Input
-                    id="crew_passport"
-                    value={newCrewData.passport_number}
-                    onChange={(e) => setNewCrewData({...newCrewData, passport_number: e.target.value})}
-                    placeholder="Passport number"
-                  />
-                </div>
-              </div>
-              
-              <DialogFooter>
-                <Button type="submit" disabled={isLoading}>
-                  {isLoading ? 'Adding...' : 'Add Crew Member'}
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
+        <Button onClick={() => setShowAddForm(true)} className="flex items-center gap-2">
+          <Plus className="h-4 w-4" />
+          Add Crew Member
+        </Button>
       </div>
 
+      {showAddForm && (
+        <Card>
+          <CardHeader>
+            <CardTitle>{editingCrew ? 'Edit' : 'Add'} Crew Member</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="full_name">Full Name</Label>
+                <Input
+                  id="full_name"
+                  value={formData.full_name}
+                  onChange={(e) => setFormData({...formData, full_name: e.target.value})}
+                  placeholder="Enter full name"
+                />
+              </div>
+              <div>
+                <Label htmlFor="role">Role</Label>
+                <Select value={formData.role} onValueChange={(value: 'guide' | 'driver' | 'assistant') => setFormData({...formData, role: value})}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="guide">Guide</SelectItem>
+                    <SelectItem value="driver">Driver</SelectItem>
+                    <SelectItem value="assistant">Assistant</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  placeholder="email@company.com"
+                />
+              </div>
+              <div>
+                <Label htmlFor="phone">Phone</Label>
+                <Input
+                  id="phone"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                  placeholder="+27 123 456 789"
+                />
+              </div>
+              <div>
+                <Label htmlFor="passport">Passport Number</Label>
+                <Input
+                  id="passport"
+                  value={formData.passport_number}
+                  onChange={(e) => setFormData({...formData, passport_number: e.target.value})}
+                  placeholder="SA123456"
+                />
+              </div>
+              <div>
+                <Label htmlFor="visa">Visa Status</Label>
+                <Input
+                  id="visa"
+                  value={formData.visa_status}
+                  onChange={(e) => setFormData({...formData, visa_status: e.target.value})}
+                  placeholder="Valid / Expired / Pending"
+                />
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="emergency">Emergency Contact</Label>
+              <Input
+                id="emergency"
+                value={formData.emergency_contact}
+                onChange={(e) => setFormData({...formData, emergency_contact: e.target.value})}
+                placeholder="Contact Name +27 987 654 321"
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={resetForm}>Cancel</Button>
+              <Button onClick={handleSave}>
+                {editingCrew ? 'Update' : 'Add'} Crew Member
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="grid gap-4">
-        {crew.length === 0 ? (
+        {crewMembers.length === 0 ? (
           <Card>
             <CardContent className="py-8 text-center text-muted-foreground">
               No crew members found. Add your first crew member to get started.
             </CardContent>
           </Card>
         ) : (
-          crew.map(member => (
-            <Card key={member.crew_id}>
+          crewMembers.map(crew => (
+            <Card key={crew.crew_id}>
               <CardContent className="py-4">
                 <div className="flex justify-between items-start">
-                  <div>
-                    <h4 className="font-medium">{member.full_name}</h4>
-                    <p className="text-sm text-muted-foreground">{member.email}</p>
-                    {member.phone && (
-                      <p className="text-sm text-muted-foreground">{member.phone}</p>
-                    )}
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-medium">{crew.full_name}</h4>
+                      <Badge variant={crew.role === 'guide' ? 'default' : crew.role === 'driver' ? 'secondary' : 'outline'}>
+                        {crew.role.charAt(0).toUpperCase() + crew.role.slice(1)}
+                      </Badge>
+                      {!crew.active && <Badge variant="destructive">Inactive</Badge>}
+                    </div>
+                    
+                    <div className="text-sm text-muted-foreground space-y-1">
+                      {crew.email && <p>📧 {crew.email}</p>}
+                      {crew.phone && <p>📱 {crew.phone}</p>}
+                      {crew.passport_number && <p>🛂 {crew.passport_number}</p>}
+                      {crew.emergency_contact && <p>🚨 {crew.emergency_contact}</p>}
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Badge className={getRoleBadgeColor(member.role)}>
-                      {member.role.charAt(0).toUpperCase() + member.role.slice(1)}
-                    </Badge>
-                    {member.active ? (
-                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                        Active
-                      </Badge>
-                    ) : (
-                      <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">
-                        Inactive
-                      </Badge>
-                    )}
+                  
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={() => handleEdit(crew)}>
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => handleDelete(crew.crew_id)}>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
               </CardContent>
