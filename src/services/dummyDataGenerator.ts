@@ -1,4 +1,3 @@
-
 import { v4 as uuidv4 } from 'uuid';
 import { ComprehensiveFeedback, Tour, Client, Feedback } from './api/types';
 import { comprehensiveFeedbackService } from './comprehensiveFeedbackService';
@@ -38,9 +37,9 @@ const nationalities = [
 ];
 
 const tourSections = [
-  'complete_tour', 'northern_circuit', 'southern_circuit', 'coastal_region',
-  'cultural_immersion', 'wildlife_focus', 'mountain_adventure'
-];
+  'cape_town_vic_falls', 'cape_town_windhoek', 'cape_town_swakopmund_vic_falls', 
+  'windhoek_vic_falls', ''
+] as const;
 
 const tourHighlights = [
   'Amazing wildlife sightings in Serengeti',
@@ -98,7 +97,7 @@ const generateInitials = (fullName: string): string => {
 
 export const dummyDataGenerator = {
   // Generate comprehensive feedback
-  async generateComprehensiveFeedback(count: number = 50): Promise<ComprehensiveFeedback[]> {
+  async generateComprehensiveFeedback(count: number = 50): Promise<ComprehensiveFeedback[]> => {
     const feedbackList: ComprehensiveFeedback[] = [];
     
     for (let i = 0; i < count; i++) {
@@ -146,10 +145,29 @@ export const dummyDataGenerator = {
         driver_enthusiasm: generateRating(),
         driver_information: generateRating(),
         
+        // Additional required fields for comprehensive feedback
+        pace_rating: generateRating(),
+        route_rating: generateRating(),
+        activity_level_rating: generateRating(),
+        price_rating: generateRating(),
+        value_rating: generateRating(),
+        tour_leader_knowledge: generateRating(),
+        safety_rating: generateRating(),
+        
         // Boolean questions
         met_expectations: generateBoolean(0.85),
         value_for_money: generateBoolean(0.75),
         would_recommend: generateBoolean(0.9),
+        truck_satisfaction: generateBoolean(0.8),
+        repeat_travel: generateBoolean(0.6),
+        
+        // Contact preferences
+        willing_to_review_google: generateBoolean(0.6),
+        willing_to_review_tripadvisor: generateBoolean(0.5),
+        newsletter_signup: generateBoolean(0.4),
+        
+        // How they heard about us
+        heard_about_source: ['word_of_mouth', 'internet', 'travel_agent', 'brochure', 'repeat_client', 'other', ''][Math.floor(Math.random() * 7)] as any,
         
         // Text feedback
         tour_highlight: Math.random() > 0.3 ? tourHighlights[Math.floor(Math.random() * tourHighlights.length)] : undefined,
@@ -170,7 +188,7 @@ export const dummyDataGenerator = {
   },
 
   // Generate tours and clients
-  async generateToursAndClients(tourCount: number = 8): Promise<{ tours: Tour[], clients: Client[] }> {
+  async generateToursAndClients(tourCount: number = 8): Promise<{ tours: Tour[], clients: Client[] }> => {
     const tours: Tour[] = [];
     const clients: Client[] = [];
     
@@ -223,7 +241,7 @@ export const dummyDataGenerator = {
   },
 
   // Generate legacy feedback
-  async generateLegacyFeedback(clientCount: number = 30): Promise<Feedback[]> {
+  async generateLegacyFeedback(clientCount: number = 30): Promise<Feedback[]> => {
     const feedback: Feedback[] = [];
     const tours = await this.getAllStoredTours();
     
@@ -260,7 +278,7 @@ export const dummyDataGenerator = {
   },
 
   // Helper to get all stored tours
-  async getAllStoredTours(): Promise<Tour[]> {
+  async getAllStoredTours(): Promise<Tour[]> => {
     const tours: Tour[] = [];
     const keys = await localforage.keys();
     

@@ -1,7 +1,8 @@
+
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import CrewManagement from './CrewManagement';
+import CrewManagement from './TourManagement/CrewManagement';
 import DummyDataGenerator from './TourManagement/DummyDataGenerator';
 import {
   Table,
