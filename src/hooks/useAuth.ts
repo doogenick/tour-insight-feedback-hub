@@ -14,7 +14,7 @@ export function useAuth() {
 
   // Mobile demo mode - always admin access
   return {
-    currentUser,
+    currentUser: currentUser || { name: 'Admin User', role: 'admin' as UserRole },
     isAuthenticated: true, // Always authenticated for mobile demo
     isAdmin: true, // Always admin for mobile demo
     isLoading: false,

@@ -1,3 +1,4 @@
+
 import { v4 as uuidv4 } from 'uuid';
 import { ComprehensiveFeedback, Tour, Client, Feedback } from './api/types';
 import { comprehensiveFeedbackService } from './comprehensiveFeedbackService';
@@ -97,7 +98,7 @@ const generateInitials = (fullName: string): string => {
 
 export const dummyDataGenerator = {
   // Generate comprehensive feedback
-  async generateComprehensiveFeedback(count: number = 50): Promise<ComprehensiveFeedback[]> => {
+  generateComprehensiveFeedback: async (count: number = 50): Promise<ComprehensiveFeedback[]> => {
     const feedbackList: ComprehensiveFeedback[] = [];
     
     for (let i = 0; i < count; i++) {
@@ -188,7 +189,7 @@ export const dummyDataGenerator = {
   },
 
   // Generate tours and clients
-  async generateToursAndClients(tourCount: number = 8): Promise<{ tours: Tour[], clients: Client[] }> => {
+  generateToursAndClients: async (tourCount: number = 8): Promise<{ tours: Tour[], clients: Client[] }> => {
     const tours: Tour[] = [];
     const clients: Client[] = [];
     
@@ -241,9 +242,9 @@ export const dummyDataGenerator = {
   },
 
   // Generate legacy feedback
-  async generateLegacyFeedback(clientCount: number = 30): Promise<Feedback[]> => {
+  generateLegacyFeedback: async (clientCount: number = 30): Promise<Feedback[]> => {
     const feedback: Feedback[] = [];
-    const tours = await this.getAllStoredTours();
+    const tours = await dummyDataGenerator.getAllStoredTours();
     
     for (let i = 0; i < clientCount; i++) {
       const tour = tours[Math.floor(Math.random() * tours.length)];
@@ -278,7 +279,7 @@ export const dummyDataGenerator = {
   },
 
   // Helper to get all stored tours
-  async getAllStoredTours(): Promise<Tour[]> => {
+  getAllStoredTours: async (): Promise<Tour[]> => {
     const tours: Tour[] = [];
     const keys = await localforage.keys();
     
@@ -293,7 +294,7 @@ export const dummyDataGenerator = {
   },
 
   // Clear all dummy data
-  async clearAllData(): Promise<void> {
+  clearAllData: async (): Promise<void> => {
     await localforage.clear();
     await comprehensiveFeedbackService.clearAllFeedback();
   }

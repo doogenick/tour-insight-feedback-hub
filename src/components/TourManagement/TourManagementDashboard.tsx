@@ -11,6 +11,7 @@ import TourCreationForm from './TourCreationForm';
 import CrewManagement from './CrewManagement';
 import ClientImport from './ClientImport';
 import IncidentReporting from './IncidentReporting';
+import MobileTourCard from './MobileTourCard';
 
 const TourManagementDashboard: React.FC = () => {
   const { tours, clients, fetchTours, fetchClients } = useAppContext();
@@ -43,35 +44,32 @@ const TourManagementDashboard: React.FC = () => {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString();
-  };
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-4 md:p-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold">Tour Management</h2>
-          <p className="text-muted-foreground">
+          <h2 className="text-xl md:text-2xl font-bold">Tour Management</h2>
+          <p className="text-sm text-muted-foreground">
             Manage tours, crew, clients, and incidents
           </p>
         </div>
       </div>
 
       <Tabs defaultValue="tours">
-        <TabsList className="grid grid-cols-4 mb-6">
-          <TabsTrigger value="tours">Tours</TabsTrigger>
-          <TabsTrigger value="crew">Crew Management</TabsTrigger>
-          <TabsTrigger value="clients">Client Import</TabsTrigger>
-          <TabsTrigger value="incidents">Incidents</TabsTrigger>
+        <TabsList className="grid grid-cols-4 mb-6 h-12">
+          <TabsTrigger value="tours" className="text-xs md:text-sm">Tours</TabsTrigger>
+          <TabsTrigger value="crew" className="text-xs md:text-sm">Crew</TabsTrigger>
+          <TabsTrigger value="clients" className="text-xs md:text-sm">Clients</TabsTrigger>
+          <TabsTrigger value="incidents" className="text-xs md:text-sm">Incidents</TabsTrigger>
         </TabsList>
 
         <TabsContent value="tours" className="space-y-6">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-medium">Tour Overview</h3>
-            <Button onClick={() => setShowTourForm(true)} className="flex items-center gap-2">
+            <Button onClick={() => setShowTourForm(true)} className="flex items-center gap-2" size="sm">
               <Plus className="h-4 w-4" />
-              Create New Tour
+              <span className="hidden md:inline">Create New Tour</span>
+              <span className="md:hidden">New</span>
             </Button>
           </div>
 
@@ -91,39 +89,11 @@ const TourManagementDashboard: React.FC = () => {
               </Card>
             ) : (
               tours.map(tour => (
-                <Card key={tour.tour_id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleTourSelect(tour)}>
-                  <CardContent className="py-4">
-                    <div className="flex justify-between items-start">
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <h4 className="font-medium">{tour.tour_name}</h4>
-                          <Badge variant="outline">{tour.tour_id}</Badge>
-                        </div>
-                        
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                          <span className="flex items-center gap-1">
-                            <Calendar className="h-4 w-4" />
-                            {formatDate(tour.date_start)} - {formatDate(tour.date_end)}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Users className="h-4 w-4" />
-                            {tour.passenger_count} passengers
-                          </span>
-                        </div>
-                        
-                        <div className="text-sm text-muted-foreground">
-                          Guide: {tour.guide_name} • Driver: {tour.driver_name}
-                        </div>
-                      </div>
-                      
-                      <div className="flex flex-col items-end gap-2">
-                        <Badge className="bg-blue-100 text-blue-800">
-                          Active
-                        </Badge>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                <MobileTourCard 
+                  key={tour.tour_id} 
+                  tour={tour} 
+                  onSelect={handleTourSelect} 
+                />
               ))
             )}
           </div>
@@ -163,8 +133,8 @@ const TourManagementDashboard: React.FC = () => {
                     <div className="grid gap-2">
                       {tourClients[selectedTour.tour_id].map(client => (
                         <div key={client.client_id} className="flex justify-between items-center p-2 border rounded">
-                          <span>{client.full_name}</span>
-                          {client.email && <span className="text-sm text-muted-foreground">{client.email}</span>}
+                          <span className="text-sm">{client.full_name}</span>
+                          {client.email && <span className="text-xs text-muted-foreground">{client.email}</span>}
                         </div>
                       ))}
                     </div>
