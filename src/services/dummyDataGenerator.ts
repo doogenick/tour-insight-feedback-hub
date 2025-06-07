@@ -1,4 +1,3 @@
-
 import { v4 as uuidv4 } from 'uuid';
 import { ComprehensiveFeedback, Tour, Client, Feedback } from './api/types';
 import { comprehensiveFeedbackService } from './comprehensiveFeedbackService';
@@ -173,11 +172,7 @@ export const dummyDataGenerator = {
         // Text feedback
         tour_highlight: Math.random() > 0.3 ? tourHighlights[Math.floor(Math.random() * tourHighlights.length)] : undefined,
         improvement_suggestions: Math.random() > 0.5 ? improvementSuggestions[Math.floor(Math.random() * improvementSuggestions.length)] : undefined,
-        additional_comments: Math.random() > 0.4 ? `Great experience with ${guideName} and ${driverName}. The tour exceeded our expectations!` : undefined,
-        
-        // Staff names
-        guide_name: guideName,
-        driver_name: driverName
+        additional_comments: Math.random() > 0.4 ? `Great experience with ${guideName} and ${driverName}. The tour exceeded our expectations!` : undefined
       };
       
       // Store the feedback
