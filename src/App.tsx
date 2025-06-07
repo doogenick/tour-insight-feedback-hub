@@ -7,14 +7,20 @@ import Index from './pages/Index';
 import FeedbackPage from './pages/FeedbackPage';
 import AdminDashboard from './pages/AdminDashboard';
 import NotFound from './pages/NotFound';
-import Header from './components/Header';
 import ComprehensiveAnalytics from './pages/ComprehensiveAnalytics';
 import { Toaster } from './components/ui/toaster';
+import ResponsiveLayout from './components/ResponsiveLayout';
+import { useIsMobile, useIsTablet } from './hooks/use-mobile';
 
 const queryClient = new QueryClient();
 
-// Mobile demo banner
+// Mobile/Tablet demo banner
 const MobileDemoBanner = () => {
+  const isMobile = useIsMobile();
+  const isTablet = useIsTablet();
+  
+  if (!isMobile && !isTablet) return null;
+  
   return (
     <div className="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-3 mb-4" role="alert">
       <div className="flex items-center">
@@ -24,8 +30,8 @@ const MobileDemoBanner = () => {
           </svg>
         </div>
         <div>
-          <p className="font-bold text-sm">Mobile Demo Mode</p>
-          <p className="text-xs">Full admin access enabled for tablet use</p>
+          <p className="font-bold text-sm">{isTablet ? 'Tablet' : 'Mobile'} Demo Mode</p>
+          <p className="text-xs">Full admin access enabled for {isTablet ? 'tablet' : 'mobile'} use</p>
         </div>
       </div>
     </div>
@@ -37,23 +43,20 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <AppProvider>
         <BrowserRouter>
-          <div className="min-h-screen bg-background">
-            <Header />
-            <main className="container mx-auto px-4 py-6">
-              <MobileDemoBanner />
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/feedback" element={<FeedbackPage />} />
-                
-                {/* All routes accessible in mobile demo mode */}
-                <Route path="/admin" element={<AdminDashboard />} />
-                <Route path="/analytics" element={<ComprehensiveAnalytics />} />
-                
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </main>
+          <ResponsiveLayout>
+            <MobileDemoBanner />
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/feedback" element={<FeedbackPage />} />
+              
+              {/* All routes accessible in demo mode */}
+              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/analytics" element={<ComprehensiveAnalytics />} />
+              
+              <Route path="*" element={<NotFound />} />
+            </Routes>
             <Toaster />
-          </div>
+          </ResponsiveLayout>
         </BrowserRouter>
       </AppProvider>
     </QueryClientProvider>

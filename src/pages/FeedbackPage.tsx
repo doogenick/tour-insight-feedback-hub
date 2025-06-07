@@ -6,6 +6,7 @@ import ClientsList from '../components/ClientsList';
 import { useAppContext } from '../contexts/AppContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Info, ClipboardList } from 'lucide-react';
+import { useIsMobile, useIsTablet, useIsDesktop } from '../hooks/use-mobile';
 
 const FeedbackPage: React.FC = () => {
   const { 
@@ -15,6 +16,10 @@ const FeedbackPage: React.FC = () => {
     fetchClients 
   } = useAppContext();
   
+  const isMobile = useIsMobile();
+  const isTablet = useIsTablet();
+  const isDesktop = useIsDesktop();
+  
   // Ensure clients are fetched when a tour is selected
   useEffect(() => {
     if (selectedTour && clients.length === 0) {
@@ -23,8 +28,20 @@ const FeedbackPage: React.FC = () => {
   }, [selectedTour, clients.length, fetchClients]);
   
   return (
-    <div className="container max-w-6xl py-8">
-      <h1 className="text-3xl font-bold text-center mb-8">Tour Feedback</h1>
+    <div className={`
+      py-8
+      ${isMobile ? 'container max-w-sm' : ''}
+      ${isTablet ? 'container max-w-4xl' : ''}
+      ${isDesktop ? 'container max-w-6xl' : ''}
+    `}>
+      <h1 className={`
+        font-bold text-center mb-8
+        ${isMobile ? 'text-2xl' : ''}
+        ${isTablet ? 'text-3xl' : ''}
+        ${isDesktop ? 'text-3xl' : ''}
+      `}>
+        Tour Feedback
+      </h1>
       
       <TourSelectionPanel />
       
@@ -45,13 +62,26 @@ const FeedbackPage: React.FC = () => {
                   Please select a client to proceed with feedback
                 </CardDescription>
               </CardHeader>
-              <CardContent className="p-6">
-                <p>
+              <CardContent className={`
+                ${isMobile ? 'p-4' : ''}
+                ${isTablet ? 'p-6' : ''}
+                ${isDesktop ? 'p-6' : ''}
+              `}>
+                <p className={`
+                  ${isMobile ? 'text-sm' : ''}
+                  ${isTablet ? 'text-base' : ''}
+                  ${isDesktop ? 'text-base' : ''}
+                `}>
                   You've selected the {selectedTour.tour_name} tour (ID: {selectedTour.tour_id}) 
                   {selectedTour.guide_name && ` with ${selectedTour.guide_name} as guide`}
                   {selectedTour.driver_name && ` and ${selectedTour.driver_name} as driver`}.
                 </p>
-                <p className="mt-2">
+                <p className={`
+                  mt-2
+                  ${isMobile ? 'text-sm' : ''}
+                  ${isTablet ? 'text-base' : ''}
+                  ${isDesktop ? 'text-base' : ''}
+                `}>
                   Now please select a client from the list to complete their feedback form.
                 </p>
               </CardContent>
