@@ -29,12 +29,12 @@ const FilterControls: React.FC<FilterControlsProps> = ({
     let filtered = [...feedback];
 
     // Filter by tour section
-    if (filters.tourSection) {
+    if (filters.tourSection && filters.tourSection !== 'all') {
       filtered = filtered.filter(f => f.tour_section_completed === filters.tourSection);
     }
 
     // Filter by nationality
-    if (filters.nationality) {
+    if (filters.nationality && filters.nationality !== 'all') {
       filtered = filtered.filter(f => f.nationality === filters.nationality);
     }
 
@@ -49,7 +49,7 @@ const FilterControls: React.FC<FilterControlsProps> = ({
     }
 
     // Filter by date range
-    if (filters.dateRange) {
+    if (filters.dateRange && filters.dateRange !== 'all') {
       const now = new Date();
       let dateThreshold: Date;
       
@@ -81,9 +81,9 @@ const FilterControls: React.FC<FilterControlsProps> = ({
 
   const clearFilters = () => {
     const clearedFilters = {
-      tourSection: '',
-      dateRange: '',
-      nationality: '',
+      tourSection: 'all',
+      dateRange: 'all',
+      nationality: 'all',
       ratingThreshold: 0
     };
     onFiltersChange(clearedFilters);
@@ -93,7 +93,7 @@ const FilterControls: React.FC<FilterControlsProps> = ({
   const tourSections = [...new Set(feedback.map(f => f.tour_section_completed).filter(Boolean))];
   const nationalities = [...new Set(feedback.map(f => f.nationality).filter(Boolean))];
 
-  const hasActiveFilters = filters.tourSection || filters.dateRange || filters.nationality || filters.ratingThreshold > 0;
+  const hasActiveFilters = filters.tourSection !== 'all' || filters.dateRange !== 'all' || filters.nationality !== 'all' || filters.ratingThreshold > 0;
 
   return (
     <Card>
@@ -108,14 +108,14 @@ const FilterControls: React.FC<FilterControlsProps> = ({
           <div className="space-y-2">
             <Label htmlFor="tour-section">Tour Section</Label>
             <Select 
-              value={filters.tourSection} 
+              value={filters.tourSection || 'all'} 
               onValueChange={(value) => onFiltersChange({...filters, tourSection: value})}
             >
               <SelectTrigger>
                 <SelectValue placeholder="All sections" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All sections</SelectItem>
+                <SelectItem value="all">All sections</SelectItem>
                 {tourSections.map(section => (
                   <SelectItem key={section} value={section}>
                     {section.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
@@ -128,14 +128,14 @@ const FilterControls: React.FC<FilterControlsProps> = ({
           <div className="space-y-2">
             <Label htmlFor="date-range">Date Range</Label>
             <Select 
-              value={filters.dateRange} 
+              value={filters.dateRange || 'all'} 
               onValueChange={(value) => onFiltersChange({...filters, dateRange: value})}
             >
               <SelectTrigger>
                 <SelectValue placeholder="All time" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All time</SelectItem>
+                <SelectItem value="all">All time</SelectItem>
                 <SelectItem value="week">Last 7 days</SelectItem>
                 <SelectItem value="month">Last 30 days</SelectItem>
                 <SelectItem value="quarter">Last 90 days</SelectItem>
@@ -146,14 +146,14 @@ const FilterControls: React.FC<FilterControlsProps> = ({
           <div className="space-y-2">
             <Label htmlFor="nationality">Nationality</Label>
             <Select 
-              value={filters.nationality} 
+              value={filters.nationality || 'all'} 
               onValueChange={(value) => onFiltersChange({...filters, nationality: value})}
             >
               <SelectTrigger>
                 <SelectValue placeholder="All nationalities" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All nationalities</SelectItem>
+                <SelectItem value="all">All nationalities</SelectItem>
                 {nationalities.map(nationality => (
                   <SelectItem key={nationality} value={nationality}>
                     {nationality}
