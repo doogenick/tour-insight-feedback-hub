@@ -1,13 +1,11 @@
 
-import React, { useEffect, useState } from 'react';
-import FeedbackForm from '../components/FeedbackForm';
+import React, { useEffect } from 'react';
 import ComprehensiveFeedbackForm from '../components/ComprehensiveFeedbackForm';
 import TourSelectionPanel from '../components/TourSelectionPanel';
 import ClientsList from '../components/ClientsList';
 import { useAppContext } from '../contexts/AppContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
-import { Button } from '../components/ui/button';
-import { Info, FileText, ClipboardList } from 'lucide-react';
+import { Info, ClipboardList } from 'lucide-react';
 
 const FeedbackPage: React.FC = () => {
   const { 
@@ -16,8 +14,6 @@ const FeedbackPage: React.FC = () => {
     clients = [], 
     fetchClients 
   } = useAppContext();
-  
-  const [formType, setFormType] = useState<'simple' | 'comprehensive'>('comprehensive');
   
   // Ensure clients are fetched when a tour is selected
   useEffect(() => {
@@ -65,38 +61,16 @@ const FeedbackPage: React.FC = () => {
               <Card className="bg-muted/30">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <FileText className="h-5 w-5" />
-                    Choose Feedback Form Type
+                    <ClipboardList className="h-5 w-5" />
+                    Comprehensive Feedback Form
                   </CardTitle>
                   <CardDescription>
-                    Select which feedback form to use for this client
+                    Complete detailed feedback for {selectedClient.full_name}
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="flex gap-4">
-                  <Button
-                    variant={formType === 'comprehensive' ? 'default' : 'outline'}
-                    onClick={() => setFormType('comprehensive')}
-                    className="flex items-center gap-2"
-                  >
-                    <ClipboardList className="h-4 w-4" />
-                    Comprehensive Form (Recommended)
-                  </Button>
-                  <Button
-                    variant={formType === 'simple' ? 'default' : 'outline'}
-                    onClick={() => setFormType('simple')}
-                    className="flex items-center gap-2"
-                  >
-                    <FileText className="h-4 w-4" />
-                    Simple Form
-                  </Button>
-                </CardContent>
               </Card>
               
-              {formType === 'comprehensive' ? (
-                <ComprehensiveFeedbackForm />
-              ) : (
-                <FeedbackForm />
-              )}
+              <ComprehensiveFeedbackForm />
             </div>
           )}
         </div>

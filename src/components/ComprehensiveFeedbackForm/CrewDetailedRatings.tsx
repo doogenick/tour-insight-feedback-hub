@@ -39,18 +39,18 @@ const CrewDetailedRatings: React.FC<CrewDetailedRatingsProps> = ({
       <RadioGroup 
         value={currentValue.toString()} 
         onValueChange={(value) => updateFormData(fieldKey, parseInt(value))}
-        className="flex flex-row justify-center gap-1 sm:gap-2"
+        className="flex justify-center gap-3 my-2"
       >
         {[1, 2, 3, 4, 5, 6, 7].map((num) => (
           <div key={num} className="flex flex-col items-center">
             <RadioGroupItem 
               value={num.toString()} 
               id={`${crewKey}_${categoryKey}_${num}`}
-              className="w-6 h-6 sm:w-4 sm:h-4 border-2"
+              className="w-5 h-5 border-2 touch-manipulation"
             />
             <Label 
               htmlFor={`${crewKey}_${categoryKey}_${num}`}
-              className="text-xs mt-1 cursor-pointer"
+              className="text-sm mt-1 cursor-pointer select-none"
             >
               {num}
             </Label>
@@ -61,50 +61,25 @@ const CrewDetailedRatings: React.FC<CrewDetailedRatingsProps> = ({
   };
 
   return (
-    <div className="space-y-4 mt-8">
-      <div className="bg-black text-white p-3 text-center text-sm font-bold">
-        CREW DETAILED RATINGS
-        <div className="text-xs mt-1">1= Excellent 2= Very Good 3= Good 4= Average 5= Below Average 6= Poor 7= Unacceptable</div>
+    <div className="space-y-6 mt-8">
+      <div className="bg-black text-white p-4 text-center font-bold">
+        <div className="text-lg mb-2">CREW DETAILED RATINGS</div>
+        <div className="text-sm">1 = Excellent | 2 = Very Good | 3 = Good | 4 = Average | 5 = Below Average | 6 = Poor | 7 = Unacceptable</div>
       </div>
       
-      {/* Desktop View */}
-      <div className="hidden lg:block border border-black">
-        <div className="grid grid-cols-6 gap-2 bg-gray-100 border-b border-black">
-          <div className="p-2 text-center font-bold text-xs border-r border-black">CREW</div>
-          {crewCategories.map((category) => (
-            <div key={category.key} className="p-2 text-center font-bold text-xs border-r border-black last:border-r-0">
-              {category.label}
-              <br />
-              <span className="text-xs">1 2 3 4 5 6 7</span>
-            </div>
-          ))}
-        </div>
-        
+      {/* Mobile-First Design */}
+      <div className="space-y-8">
         {crewMembers.map((crew) => (
-          <div key={crew.key} className="grid grid-cols-6 gap-2 border-b border-gray-200 last:border-b-0">
-            <div className="p-2 font-bold text-xs bg-gray-50 border-r border-gray-200">
+          <div key={crew.key} className="border-2 border-gray-300 rounded-lg overflow-hidden">
+            <div className="bg-tour-primary text-white p-4 text-center font-bold text-lg">
               {crew.name}
             </div>
-            {crewCategories.map((category) => (
-              <div key={category.key} className="p-1 border-r border-gray-200 last:border-r-0">
-                <RatingScale crewKey={crew.key} categoryKey={category.key} />
-              </div>
-            ))}
-          </div>
-        ))}
-      </div>
-
-      {/* Mobile View */}
-      <div className="lg:hidden space-y-6">
-        {crewMembers.map((crew) => (
-          <div key={crew.key} className="border border-gray-300 rounded-lg overflow-hidden">
-            <div className="bg-gray-100 p-3 font-bold text-center border-b border-gray-300">
-              {crew.name}
-            </div>
-            <div className="p-4 space-y-4">
+            <div className="p-6 space-y-6">
               {crewCategories.map((category) => (
-                <div key={category.key} className="space-y-2">
-                  <div className="font-medium text-sm">{category.label}</div>
+                <div key={category.key} className="space-y-3">
+                  <div className="text-center font-semibold text-lg text-gray-700 border-b border-gray-200 pb-2">
+                    {category.label}
+                  </div>
                   <RatingScale crewKey={crew.key} categoryKey={category.key} />
                 </div>
               ))}
@@ -113,14 +88,14 @@ const CrewDetailedRatings: React.FC<CrewDetailedRatingsProps> = ({
         ))}
       </div>
       
-      <div className="mt-6">
-        <div className="font-bold mb-2">Additional Comments:</div>
+      <div className="mt-8 p-6 border border-gray-300 rounded-lg">
+        <div className="font-bold text-lg mb-4 text-center">Additional Comments:</div>
         <Textarea
           value={formData.additional_comments || ''}
           onChange={(e) => updateFormData('additional_comments', e.target.value)}
           placeholder="Please share any additional feedback about your experience..."
-          className="min-h-[80px]"
-          rows={4}
+          className="min-h-[120px] text-lg p-4"
+          rows={6}
         />
       </div>
     </div>

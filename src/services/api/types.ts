@@ -1,3 +1,4 @@
+
 // Define types for our data models
 export interface Tour {
   tour_id: string;
@@ -31,6 +32,15 @@ export interface ComprehensiveFeedback {
   id: string;
   tour_id: string;
   client_id: string;
+  
+  // Client details
+  client_name?: string;
+  client_email?: string;
+  client_initials?: string; // Added this missing field
+  email?: string; // Added for compatibility
+  nationality?: string;
+  age?: number;
+  gender?: 'male' | 'female' | 'other' | '';
   
   // Tour section completed
   tour_section_completed: 'cape_town_vic_falls' | 'cape_town_windhoek' | 'cape_town_swakopmund_vic_falls' | 'windhoek_vic_falls' | '';
@@ -119,14 +129,6 @@ export interface ComprehensiveFeedback {
   // Open-ended feedback
   tour_highlight?: string;
   improvement_suggestions?: string;
-  
-  // Personal details (optional)
-  client_name?: string;
-  client_email?: string;
-  email?: string; // Added for compatibility
-  nationality?: string;
-  age?: number;
-  gender?: 'male' | 'female' | 'other' | '';
   
   // Contact preferences
   willing_to_review_google?: boolean;
