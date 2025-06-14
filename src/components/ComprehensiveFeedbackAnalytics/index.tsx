@@ -13,7 +13,8 @@ import {
   Star, 
   TrendingUp,
   Filter,
-  RefreshCw
+  RefreshCw,
+  Database
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -31,10 +32,11 @@ import {
   Line
 } from 'recharts';
 import { comprehensiveFeedbackService, FeedbackAnalytics } from '../../services/comprehensiveFeedbackService';
-import { ComprehensiveFeedback } from '../../services/api/types';
+import { ComprehensiveFeedback, tourService } from '../../services/api';
 import FilterControls from './FilterControls';
 import RatingDistributionChart from './RatingDistributionChart';
 import SatisfactionMetrics from './SatisfactionMetrics';
+import { useToast } from '../ui/use-toast';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82ca9d', '#ffc658'];
 
@@ -49,6 +51,8 @@ const ComprehensiveFeedbackAnalytics: React.FC = () => {
     nationality: '',
     ratingThreshold: 0
   });
+  const [generatingDemo, setGeneratingDemo] = useState(false);
+  const { toast } = useToast();
 
   const loadData = async () => {
     setLoading(true);
@@ -102,6 +106,31 @@ const ComprehensiveFeedbackAnalytics: React.FC = () => {
     }
   };
 
+  // NEW: Demo data generation logic for this screen
+  const handleGenerateDemoFeedback = async () => {
+    setGeneratingDemo(true);
+    toast({
+      title: "Generating Demo Data...",
+      description: "Populating comprehensive feedback. Please wait.",
+    });
+    try {
+      await tourService.generateDemoData();
+      toast({
+        title: "Demo Data Generated",
+        description: "You can now see demo analytics and export the data.",
+      });
+      await loadData(); // Refresh analytics after generation
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error generating demo data",
+        description: error instanceof Error ? error.message : undefined,
+      });
+    } finally {
+      setGeneratingDemo(false);
+    }
+  };
+
   // Prepare chart data
   const ratingChartData = analytics ? Object.entries(analytics.averageRatings).map(([key, value]) => ({
     category: key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1'),
@@ -136,12 +165,12 @@ const ComprehensiveFeedbackAnalytics: React.FC = () => {
     }
   ] : [];
 
-  if (loading) {
+  if (loading || generatingDemo) {
     return (
       <div className="p-6">
         <div className="flex items-center justify-center h-64">
           <RefreshCw className="h-8 w-8 animate-spin" />
-          <span className="ml-2">Loading analytics...</span>
+          <span className="ml-2">{generatingDemo ? "Generating demo data..." : "Loading analytics..."}</span>
         </div>
       </div>
     );
@@ -149,12 +178,23 @@ const ComprehensiveFeedbackAnalytics: React.FC = () => {
 
   if (!analytics) {
     return (
-      <div className="p-6">
+      <div className="p-6 space-y-4">
         <Card>
           <CardContent className="p-6 text-center">
             <p className="text-muted-foreground">No feedback data available for analytics.</p>
           </CardContent>
         </Card>
+        <div className="flex justify-center">
+          <Button
+            onClick={handleGenerateDemoFeedback}
+            disabled={generatingDemo}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <Database className="h-4 w-4" />
+            {generatingDemo ? "Generating Demo Data..." : "Generate Demo Data"}
+          </Button>
+        </div>
       </div>
     );
   }
@@ -175,6 +215,16 @@ const ComprehensiveFeedbackAnalytics: React.FC = () => {
           <Button onClick={loadData} variant="outline">
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
+          </Button>
+          {/* ALSO: Add "Generate Demo Data" for easy repeat testing */}
+          <Button
+            onClick={handleGenerateDemoFeedback}
+            disabled={generatingDemo}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <Database className="h-4 w-4" />
+            {generatingDemo ? "Generating..." : "Generate Demo Data"}
           </Button>
         </div>
       </div>
@@ -417,3 +467,4 @@ const ComprehensiveFeedbackAnalytics: React.FC = () => {
 };
 
 export default ComprehensiveFeedbackAnalytics;
+
