@@ -3,42 +3,20 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Button } from '../ui/button';
-import { Badge } from '../ui/badge';
-import { Progress } from '../ui/progress';
-import { 
-  Download, 
-  BarChart3, 
-  PieChart, 
-  Users, 
-  Star, 
-  TrendingUp,
-  Filter,
-  RefreshCw,
-  Database
-} from 'lucide-react';
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend, 
-  ResponsiveContainer,
-  PieChart as RechartsPieChart,
-  Cell,
-  Pie,
-  LineChart,
-  Line
-} from 'recharts';
+import { RefreshCw, Database } from 'lucide-react';
 import { comprehensiveFeedbackService, FeedbackAnalytics } from '../../services/comprehensiveFeedbackService';
-import { ComprehensiveFeedback, tourService } from '../../services/api';
+import { tourService } from '../../services/api';
+import { ComprehensiveFeedback } from '../../types/ComprehensiveFeedback';
 import FilterControls from './FilterControls';
 import RatingDistributionChart from './RatingDistributionChart';
 import SatisfactionMetrics from './SatisfactionMetrics';
 import { useToast } from '../ui/use-toast';
-
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82ca9d', '#ffc658'];
+import AnalyticsHeader from './AnalyticsHeader';
+import KeyMetrics from './KeyMetrics';
+import RatingsTab from './tabs/RatingsTab';
+import SatisfactionTab from './tabs/SatisfactionTab';
+import CrewPerformanceTab from './tabs/CrewPerformanceTab';
+import FeedbackTextTab from './tabs/FeedbackTextTab';
 
 const ComprehensiveFeedbackAnalytics: React.FC = () => {
   const [analytics, setAnalytics] = useState<FeedbackAnalytics | null>(null);
@@ -106,7 +84,6 @@ const ComprehensiveFeedbackAnalytics: React.FC = () => {
     }
   };
 
-  // NEW: Demo data generation logic for this screen
   const handleGenerateDemoFeedback = async () => {
     setGeneratingDemo(true);
     toast({
@@ -135,7 +112,6 @@ const ComprehensiveFeedbackAnalytics: React.FC = () => {
   const ratingChartData = analytics ? Object.entries(analytics.averageRatings).map(([key, value]) => ({
     category: key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1'),
     rating: value,
-    performance: value <= 2.5 ? 'Excellent' : value <= 4 ? 'Good' : 'Needs Improvement'
   })) : [];
 
   const satisfactionChartData = analytics ? [
@@ -152,7 +128,6 @@ const ComprehensiveFeedbackAnalytics: React.FC = () => {
       organisation: analytics.crewPerformance.guide.organisation,
       peopleSkills: analytics.crewPerformance.guide.peopleSkills,
       enthusiasm: analytics.crewPerformance.guide.enthusiasm,
-      information: analytics.crewPerformance.guide.information
     },
     {
       category: 'Driver',
@@ -161,7 +136,6 @@ const ComprehensiveFeedbackAnalytics: React.FC = () => {
       organisation: analytics.crewPerformance.driver.organisation,
       peopleSkills: analytics.crewPerformance.driver.peopleSkills,
       enthusiasm: analytics.crewPerformance.driver.enthusiasm,
-      information: analytics.crewPerformance.driver.information
     }
   ] : [];
 
@@ -201,33 +175,13 @@ const ComprehensiveFeedbackAnalytics: React.FC = () => {
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Comprehensive Feedback Analytics</h1>
-        <div className="flex gap-2">
-          <Button onClick={handleExportJSON} variant="outline">
-            <Download className="h-4 w-4 mr-2" />
-            Export JSON
-          </Button>
-          <Button onClick={handleExportCSV} variant="outline">
-            <Download className="h-4 w-4 mr-2" />
-            Export CSV
-          </Button>
-          <Button onClick={loadData} variant="outline">
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Refresh
-          </Button>
-          {/* ALSO: Add "Generate Demo Data" for easy repeat testing */}
-          <Button
-            onClick={handleGenerateDemoFeedback}
-            disabled={generatingDemo}
-            variant="outline"
-            className="flex items-center gap-2"
-          >
-            <Database className="h-4 w-4" />
-            {generatingDemo ? "Generating..." : "Generate Demo Data"}
-          </Button>
-        </div>
-      </div>
+      <AnalyticsHeader
+        onExportJSON={handleExportJSON}
+        onExportCSV={handleExportCSV}
+        onRefresh={loadData}
+        onGenerateDemo={handleGenerateDemoFeedback}
+        isGeneratingDemo={generatingDemo}
+      />
 
       <FilterControls 
         feedback={allFeedback}
@@ -236,66 +190,7 @@ const ComprehensiveFeedbackAnalytics: React.FC = () => {
         onFiltersChange={setFilters}
       />
 
-      {/* Key Metrics Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              Total Submissions
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{analytics.totalSubmissions}</div>
-            <p className="text-xs text-muted-foreground">Feedback entries</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <Star className="h-4 w-4" />
-              Overall Average
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{analytics.averageRatings.overview.toFixed(1)}</div>
-            <Progress 
-              value={((7 - analytics.averageRatings.overview) / 6) * 100} 
-              className="mt-2" 
-            />
-            <p className="text-xs text-muted-foreground">1 = Perfect, 7 = Poor</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <TrendingUp className="h-4 w-4" />
-              Satisfaction Rate
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{analytics.satisfactionMetrics.metExpectations.percentage}%</div>
-            <Progress value={analytics.satisfactionMetrics.metExpectations.percentage} className="mt-2" />
-            <p className="text-xs text-muted-foreground">Met expectations</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <PieChart className="h-4 w-4" />
-              Recommendation Rate
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{analytics.satisfactionMetrics.wouldRecommend.percentage}%</div>
-            <Progress value={analytics.satisfactionMetrics.wouldRecommend.percentage} className="mt-2" />
-            <p className="text-xs text-muted-foreground">Would recommend</p>
-          </CardContent>
-        </Card>
-      </div>
+      <KeyMetrics analytics={analytics} />
 
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList className="grid w-full grid-cols-5">
@@ -329,137 +224,19 @@ const ComprehensiveFeedbackAnalytics: React.FC = () => {
         </TabsContent>
 
         <TabsContent value="ratings" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Average Ratings by Category</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={400}>
-                <BarChart data={ratingChartData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis 
-                    dataKey="category" 
-                    angle={-45}
-                    textAnchor="end"
-                    height={80}
-                    fontSize={12}
-                  />
-                  <YAxis domain={[0, 7]} />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="rating" fill="#8884d8" name="Average Rating" />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+          <RatingsTab data={ratingChartData} />
         </TabsContent>
 
         <TabsContent value="satisfaction" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Satisfaction Percentages</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <RechartsPieChart>
-                  <Pie
-                    data={satisfactionChartData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, value }) => `${name}: ${value}%`}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {satisfactionChartData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </RechartsPieChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+          <SatisfactionTab data={satisfactionChartData} />
         </TabsContent>
 
         <TabsContent value="crew" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Crew Performance Comparison</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={400}>
-                <BarChart data={crewPerformanceData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="category" />
-                  <YAxis domain={[0, 7]} />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="overall" fill="#8884d8" name="Overall" />
-                  <Bar dataKey="professionalism" fill="#82ca9d" name="Professionalism" />
-                  <Bar dataKey="organisation" fill="#ffc658" name="Organisation" />
-                  <Bar dataKey="peopleSkills" fill="#ff7300" name="People Skills" />
-                  <Bar dataKey="enthusiasm" fill="#0088fe" name="Enthusiasm" />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+          <CrewPerformanceTab data={crewPerformanceData} />
         </TabsContent>
 
         <TabsContent value="feedback" className="space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Tour Highlights</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2 max-h-64 overflow-y-auto">
-                {analytics.commonFeedback.highlights.length > 0 ? (
-                  analytics.commonFeedback.highlights.map((highlight, index) => (
-                    <div key={index} className="p-2 bg-muted rounded text-sm">
-                      "{highlight}"
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-muted-foreground">No highlights available</p>
-                )}
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Improvement Suggestions</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2 max-h-64 overflow-y-auto">
-                {analytics.commonFeedback.improvements.length > 0 ? (
-                  analytics.commonFeedback.improvements.map((improvement, index) => (
-                    <div key={index} className="p-2 bg-muted rounded text-sm">
-                      "{improvement}"
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-muted-foreground">No suggestions available</p>
-                )}
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Additional Comments</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2 max-h-64 overflow-y-auto">
-                {analytics.commonFeedback.additionalComments.length > 0 ? (
-                  analytics.commonFeedback.additionalComments.map((comment, index) => (
-                    <div key={index} className="p-2 bg-muted rounded text-sm">
-                      "{comment}"
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-muted-foreground">No additional comments available</p>
-                )}
-              </CardContent>
-            </Card>
-          </div>
+          <FeedbackTextTab commonFeedback={analytics.commonFeedback} />
         </TabsContent>
       </Tabs>
     </div>
@@ -467,4 +244,3 @@ const ComprehensiveFeedbackAnalytics: React.FC = () => {
 };
 
 export default ComprehensiveFeedbackAnalytics;
-
