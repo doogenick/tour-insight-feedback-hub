@@ -96,7 +96,134 @@ const generateInitials = (fullName: string): string => {
 };
 
 export const dummyDataGenerator = {
-  // Generate comprehensive feedback
+  // Generate comprehensive feedback for a specific set of clients and tours
+  generateComprehensiveFeedbackForClients: async (clients: Client[], tours: Tour[]): Promise<ComprehensiveFeedback[]> => {
+    const feedbackList: ComprehensiveFeedback[] = [];
+
+    for (const client of clients) {
+      const tour = tours.find(t => t.tour_id === client.tour_id);
+      if (!tour) continue;
+
+      const firstName = client.full_name.split(' ')[0] || 'Guest';
+      const lastName = client.full_name.split(' ')[1] || 'Traveler';
+      const nationality = nationalities[Math.floor(Math.random() * nationalities.length)];
+
+      const feedback: Omit<ComprehensiveFeedback, 'id' | 'status' | 'submitted_at'> = {
+        tour_id: tour.tour_id,
+        client_id: client.client_id,
+        client_name: client.full_name,
+        client_email: client.email,
+        client_initials: generateInitials(client.full_name),
+        nationality: nationality,
+        tour_section_completed: tourSections[Math.floor(Math.random() * tourSections.length)],
+        accommodation_rating: generateRating(),
+        information_rating: generateRating(),
+        quality_equipment_rating: generateRating(),
+        truck_comfort_rating: generateRating(),
+        food_quantity_rating: generateRating(),
+        food_quality_rating: generateRating(),
+        driving_rating: generateRating(),
+        guiding_rating: generateRating(),
+        organisation_rating: generateRating(),
+        overview_rating: generateRating(),
+        guide_individual_rating: generateRating(),
+        driver_individual_rating: generateRating(),
+        guide_professionalism: generateRating(),
+        guide_organisation: generateRating(),
+        guide_people_skills: generateRating(),
+        guide_enthusiasm: generateRating(),
+        guide_information: generateRating(),
+        driver_professionalism: generateRating(),
+        driver_organisation: generateRating(),
+        driver_people_skills: generateRating(),
+        driver_enthusiasm: generateRating(),
+        driver_information: generateRating(),
+        pace_rating: generateRating(),
+        route_rating: generateRating(),
+        activity_level_rating: generateRating(),
+        price_rating: generateRating(),
+        value_rating: generateRating(),
+        tour_leader_knowledge: generateRating(),
+        safety_rating: generateRating(),
+        met_expectations: generateBoolean(0.85),
+        value_for_money: generateBoolean(0.75),
+        would_recommend: generateBoolean(0.9),
+        truck_satisfaction: generateBoolean(0.8),
+        repeat_travel: generateBoolean(0.6),
+        willing_to_review_google: client.willing_to_review_google ?? generateBoolean(0.6),
+        willing_to_review_tripadvisor: client.willing_to_review_tripadvisor ?? generateBoolean(0.5),
+        newsletter_signup: generateBoolean(0.4),
+        heard_about_source: ['word_of_mouth', 'internet', 'travel_agent', 'brochure', 'repeat_client', 'other', ''][Math.floor(Math.random() * 7)] as any,
+        tour_highlight: Math.random() > 0.3 ? tourHighlights[Math.floor(Math.random() * tourHighlights.length)] : undefined,
+        improvement_suggestions: Math.random() > 0.5 ? improvementSuggestions[Math.floor(Math.random() * improvementSuggestions.length)] : undefined,
+        additional_comments: Math.random() > 0.4 ? `Great experience with ${tour.guide_name} and ${tour.driver_name}. The tour exceeded our expectations!` : undefined,
+        age: String(Math.floor(Math.random() * 50) + 18),
+        gender: Math.random() < 0.5 ? 'Male' : 'Female'
+        // Add other mapped fields as needed
+      };
+
+      // Store the feedback
+      const savedFeedback = await comprehensiveFeedbackService.submitFeedback(feedback);
+      feedbackList.push(savedFeedback);
+    }
+
+    return feedbackList;
+  },
+
+  // Updated: Generate tours and clients, and also comprehensive feedback for those clients
+  generateToursAndClients: async (tourCount: number = 8): Promise<{ tours: Tour[], clients: Client[], comprehensiveFeedback: ComprehensiveFeedback[] }> => {
+    const tours: Tour[] = [];
+    const clients: Client[] = [];
+    
+    for (let i = 0; i < tourCount; i++) {
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() + Math.floor(Math.random() * 90) - 30);
+      const endDate = new Date(startDate);
+      endDate.setDate(endDate.getDate() + Math.floor(Math.random() * 14) + 3);
+
+      const tour: Tour = {
+        tour_id: `TUR${Math.floor(Math.random() * 900000) + 100000}`,
+        tour_name: tourNames[Math.floor(Math.random() * tourNames.length)],
+        date_start: startDate.toISOString().split('T')[0],
+        date_end: endDate.toISOString().split('T')[0],
+        passenger_count: Math.floor(Math.random() * 16) + 4,
+        guide_name: guideNames[Math.floor(Math.random() * guideNames.length)],
+        driver_name: driverNames[Math.floor(Math.random() * driverNames.length)]
+      };
+      
+      tours.push(tour);
+
+      // Generate clients for this tour
+      const clientCount = Math.floor(Math.random() * 12) + 6;
+      for (let j = 0; j < clientCount; j++) {
+        const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+        const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+        
+        const client: Client = {
+          client_id: uuidv4(),
+          tour_id: tour.tour_id,
+          full_name: `${firstName} ${lastName}`,
+          email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@email.com`,
+          willing_to_review_google: generateBoolean(0.6),
+          willing_to_review_tripadvisor: generateBoolean(0.5),
+          created_at: new Date().toISOString()
+        };
+        
+        clients.push(client);
+
+        await localforage.setItem(`client_${client.client_id}`, client);
+      }
+
+      await localforage.setItem(`tour_${tour.tour_id}`, tour);
+    }
+
+    // After generating all clients/tours, generate comprehensive feedback for each client.
+    const comprehensiveFeedback = await dummyDataGenerator.generateComprehensiveFeedbackForClients(clients, tours);
+
+    return { tours, clients, comprehensiveFeedback };
+  },
+
+  // Existing: Generate comprehensive feedback for a given count (for legacy compatibility)
   generateComprehensiveFeedback: async (count: number = 50): Promise<ComprehensiveFeedback[]> => {
     const feedbackList: ComprehensiveFeedback[] = [];
     
@@ -181,59 +308,6 @@ export const dummyDataGenerator = {
     }
     
     return feedbackList;
-  },
-
-  // Generate tours and clients
-  generateToursAndClients: async (tourCount: number = 8): Promise<{ tours: Tour[], clients: Client[] }> => {
-    const tours: Tour[] = [];
-    const clients: Client[] = [];
-    
-    for (let i = 0; i < tourCount; i++) {
-      const startDate = new Date();
-      startDate.setDate(startDate.getDate() + Math.floor(Math.random() * 90) - 30); // ±30 days from now
-      
-      const endDate = new Date(startDate);
-      endDate.setDate(endDate.getDate() + Math.floor(Math.random() * 14) + 3); // 3-17 day tours
-      
-      const tour: Tour = {
-        tour_id: `TUR${Math.floor(Math.random() * 900000) + 100000}`,
-        tour_name: tourNames[Math.floor(Math.random() * tourNames.length)],
-        date_start: startDate.toISOString().split('T')[0],
-        date_end: endDate.toISOString().split('T')[0],
-        passenger_count: Math.floor(Math.random() * 16) + 4, // 4-20 passengers
-        guide_name: guideNames[Math.floor(Math.random() * guideNames.length)],
-        driver_name: driverNames[Math.floor(Math.random() * driverNames.length)]
-      };
-      
-      tours.push(tour);
-      
-      // Generate clients for this tour
-      const clientCount = Math.floor(Math.random() * 12) + 6; // 6-18 clients per tour
-      for (let j = 0; j < clientCount; j++) {
-        const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
-        const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
-        
-        const client: Client = {
-          client_id: uuidv4(),
-          tour_id: tour.tour_id,
-          full_name: `${firstName} ${lastName}`,
-          email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@email.com`,
-          willing_to_review_google: generateBoolean(0.6),
-          willing_to_review_tripadvisor: generateBoolean(0.5),
-          created_at: new Date().toISOString()
-        };
-        
-        clients.push(client);
-        
-        // Store client in localforage
-        await localforage.setItem(`client_${client.client_id}`, client);
-      }
-      
-      // Store tour in localforage
-      await localforage.setItem(`tour_${tour.tour_id}`, tour);
-    }
-    
-    return { tours, clients };
   },
 
   // Generate legacy feedback
