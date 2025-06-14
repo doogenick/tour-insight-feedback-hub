@@ -1,3 +1,4 @@
+
 import { dummyDataGenerator } from '../dummyDataGenerator';
 import { Tour, Client, ComprehensiveFeedback } from './types';
 import { api, localforage } from './config';
@@ -51,7 +52,7 @@ export const tourService = {
     }
   },
 
-  // Generate demo data: tours, clients, comprehensive & legacy feedback
+  // Generate demo data: tours, clients, and comprehensive feedback
   async generateDemoData(): Promise<{
     tours: Tour[];
     clients: Client[];
