@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAppContext } from '../../contexts/AppContext';
 import { Card, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
-import { ComprehensiveFeedback } from '../../services/api/types';
+import { ComprehensiveFeedback } from '../../types/ComprehensiveFeedback';
 import { useToast } from '../ui/use-toast';
 import { comprehensiveFeedbackService } from '../../services/comprehensiveFeedbackService';
 import { useComprehensiveFeedbackValidation } from "../../hooks/useComprehensiveFeedbackValidation";

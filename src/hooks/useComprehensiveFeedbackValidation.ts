@@ -1,6 +1,7 @@
 
-import { ComprehensiveFeedback } from "../services/api/types";
-import { Tour, Client } from "../services/api/types";
+import { ComprehensiveFeedback } from "../types/ComprehensiveFeedback";
+import { Tour } from "../types/Tour";
+import { Client } from "../types/Client";
 
 /**
  * Returns validation functions and error messages for the comprehensive feedback form.
@@ -33,4 +34,3 @@ export function useComprehensiveFeedbackValidation(
 
   return { validatePage1, requireClientEmail };
 }
-
