@@ -52,12 +52,7 @@ export const tourService = {
   },
 
   // Generate demo data: tours, clients, comprehensive & legacy feedback
-  async generateDemoData() : Promise<{
-    tours: Tour[];
-    clients: Client[];
-    comprehensiveFeedback: ComprehensiveFeedback[];
-    legacyFeedback: Feedback[];
-  }> {
+  async generateDemoData() {
     // Use the all-in-one generator for demo
     const { tours, clients, comprehensiveFeedback } =
       await dummyDataGenerator.generateToursAndClients(8);
