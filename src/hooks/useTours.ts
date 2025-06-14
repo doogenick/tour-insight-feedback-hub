@@ -49,8 +49,12 @@ export function useTours() {
   
   const generateDemoData = useCallback(async (): Promise<void> => {
     setIsLoading(true);
+    toast({
+      title: "Generating Demo Data...",
+      description: "Please wait while we create tours, clients, and feedback.",
+    });
     try {
-      const { tours: generatedTours, clients: generatedClients } = 
+      const { tours: generatedTours, clients: generatedClients, comprehensiveFeedback, legacyFeedback } = 
         await tourService.generateDemoData();
       
       setTours(generatedTours);
@@ -58,8 +62,8 @@ export function useTours() {
       setDemoDataGenerated(true);
       
       toast({
-        title: "Demo Data Generated",
-        description: `Created ${generatedTours.length} tours with clients`,
+        title: "Demo Data Loaded into DB",
+        description: `Created ${generatedTours.length} tours, ${generatedClients.length} clients, and ${comprehensiveFeedback.length + legacyFeedback.length} feedback entries.`,
         duration: 5000,
       });
     } catch (error) {
