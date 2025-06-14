@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
@@ -12,34 +11,8 @@ const ComprehensiveAnalytics: React.FC = () => {
         <h1 className="text-3xl font-bold">Analytics Dashboard</h1>
       </div>
 
-      <Tabs defaultValue="standard" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="standard">Standard Feedback</TabsTrigger>
-          <TabsTrigger value="comprehensive">Comprehensive Feedback</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="standard" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Standard Feedback Analytics</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <FeedbackAnalytics />
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="comprehensive" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Comprehensive Feedback Analytics</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ComprehensiveFeedbackAnalytics />
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+      {/* Only show the Comprehensive Feedback Analytics */}
+      <ComprehensiveFeedbackAnalytics />
     </div>
   );
 };
