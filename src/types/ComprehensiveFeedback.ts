@@ -42,7 +42,7 @@ export interface ComprehensiveFeedback {
   tour_leader_knowledge: number;
   safety_rating: number;
 
-  // Satisfaction metrics (booleans)
+  // Satisfaction metrics
   met_expectations: boolean | null;
   value_for_money: boolean | null;
   truck_satisfaction: boolean | null;
@@ -50,15 +50,35 @@ export interface ComprehensiveFeedback {
   heard_about_source?: string;
   repeat_travel: boolean | null;
 
+  // Comments for satisfaction/ratings
+  expectations_comment?: string;
+  value_for_money_comment?: string;
+  truck_satisfaction_comment?: string;
+  tour_leader_knowledge_comment?: string;
+  safety_comment?: string;
+  would_recommend_comment?: string;
+  repeat_travel_comment?: string;
+
   // Free text
   tour_highlight?: string;
   improvement_suggestions?: string;
   additional_comments?: string;
+
+  // "How did you hear about us"
+  heard_about_other?: string;
+
+  // Personal details
+  age?: string;
+  gender?: string;
+  newsletter_signup?: boolean;
 
   // Review preference
   willing_to_review_google?: boolean;
   willing_to_review_tripadvisor?: boolean;
 
   // Signature, etc.
+  client_signature?: string;
+  client_signature_date?: string;
+  crew_signature?: string;
   signature_data_url?: string;
 }
