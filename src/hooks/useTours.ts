@@ -54,7 +54,7 @@ export function useTours() {
       description: "Please wait while we create tours, clients, and feedback.",
     });
     try {
-      const { tours: generatedTours, clients: generatedClients, comprehensiveFeedback } = 
+      const { tours: generatedTours, clients: generatedClients, feedback } = 
         await tourService.generateDemoData();
       
       setTours(generatedTours);
@@ -63,7 +63,7 @@ export function useTours() {
       
       toast({
         title: "Demo Data Loaded into DB",
-        description: `Created ${generatedTours.length} tours, ${generatedClients.length} clients, and ${comprehensiveFeedback.length} feedback entries.`,
+        description: `Created ${generatedTours.length} tours, ${generatedClients.length} clients, and ${feedback.length} feedback entries.`,
         duration: 5000,
       });
     } catch (error) {
