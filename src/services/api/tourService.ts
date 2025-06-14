@@ -1,3 +1,4 @@
+
 import { dummyDataGenerator } from '../dummyDataGenerator';
 import { Tour, Client, ComprehensiveFeedback, Feedback } from './types';
 import { api, localforage } from './config';
@@ -52,7 +53,12 @@ export const tourService = {
   },
 
   // Generate demo data: tours, clients, comprehensive & legacy feedback
-  async generateDemoData() {
+  async generateDemoData(): Promise<{
+    tours: Tour[];
+    clients: Client[];
+    comprehensiveFeedback: ComprehensiveFeedback[];
+    legacyFeedback: Feedback[];
+  }> {
     // Use the all-in-one generator for demo
     const { tours, clients, comprehensiveFeedback } =
       await dummyDataGenerator.generateToursAndClients(8);
