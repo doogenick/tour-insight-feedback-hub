@@ -9,6 +9,7 @@ export interface ComprehensiveFeedback {
   client_email?: string;
   nationality?: string;
   cellphone?: string;
+  client_initials?: string;
   tour_section_completed: string;
 
   // Ratings
