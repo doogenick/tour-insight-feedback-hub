@@ -1,4 +1,3 @@
-
 import { dummyDataGenerator } from '../dummyDataGenerator';
 import { Tour, Client, ComprehensiveFeedback, Feedback } from './types';
 import { api, localforage } from './config';
@@ -60,10 +59,8 @@ export const tourService = {
     legacyFeedback: Feedback[];
   }> {
     // Use the all-in-one generator for demo
-    const { tours, clients, comprehensiveFeedback } =
+    const { tours, clients, comprehensiveFeedback, legacyFeedback } =
       await dummyDataGenerator.generateToursAndClients(8);
-    // Generate some legacy feedback (optional, or adjust count as needed)
-    const legacyFeedback = await dummyDataGenerator.generateLegacyFeedback(30);
 
     // Save a console message for clarity
     console.info('Demo data generated.', {

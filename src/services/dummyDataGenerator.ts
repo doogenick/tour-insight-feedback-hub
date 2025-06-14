@@ -171,7 +171,7 @@ export const dummyDataGenerator = {
   },
 
   // Updated: Generate tours and clients, and also comprehensive feedback for those clients
-  generateToursAndClients: async (tourCount: number = 8): Promise<{ tours: Tour[], clients: Client[], comprehensiveFeedback: ComprehensiveFeedback[] }> => {
+  generateToursAndClients: async (tourCount: number = 8): Promise<{ tours: Tour[], clients: Client[], comprehensiveFeedback: ComprehensiveFeedback[], legacyFeedback: Feedback[] }> => {
     const tours: Tour[] = [];
     const clients: Client[] = [];
     
@@ -219,8 +219,11 @@ export const dummyDataGenerator = {
 
     // After generating all clients/tours, generate comprehensive feedback for each client.
     const comprehensiveFeedback = await dummyDataGenerator.generateComprehensiveFeedbackForClients(clients, tours);
+    
+    // Also generate legacy feedback
+    const legacyFeedback = await dummyDataGenerator.generateLegacyFeedback(30);
 
-    return { tours, clients, comprehensiveFeedback };
+    return { tours, clients, comprehensiveFeedback, legacyFeedback };
   },
 
   // Existing: Generate comprehensive feedback for a given count (for legacy compatibility)
@@ -299,7 +302,7 @@ export const dummyDataGenerator = {
         // Text feedback
         tour_highlight: Math.random() > 0.3 ? tourHighlights[Math.floor(Math.random() * tourHighlights.length)] : undefined,
         improvement_suggestions: Math.random() > 0.5 ? improvementSuggestions[Math.floor(Math.random() * improvementSuggestions.length)] : undefined,
-        additional_comments: Math.random() > 0.4 ? `Great experience with ${guideName} and ${driverName}. The tour exceeded our expectations!` : undefined
+        additional_comments: Math.random() > 0.4 ? `Great tour with ${tour.guide_name}! Highly recommend.` : undefined
       };
       
       // Store the feedback
