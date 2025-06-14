@@ -1,5 +1,5 @@
 
-import tourService from './tourService';
+import { tourService } from './tourService';
 import feedbackService from './feedbackService';
 import crewService from './crewService';
 import incidentService from './incidentService';

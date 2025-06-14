@@ -64,6 +64,14 @@ export const tourService = {
     // Generate some legacy feedback (optional, or adjust count as needed)
     const legacyFeedback = await dummyDataGenerator.generateLegacyFeedback(30);
 
+    // Save a console message for clarity
+    console.info('Demo data generated.', {
+      toursCount: tours.length,
+      clientsCount: clients.length,
+      comprehensiveFeedbackCount: comprehensiveFeedback.length,
+      legacyFeedbackCount: legacyFeedback.length
+    });
+
     return { tours, clients, comprehensiveFeedback, legacyFeedback };
   },
 
