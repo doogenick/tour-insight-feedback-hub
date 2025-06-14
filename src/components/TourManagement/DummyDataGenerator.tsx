@@ -1,19 +1,17 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { useToast } from '../ui/use-toast';
-import { Database, Trash2, Users, FileText } from 'lucide-react';
+import { Database, Trash2, Users } from 'lucide-react';
 import { dummyDataGenerator } from '../../services/dummyDataGenerator';
 
 const DummyDataGenerator: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [counts, setCounts] = useState({
     tours: 8,
-    comprehensiveFeedback: 50,
-    legacyFeedback: 30
+    comprehensiveFeedback: 50
   });
   
   const { toast } = useToast();
@@ -22,17 +20,14 @@ const DummyDataGenerator: React.FC = () => {
     setIsGenerating(true);
     try {
       // Generate tours and clients first
-      const { tours, clients } = await dummyDataGenerator.generateToursAndClients(counts.tours);
+      const { clients } = await dummyDataGenerator.generateToursAndClients(counts.tours);
       
       // Generate comprehensive feedback
       await dummyDataGenerator.generateComprehensiveFeedback(counts.comprehensiveFeedback);
       
-      // Generate legacy feedback
-      await dummyDataGenerator.generateLegacyFeedback(counts.legacyFeedback);
-      
       toast({
         title: "Dummy Data Generated Successfully!",
-        description: `Created ${counts.tours} tours, ${clients.length} clients, ${counts.comprehensiveFeedback} comprehensive feedback entries, and ${counts.legacyFeedback} legacy feedback entries.`,
+        description: `Created ${counts.tours} tours, ${clients.length} clients, and ${counts.comprehensiveFeedback} comprehensive feedback entries.`,
         duration: 5000,
       });
     } catch (error) {
@@ -82,7 +77,7 @@ const DummyDataGenerator: React.FC = () => {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="tours-count">Number of Tours</Label>
             <Input
@@ -104,18 +99,6 @@ const DummyDataGenerator: React.FC = () => {
               max="200"
               value={counts.comprehensiveFeedback}
               onChange={(e) => setCounts({...counts, comprehensiveFeedback: parseInt(e.target.value) || 50})}
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="legacy-count">Legacy Feedback</Label>
-            <Input
-              id="legacy-count"
-              type="number"
-              min="10"
-              max="100"
-              value={counts.legacyFeedback}
-              onChange={(e) => setCounts({...counts, legacyFeedback: parseInt(e.target.value) || 30})}
             />
           </div>
         </div>
@@ -147,7 +130,6 @@ const DummyDataGenerator: React.FC = () => {
             <li>• Tours with realistic names, dates, and crew assignments</li>
             <li>• Clients with names, emails, and review preferences</li>
             <li>• Comprehensive feedback with all rating categories</li>
-            <li>• Legacy feedback for backwards compatibility</li>
             <li>• Realistic data distribution (weighted towards positive ratings)</li>
             <li>• Client initials for Excel export format</li>
           </ul>

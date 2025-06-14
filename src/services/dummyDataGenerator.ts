@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { ComprehensiveFeedback, Tour, Client, Feedback } from './api/types';
+import { ComprehensiveFeedback, Tour, Client } from './api/types';
 import { comprehensiveFeedbackService } from './comprehensiveFeedbackService';
 import localforage from 'localforage';
 
@@ -171,7 +171,7 @@ export const dummyDataGenerator = {
   },
 
   // Updated: Generate tours and clients, and also comprehensive feedback for those clients
-  generateToursAndClients: async (tourCount: number = 8): Promise<{ tours: Tour[], clients: Client[], comprehensiveFeedback: ComprehensiveFeedback[], legacyFeedback: Feedback[] }> => {
+  generateToursAndClients: async (tourCount: number = 8): Promise<{ tours: Tour[], clients: Client[], comprehensiveFeedback: ComprehensiveFeedback[] }> => {
     const tours: Tour[] = [];
     const clients: Client[] = [];
     
@@ -220,10 +220,7 @@ export const dummyDataGenerator = {
     // After generating all clients/tours, generate comprehensive feedback for each client.
     const comprehensiveFeedback = await dummyDataGenerator.generateComprehensiveFeedbackForClients(clients, tours);
     
-    // Also generate legacy feedback
-    const legacyFeedback = await dummyDataGenerator.generateLegacyFeedback(30);
-
-    return { tours, clients, comprehensiveFeedback, legacyFeedback };
+    return { tours, clients, comprehensiveFeedback };
   },
 
   // Existing: Generate comprehensive feedback for a given count (for legacy compatibility)
@@ -302,7 +299,7 @@ export const dummyDataGenerator = {
         // Text feedback
         tour_highlight: Math.random() > 0.3 ? tourHighlights[Math.floor(Math.random() * tourHighlights.length)] : undefined,
         improvement_suggestions: Math.random() > 0.5 ? improvementSuggestions[Math.floor(Math.random() * improvementSuggestions.length)] : undefined,
-        additional_comments: Math.random() > 0.4 ? `Great tour with ${tour.guide_name}! Highly recommend.` : undefined
+        additional_comments: Math.random() > 0.4 ? `Great tour with ${guideName}! Highly recommend.` : undefined
       };
       
       // Store the feedback
@@ -311,58 +308,6 @@ export const dummyDataGenerator = {
     }
     
     return feedbackList;
-  },
-
-  // Generate legacy feedback
-  generateLegacyFeedback: async (clientCount: number = 30): Promise<Feedback[]> => {
-    const feedback: Feedback[] = [];
-    const tours = await dummyDataGenerator.getAllStoredTours();
-    
-    for (let i = 0; i < clientCount; i++) {
-      const tour = tours[Math.floor(Math.random() * tours.length)];
-      if (!tour) continue;
-      
-      const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
-      const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
-      
-      const feedbackItem: Feedback = {
-        id: uuidv4(),
-        tour_id: tour.tour_id,
-        client_id: uuidv4(),
-        guide_name: tour.guide_name,
-        driver_name: tour.driver_name,
-        rating_overall: generateRating(),
-        rating_guide: generateRating(),
-        rating_driver: generateRating(),
-        rating_food: Math.random() > 0.2 ? generateRating() : undefined,
-        rating_equipment: Math.random() > 0.2 ? generateRating() : undefined,
-        comments: Math.random() > 0.4 ? `Great tour with ${tour.guide_name}! Highly recommend.` : undefined,
-        submitted_at: generateDate(),
-        status: 'Synced'
-      };
-      
-      feedback.push(feedbackItem);
-      
-      // Store in localforage
-      await localforage.setItem(`feedback_${feedbackItem.id}`, feedbackItem);
-    }
-    
-    return feedback;
-  },
-
-  // Helper to get all stored tours
-  getAllStoredTours: async (): Promise<Tour[]> => {
-    const tours: Tour[] = [];
-    const keys = await localforage.keys();
-    
-    for (const key of keys) {
-      if (key.startsWith('tour_')) {
-        const tour = await localforage.getItem<Tour>(key);
-        if (tour) tours.push(tour);
-      }
-    }
-    
-    return tours;
   },
 
   // Clear all dummy data

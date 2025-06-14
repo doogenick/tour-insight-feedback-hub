@@ -91,10 +91,10 @@ const ComprehensiveFeedbackAnalytics: React.FC = () => {
       description: "Populating comprehensive feedback. Please wait.",
     });
     try {
-      const { comprehensiveFeedback, legacyFeedback } = await tourService.generateDemoData();
+      const { comprehensiveFeedback } = await tourService.generateDemoData();
       toast({
         title: "Demo Data Loaded into DB",
-        description: `Generated ${comprehensiveFeedback.length + legacyFeedback.length} new feedback entries. Analytics will now refresh.`,
+        description: `Generated ${comprehensiveFeedback.length} new feedback entries. Analytics will now refresh.`,
       });
       await loadData(); // Refresh analytics after generation
     } catch (error) {

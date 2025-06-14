@@ -1,5 +1,5 @@
 import { dummyDataGenerator } from '../dummyDataGenerator';
-import { Tour, Client, ComprehensiveFeedback, Feedback } from './types';
+import { Tour, Client, ComprehensiveFeedback } from './types';
 import { api, localforage } from './config';
 
 export const tourService = {
@@ -56,10 +56,9 @@ export const tourService = {
     tours: Tour[];
     clients: Client[];
     comprehensiveFeedback: ComprehensiveFeedback[];
-    legacyFeedback: Feedback[];
   }> {
     // Use the all-in-one generator for demo
-    const { tours, clients, comprehensiveFeedback, legacyFeedback } =
+    const { tours, clients, comprehensiveFeedback } =
       await dummyDataGenerator.generateToursAndClients(8);
 
     // Save a console message for clarity
@@ -67,10 +66,9 @@ export const tourService = {
       toursCount: tours.length,
       clientsCount: clients.length,
       comprehensiveFeedbackCount: comprehensiveFeedback.length,
-      legacyFeedbackCount: legacyFeedback.length
     });
 
-    return { tours, clients, comprehensiveFeedback, legacyFeedback };
+    return { tours, clients, comprehensiveFeedback };
   },
 
   // Reset demo data
