@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAppContext } from '../../contexts/AppContext';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card';
@@ -101,7 +100,7 @@ const FeedbackForm: React.FC = () => {
     }
     
     try {
-      // Prepare feedback data
+      // Prepare feedback data, remove undefined to enforce type safety
       const feedbackData: Omit<Feedback, 'id' | 'status' | 'submitted_at'> = {
         tour_id: selectedTour.tour_id,
         client_id: selectedClient.client_id,
@@ -110,9 +109,9 @@ const FeedbackForm: React.FC = () => {
         rating_overall: ratingOverall,
         rating_guide: ratingGuide,
         rating_driver: ratingDriver,
-        rating_food: ratingFood !== 0 ? ratingFood : undefined,
-        rating_equipment: ratingEquipment !== 0 ? ratingEquipment : undefined,
-        comments: comments.trim() || undefined
+        ...(ratingFood !== 0 ? { rating_food: ratingFood } : {}),
+        ...(ratingEquipment !== 0 ? { rating_equipment: ratingEquipment } : {}),
+        ...(comments.trim() ? { comments: comments.trim() } : {}),
       };
       
       // Submit feedback
@@ -122,8 +121,13 @@ const FeedbackForm: React.FC = () => {
         setSubmittedFeedback(result.data);
         setSubmitted(true);
       }
-    } catch (error) {
-      console.error('Error submitting feedback:', error);
+    } catch (error: any) {
+      console.error('Error submitting feedback:', error?.message || error);
+      toast({
+        variant: "destructive",
+        title: "Submission Failed",
+        description: `Submission failed: ${error?.message || "Unknown error"}`
+      });
     }
   };
   
