@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAppContext } from '../../contexts/AppContext';
 import { Card, CardContent } from '../ui/card';
@@ -6,6 +5,7 @@ import { Button } from '../ui/button';
 import { ComprehensiveFeedback } from '../../services/api/types';
 import { useToast } from '../ui/use-toast';
 import { comprehensiveFeedbackService } from '../../services/comprehensiveFeedbackService';
+import { useComprehensiveFeedbackValidation } from "../../hooks/useComprehensiveFeedbackValidation";
 
 import FeedbackHeader from './FeedbackHeader';
 import TourDetailsSection from './TourDetailsSection';
@@ -73,6 +73,13 @@ const ComprehensiveFeedbackForm: React.FC = () => {
   const [submitted, setSubmitted] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
+  // Use custom validation hook
+  const { validatePage1, requireClientEmail } = useComprehensiveFeedbackValidation(
+    selectedTour,
+    selectedClient,
+    formData
+  );
+
   // Update form data when context changes
   useEffect(() => {
     if (selectedClient?.email) {
@@ -88,22 +95,19 @@ const ComprehensiveFeedbackForm: React.FC = () => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
   
-  const validatePage1 = (): boolean => {
-    if (!selectedTour || !selectedClient) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Tour and client must be selected first",
-      });
-      return false;
-    }
-    
-    return true;
-  };
-  
   const handleNextPage = () => {
-    if (currentPage === 1 && validatePage1()) {
-      setCurrentPage(2);
+    if (currentPage === 1) {
+      const { valid, message } = validatePage1();
+      if (valid) {
+        setCurrentPage(2);
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: message,
+        });
+        return;
+      }
     } else if (currentPage === 2) {
       setCurrentPage(3);
     }
@@ -118,21 +122,12 @@ const ComprehensiveFeedbackForm: React.FC = () => {
   };
   
   const handleSubmit = async () => {
-    if (!selectedTour || !selectedClient) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Tour and client must be selected first",
-      });
-      return;
-    }
-
-    // Require email address before submission
-    if (!formData.client_email || !formData.client_email.trim()) {
+    const { valid: emailValid, message: emailMsg } = requireClientEmail();
+    if (!emailValid) {
       toast({
         variant: "destructive",
         title: "Email Required",
-        description: "Please provide your email address before submitting.",
+        description: emailMsg,
       });
       setCurrentPage(3);
       return;
