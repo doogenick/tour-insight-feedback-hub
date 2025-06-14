@@ -1,19 +1,17 @@
+
 import { v4 as uuidv4 } from 'uuid';
 import { api, localforage } from './config';
 import { Feedback } from './types';
 
 const feedbackService = {
   // Submit feedback with offline capability
-  submitFeedback: async (feedbackData: Omit<Feedback, 'id' | 'status' | 'submitted_at' | 'has_shared_review' | 'tour_end_date' | 'last_review_reminder_sent'>): Promise<{ success: boolean; message: string; data?: Feedback }> => {
+  submitFeedback: async (feedbackData: Omit<Feedback, 'id' | 'status' | 'submitted_at'>): Promise<{ success: boolean; message: string; data?: Feedback }> => {
     // Generate a UUID for the feedback
     const newFeedback: Feedback = {
       ...feedbackData,
       id: uuidv4(),
       status: 'Pending',
       submitted_at: new Date().toISOString(),
-      has_shared_review: false,
-      tour_end_date: new Date().toISOString(), // Default to current time, can be overridden
-      last_review_reminder_sent: undefined // No reminders sent yet
     };
 
     // Check if online
@@ -144,3 +142,4 @@ const feedbackService = {
 };
 
 export default feedbackService;
+
