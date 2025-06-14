@@ -126,9 +126,20 @@ const ComprehensiveFeedbackForm: React.FC = () => {
       });
       return;
     }
-    
+
+    // Require email address before submission
+    if (!formData.client_email || !formData.client_email.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Email Required",
+        description: "Please provide your email address before submitting.",
+      });
+      setCurrentPage(3);
+      return;
+    }
+
     setIsSubmitting(true);
-    
+
     try {
       const feedbackData: Omit<ComprehensiveFeedback, 'id' | 'status' | 'submitted_at'> = {
         ...formData,

@@ -1,4 +1,3 @@
-
 // Define types for our data models
 export interface Tour {
   tour_id: string;
@@ -41,7 +40,8 @@ export interface ComprehensiveFeedback {
   nationality?: string;
   age?: number;
   gender?: 'male' | 'female' | 'other' | '';
-  
+  cellphone?: string; // <-- Added support for cellphone
+
   // Tour section completed
   tour_section_completed: 'cape_town_vic_falls' | 'cape_town_windhoek' | 'cape_town_swakopmund_vic_falls' | 'windhoek_vic_falls' | '';
   

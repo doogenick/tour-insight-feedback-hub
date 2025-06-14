@@ -17,7 +17,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
 }) => {
   return (
     <div className="space-y-6">
-      <h3 className="font-bold text-lg">Personal Details (Optional)</h3>
+      <h3 className="font-bold text-lg">Personal Details</h3>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
@@ -31,13 +31,28 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="client_email">Email Address</Label>
+          <Label htmlFor="client_email" className="after:content-['*'] after:ml-1 after:text-destructive">Email Address</Label>
           <Input
             id="client_email"
             type="email"
             value={formData.client_email || ''}
             onChange={(e) => updateFormData('client_email', e.target.value)}
             placeholder="your@email.com"
+            required
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="cellphone">Cellphone Number <span className="text-muted-foreground text-xs">(optional)</span></Label>
+          <Input
+            id="cellphone"
+            type="tel"
+            value={formData.cellphone || ''}
+            onChange={(e) => updateFormData('cellphone', e.target.value)}
+            placeholder="e.g. +27821234567"
+            inputMode="tel"
+            pattern="^(\+?\d{6,})?$"
+            autoComplete="tel"
           />
         </div>
         
@@ -89,7 +104,6 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
       
       <div className="space-y-4">
         <Label className="font-bold">Marketing Preferences</Label>
-        
         <div className="space-y-3">
           <div className="flex items-center space-x-2">
             <Checkbox
