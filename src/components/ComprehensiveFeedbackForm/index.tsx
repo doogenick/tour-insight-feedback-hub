@@ -17,6 +17,7 @@ import AdditionalQuestions from './AdditionalQuestions';
 import OpenEndedFeedback from './OpenEndedFeedback';
 import PersonalDetails from './PersonalDetails';
 import SignatureSection from './SignatureSection';
+import ReviewSharingSection from './ReviewSharingSection';
 import SubmissionActions from './SubmissionActions';
 import SuccessMessage from '../FeedbackForm/SuccessMessage';
 
@@ -327,6 +328,12 @@ const ComprehensiveFeedbackForm: React.FC = () => {
             <PersonalDetails
               formData={formData}
               updateFormData={updateFormData}
+            />
+            
+            <ReviewSharingSection
+              formData={formData}
+              updateFormData={updateFormData}
+              clientEmail={selectedClient?.email}
             />
             
             <SignatureSection
