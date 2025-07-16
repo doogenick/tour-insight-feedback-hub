@@ -184,11 +184,16 @@ export const dummyDataGenerator = {
       const tour: Tour = {
         tour_id: `TUR${Math.floor(Math.random() * 900000) + 100000}`,
         tour_name: tourNames[Math.floor(Math.random() * tourNames.length)],
+        tour_code: `TAD${new Date().toISOString().slice(2, 4)}${(new Date().getMonth() + 1).toString().padStart(2, '0')}${new Date().getDate().toString().padStart(2, '0')}`,
         date_start: startDate.toISOString().split('T')[0],
         date_end: endDate.toISOString().split('T')[0],
         passenger_count: Math.floor(Math.random() * 16) + 4,
         guide_name: guideNames[Math.floor(Math.random() * guideNames.length)],
-        driver_name: driverNames[Math.floor(Math.random() * driverNames.length)]
+        driver_name: driverNames[Math.floor(Math.random() * driverNames.length)],
+        tour_type: ['camping', 'camping_accommodated', 'accommodated'][Math.floor(Math.random() * 3)] as 'camping' | 'camping_accommodated' | 'accommodated',
+        status: ['planned', 'active', 'completed'][Math.floor(Math.random() * 3)] as 'planned' | 'active' | 'completed',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       };
       
       tours.push(tour);

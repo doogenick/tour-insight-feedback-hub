@@ -4,7 +4,7 @@ import { BarChart4, Filter, Download } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Label } from '../ui/label';
 import { Button } from '../ui/button';
-import { Tour } from '../../types/Tour';
+import { Tour } from '../../services/api/types';
 import { excelExportService } from '../../services/excelExportService';
 import { useToast } from '../ui/use-toast';
 
