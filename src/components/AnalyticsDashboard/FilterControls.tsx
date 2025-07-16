@@ -4,7 +4,7 @@ import { BarChart4, Filter, Download } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Label } from '../ui/label';
 import { Button } from '../ui/button';
-import { Tour } from '../../services/api';
+import { Tour } from '../../types/Tour';
 import { excelExportService } from '../../services/excelExportService';
 import { useToast } from '../ui/use-toast';
 
@@ -25,10 +25,13 @@ const FilterControls: React.FC<FilterControlsProps> = ({
     try {
       const exportData = await excelExportService.prepareExportData();
       
-      // Filter data for selected tour if not "all"
+      // Filter data for selected tour code if not "all"
       const filteredData = selectedTourId === 'all' 
         ? exportData 
-        : exportData.filter(item => item.tourId === selectedTourId);
+        : exportData.filter(item => {
+            const tour = tours.find(t => t.tour_id === item.tourId);
+            return (tour?.tour_code || tour?.tour_id) === selectedTourId;
+          });
 
       if (filteredData.length === 0) {
         toast({
@@ -83,7 +86,7 @@ const FilterControls: React.FC<FilterControlsProps> = ({
       
       const tourName = selectedTourId === 'all' 
         ? 'all-tours' 
-        : tours.find(t => t.tour_id === selectedTourId)?.tour_name?.replace(/[^a-zA-Z0-9]/g, '-') || selectedTourId;
+        : selectedTourId.replace(/[^a-zA-Z0-9]/g, '-');
       
       link.download = `feedback-${tourName}-${new Date().toISOString().split('T')[0]}.csv`;
       document.body.appendChild(link);
@@ -93,7 +96,7 @@ const FilterControls: React.FC<FilterControlsProps> = ({
 
       toast({
         title: "Export Complete",
-        description: `Exported ${filteredData.length} feedback entries for ${selectedTourId === 'all' ? 'all tours' : 'selected tour'}`
+        description: `Exported ${filteredData.length} feedback entries for ${selectedTourId === 'all' ? 'all tours' : `tour code: ${selectedTourId}`}`
       });
 
     } catch (error) {
@@ -123,8 +126,8 @@ const FilterControls: React.FC<FilterControlsProps> = ({
             <SelectContent>
               <SelectItem value="all">All Tours</SelectItem>
               {tours.map(tour => (
-                <SelectItem key={tour.tour_id} value={tour.tour_id}>
-                  {tour.tour_name}
+                <SelectItem key={tour.tour_id} value={tour.tour_code || tour.tour_id}>
+                  {tour.tour_code || tour.tour_id} - {tour.tour_name}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -137,7 +140,7 @@ const FilterControls: React.FC<FilterControlsProps> = ({
             <span>
               {selectedTourId === 'all' 
                 ? 'Showing all feedback' 
-                : `Filtered to ${tours.find(t => t.tour_id === selectedTourId)?.tour_name}`}
+                : `Filtered to tour code: ${selectedTourId}`}
             </span>
           </div>
           
