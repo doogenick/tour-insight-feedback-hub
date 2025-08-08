@@ -11,7 +11,7 @@ localforage.config({
 // Define base URL for API
 const API_URL = process.env.NODE_ENV === 'production' 
   ? 'https://your-api-url.com/api' 
-  : 'http://localhost:5000/api';
+  : 'http://localhost:3001/api';
 
 // Create axios instance
 const api = axios.create({
