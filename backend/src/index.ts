@@ -2,9 +2,12 @@ import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import { v4 as uuidv4 } from 'uuid';
+import fs from 'fs';
+import path from 'path';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const FEEDBACK_FILE = path.join(__dirname, 'feedback.json');
 
 // Middleware
 app.use(cors());
@@ -14,10 +17,24 @@ app.use(bodyParser.json());
 let tours: any[] = [];
 let feedback: any[] = [];
 
+// Helper function to read feedback from file
+const readFeedback = (): any[] => {
+  if (!fs.existsSync(FEEDBACK_FILE)) {
+    return [];
+  }
+  const data = fs.readFileSync(FEEDBACK_FILE, 'utf-8');
+  return JSON.parse(data);
+};
+
+// Helper function to write feedback to file
+const writeFeedback = (data: any[]) => {
+  fs.writeFileSync(FEEDBACK_FILE, JSON.stringify(data, null, 2));
+};
+
 // Analytics Endpoints
 app.get('/api/analytics/feedback', (req, res) => {
   const { tourId, startDate, endDate, minRating } = req.query;
-  let filteredFeedback = [...feedback];
+  let filteredFeedback = [...readFeedback()];
   
   if (tourId) filteredFeedback = filteredFeedback.filter(f => f.tour_id === tourId);
   
@@ -42,7 +59,7 @@ app.get('/api/analytics/feedback', (req, res) => {
 
 app.get('/api/analytics/summary', (req, res) => {
   const { tourId, startDate, endDate } = req.query;
-  let filteredFeedback = [...feedback];
+  let filteredFeedback = [...readFeedback()];
   
   if (tourId) filteredFeedback = filteredFeedback.filter(f => f.tour_id === tourId);
   
@@ -137,7 +154,7 @@ function extractCommonThemes(feedback: any[]): string[] {
       .replace(/[^\w\s]/g, '')
       .split(/\s+/);
       
-    words.forEach(word => {
+    words.forEach((word: string) => {
       if (word.length > 3 && !commonWords.has(word)) {
         wordFreq[word] = (wordFreq[word] || 0) + 1;
       }
@@ -149,6 +166,27 @@ function extractCommonThemes(feedback: any[]): string[] {
     .slice(0, 5)
     .map(([word]) => word);
 }
+
+// Endpoint to get all feedback
+app.get('/api/feedback', (req, res) => {
+  const feedback = readFeedback();
+  res.json(feedback);
+});
+
+// Endpoint to submit new feedback
+app.post('/api/feedback', (req, res) => {
+  const allFeedback = readFeedback();
+  const newTourFeedback = {
+    id: uuidv4(),
+    ...req.body,
+    submitted_at: new Date().toISOString(),
+  };
+
+  allFeedback.push(newTourFeedback);
+  writeFeedback(allFeedback);
+
+  res.status(201).json(newTourFeedback);
+});
 
 // Add some sample data for testing
 function initializeSampleData() {
@@ -180,6 +218,7 @@ function initializeSampleData() {
     });
   }
   
+  writeFeedback(feedback);
   console.log('Initialized with', feedback.length, 'sample feedback entries');
 }
 
