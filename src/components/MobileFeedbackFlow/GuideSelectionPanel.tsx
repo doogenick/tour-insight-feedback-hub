@@ -1,14 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAppContext } from '../../contexts/AppContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
-import { Users, Calendar, MapPin, User, Truck } from 'lucide-react';
+import { Users, Calendar, User, Truck, Download, ShieldCheck } from 'lucide-react';
 import { useIsMobile } from '../../hooks/use-mobile';
+import { useToast } from '../ui/use-toast';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../ui/alert-dialog';
+import ManualTourEntryDialog from './ManualTourEntryDialog';
+import { tourService } from '../../services/api';
+import { Tour } from '../../types/Tour';
 
 const GuideSelectionPanel: React.FC = () => {
   const { tours, selectedTour, setSelectedTour, isLoading } = useAppContext();
   const isMobile = useIsMobile();
+  const { toast } = useToast();
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [tourToConfirm, setTourToConfirm] = useState<Tour | null>(null);
 
   if (isLoading) {
     return (
@@ -44,9 +52,24 @@ const GuideSelectionPanel: React.FC = () => {
   return (
     <Card className="w-full">
       <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5">
-        <CardTitle className="flex items-center gap-2">
-          <User className="h-5 w-5" />
-          Select Your Tour
+        <CardTitle className="flex items-center justify-between gap-2">
+          <span className="flex items-center gap-2">
+            <User className="h-5 w-5" />
+            Select Your Tour
+          </span>
+          <div className="flex items-center gap-2">
+            <ManualTourEntryDialog onCreate={(tour) => {
+              setSelectedTour(tour);
+              toast({ title: 'Manual tour created', description: `${tour.tour_name}` });
+            }} />
+            <Button variant="outline" size={isMobile ? 'sm' : 'default'} onClick={async () => {
+              const res = await tourService.downloadForOffline();
+              toast({ title: 'Downloaded for offline', description: `${res.tours} tours and ${res.clients} clients cached` });
+            }}>
+              <Download className="h-4 w-4 mr-2" />
+              Download for offline
+            </Button>
+          </div>
         </CardTitle>
         <CardDescription>
           Choose the tour you are guiding to begin client feedback collection

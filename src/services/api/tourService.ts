@@ -74,5 +74,45 @@ export const tourService = {
   // Reset demo data
   async resetDemoData(): Promise<void> {
     await dummyDataGenerator.clearAllData();
+  },
+
+  // Explicitly download and cache tours and clients for offline use
+  async downloadForOffline(): Promise<{ tours: number; clients: number }> {
+    let toursCached = 0;
+    let clientsCached = 0;
+
+    try {
+      // Prefer live API for freshest data
+      let tours: Tour[] = [];
+      try {
+        const response = await api.get('/tours/upcoming');
+        tours = response.data;
+      } catch {
+        tours = await tourService.getUpcomingTours();
+      }
+
+      for (const tour of tours) {
+        await localforage.setItem(`tour_${tour.tour_id}`, tour);
+        toursCached++;
+
+        // Fetch clients per tour and cache
+        let clients: Client[] = [];
+        try {
+          const resp = await api.get(`/tours/${tour.tour_id}/clients`);
+          clients = resp.data;
+        } catch {
+          clients = await tourService.getTourClients(tour.tour_id);
+        }
+
+        for (const client of clients) {
+          await localforage.setItem(`client_${client.client_id}`, client);
+          clientsCached++;
+        }
+      }
+    } catch (err) {
+      console.error('Offline download failed:', err);
+    }
+
+    return { tours: toursCached, clients: clientsCached };
   }
 };
