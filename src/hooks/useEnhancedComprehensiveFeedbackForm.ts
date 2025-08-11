@@ -5,6 +5,7 @@ import { useOfflineFeedback } from './useOfflineFeedback';
 import { useToast } from '../components/ui/use-toast';
 import { comprehensiveFeedbackService } from '../services/comprehensiveFeedbackService';
 import { useWifiConnection } from './useWifiConnection';
+import { v4 as uuidv4 } from 'uuid';
 
 export const useEnhancedComprehensiveFeedbackForm = (
   selectedClient: Client | null,
@@ -207,7 +208,7 @@ export const useEnhancedComprehensiveFeedbackForm = (
     } as Omit<ComprehensiveFeedback, 'id' | 'status' | 'submitted_at'>;
 
     try {
-      // Submit to service
+      // Submit to service (local-first; may fail in rare cases)
       const submittedFeedback = await comprehensiveFeedbackService.submitFeedback(feedbackData);
       
       // Always backup locally (even when online)
@@ -218,8 +219,17 @@ export const useEnhancedComprehensiveFeedbackForm = (
       
       return submittedFeedback;
     } catch (error) {
-      console.error('Error submitting feedback:', error);
-      throw error;
+      console.error('Error submitting feedback, falling back to local backup:', error);
+      // Ensure we still persist a local copy so no data is lost
+      const fallback: ComprehensiveFeedback = {
+        ...(feedbackData as ComprehensiveFeedback),
+        id: uuidv4(),
+        status: 'Pending',
+        submitted_at: new Date().toISOString(),
+      };
+      await backupFeedback(fallback);
+      setHasUnsavedChanges(false);
+      return fallback;
     }
   }, [selectedClient, tourId, formData, backupFeedback]);
 

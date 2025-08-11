@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useOfflineFeedback } from '../../hooks/useOfflineFeedback';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
@@ -19,6 +19,8 @@ import {
 } from 'lucide-react';
 import { useIsMobile } from '../../hooks/use-mobile';
 import { useAppContext } from '../../contexts/AppContext';
+import { comprehensiveFeedbackService } from '../../services/comprehensiveFeedbackService';
+import { ComprehensiveFeedback } from '../../types/ComprehensiveFeedback';
 
 const OfflineFeedbackManager: React.FC = () => {
   const { 
@@ -38,15 +40,27 @@ const OfflineFeedbackManager: React.FC = () => {
   const { selectedTour, clients } = useAppContext();
   const isMobile = useIsMobile();
   const [isCreatingBackup, setIsCreatingBackup] = useState(false);
+  const [submissions, setSubmissions] = useState<ComprehensiveFeedback[]>([]);
+
+  useEffect(() => {
+    const loadSubmissions = async () => {
+      try {
+        const all = await comprehensiveFeedbackService.getAllFeedback();
+        setSubmissions(all);
+      } catch (e) {
+        console.error('Failed to load submissions', e);
+      }
+    };
+    loadSubmissions();
+  }, []);
 
   const handleCreateTourBackup = async () => {
     if (!selectedTour) return;
     
     setIsCreatingBackup(true);
     try {
-      // Get all completed feedback for this tour
-      // This would need to be implemented based on your feedback storage
-      const completedFeedback: any[] = []; // Placeholder
+      // Include all saved feedback for this tour in the backup
+      const completedFeedback = await comprehensiveFeedbackService.getFeedbackByTour(selectedTour.tour_id);
       
       await createTourBackup(
         selectedTour.tour_id,
@@ -132,9 +146,12 @@ const OfflineFeedbackManager: React.FC = () => {
         )}
 
         <Tabs defaultValue="drafts" className="w-full">
-          <TabsList className={`grid w-full ${isMobile ? 'grid-cols-2' : 'grid-cols-3'}`}>
+          <TabsList className={`grid w-full ${isMobile ? 'grid-cols-3' : 'grid-cols-4'}`}>
             <TabsTrigger value="drafts" className={isMobile ? 'text-xs' : ''}>
               Drafts ({drafts.length})
+            </TabsTrigger>
+            <TabsTrigger value="submissions" className={isMobile ? 'text-xs' : ''}>
+              Saved ({submissions.length})
             </TabsTrigger>
             <TabsTrigger value="backups" className={isMobile ? 'text-xs' : ''}>
               Backups ({backups.length})
@@ -195,6 +212,46 @@ const OfflineFeedbackManager: React.FC = () => {
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          {/* Submissions Tab */}
+          <TabsContent value="submissions" className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h3 className="font-medium">Saved Feedback</h3>
+            </div>
+
+            {submissions.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <Clock className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                <p>No feedback saved yet</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {submissions.map((fb) => (
+                  <div
+                    key={fb.id}
+                    className="border rounded-lg p-3"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className={`font-medium ${isMobile ? 'text-sm' : 'text-base'}`}>
+                          {fb.client_name || 'Unknown client'}
+                        </h4>
+                        <p className={`text-muted-foreground ${isMobile ? 'text-xs' : 'text-sm'}`}>
+                          Tour: {fb.tour_id} • {fb.submitted_at ? formatDate(fb.submitted_at) : 'Pending'}
+                        </p>
+                      </div>
+                      <Badge variant="secondary" className="text-xs">
+                        {fb.status || 'Saved'}
+                      </Badge>
+                    </div>
+                    {fb.tour_highlight && (
+                      <p className={`mt-2 ${isMobile ? 'text-xs' : 'text-sm'}`}>{fb.tour_highlight}</p>
+                    )}
                   </div>
                 ))}
               </div>
