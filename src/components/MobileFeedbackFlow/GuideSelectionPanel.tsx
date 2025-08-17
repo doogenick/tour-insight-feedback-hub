@@ -40,9 +40,15 @@ const GuideSelectionPanel: React.FC = () => {
     return (
       <Card className="border-dashed">
         <CardHeader className="text-center">
-          <CardTitle className="text-muted-foreground">No Tours Available</CardTitle>
+          <CardTitle className="flex items-center justify-between gap-2">
+            <span className="text-muted-foreground">No Tours Available</span>
+            <ManualTourEntryDialog onCreate={(tour) => {
+              setSelectedTour(tour);
+              toast({ title: 'Manual tour created', description: `${tour.tour_name}` });
+            }} />
+          </CardTitle>
           <CardDescription>
-            Please generate demo data or create tours to begin collecting feedback
+            Create a manual tour entry or generate demo data to begin collecting feedback
           </CardDescription>
         </CardHeader>
       </Card>
