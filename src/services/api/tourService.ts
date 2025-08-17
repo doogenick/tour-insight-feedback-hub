@@ -76,6 +76,48 @@ export const tourService = {
     await dummyDataGenerator.clearAllData();
   },
 
+  // Create a new tour
+  async createTour(tourData: Omit<Tour, 'tour_id'>): Promise<Tour> {
+    try {
+      const response = await api.post('/tours', tourData);
+      return response.data;
+    } catch (error) {
+      console.error('Error creating tour:', error);
+      
+      // Fallback to local storage
+      const newTour: Tour = {
+        ...tourData,
+        tour_id: `local-${Date.now()}`
+      };
+      await localforage.setItem(`tour_${newTour.tour_id}`, newTour);
+      return newTour;
+    }
+  },
+
+  // Add clients to a tour
+  async addClientsToTour(tourId: string, clients: { name: string; email?: string }[]): Promise<Client[]> {
+    try {
+      const response = await api.post(`/tours/${tourId}/clients`, { clients });
+      return response.data;
+    } catch (error) {
+      console.error('Error adding clients to tour:', error);
+      
+      // Fallback to local storage
+      const newClients: Client[] = clients.map((client, index) => ({
+        client_id: `${tourId}-client-${index}`,
+        tour_id: tourId,
+        full_name: client.name,
+        email: client.email || ''
+      }));
+      
+      for (const client of newClients) {
+        await localforage.setItem(`client_${client.client_id}`, client);
+      }
+      
+      return newClients;
+    }
+  },
+
   // Explicitly download and cache tours and clients for offline use
   async downloadForOffline(): Promise<{ tours: number; clients: number }> {
     let toursCached = 0;

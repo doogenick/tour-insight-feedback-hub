@@ -8,7 +8,7 @@ import { useIsMobile } from '../../hooks/use-mobile';
 import { useToast } from '../ui/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../ui/alert-dialog';
 import ManualTourEntryDialog from './ManualTourEntryDialog';
-import { tourService } from '../../services/api';
+import { tourService } from '../../services/api/tourService';
 import { Tour } from '../../types/Tour';
 
 const GuideSelectionPanel: React.FC = () => {
