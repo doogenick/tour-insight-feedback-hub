@@ -5,6 +5,8 @@ import { useAppContext } from '../contexts/AppContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Check, Database, X } from 'lucide-react';
+import ManualTourEntryDialog from './MobileFeedbackFlow/ManualTourEntryDialog';
+import { useToast } from './ui/use-toast';
 
 const TourSelectionPanel: React.FC = () => {
   const { 
@@ -17,6 +19,7 @@ const TourSelectionPanel: React.FC = () => {
     fetchClients,
     selectedTour
   } = useAppContext();
+  const { toast } = useToast();
 
   // Generate demo data if none exists
   useEffect(() => {
@@ -43,12 +46,18 @@ const TourSelectionPanel: React.FC = () => {
   return (
     <Card className="w-full mb-8 animate-fade-in">
       <CardHeader className="bg-muted/30">
-        <CardTitle className="flex items-center gap-2">
-          <Database className="h-5 w-5" />
-          Tour Selection
+        <CardTitle className="flex items-center justify-between gap-2">
+          <span className="flex items-center gap-2">
+            <Database className="h-5 w-5" />
+            Tour Selection
+          </span>
+          <ManualTourEntryDialog onCreate={(tour) => {
+            setSelectedTour(tour);
+            toast({ title: 'Manual tour created', description: `${tour.tour_name}` });
+          }} />
         </CardTitle>
         <CardDescription>
-          Select a tour to view clients and submit feedback
+          Select a tour to view clients and submit feedback, or create a manual entry
         </CardDescription>
       </CardHeader>
 

@@ -39,11 +39,6 @@ const PageThree: React.FC<PageThreeProps> = ({
         clientEmail={clientEmail}
       />
       
-      <SignatureSection
-        formData={formData}
-        updateFormData={updateFormData}
-      />
-      
       <SubmissionActions
         formData={formData}
         onClearForm={onClearForm}

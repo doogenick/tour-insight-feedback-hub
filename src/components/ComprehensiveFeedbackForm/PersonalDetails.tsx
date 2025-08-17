@@ -21,12 +21,13 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="client_name">Full Name</Label>
+          <Label htmlFor="client_name" className="after:content-['*'] after:ml-1 after:text-destructive">Full Name</Label>
           <Input
             id="client_name"
             value={formData.client_name || ''}
             onChange={(e) => updateFormData('client_name', e.target.value)}
             placeholder="Your full name"
+            required
           />
         </div>
         
@@ -39,6 +40,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
             onChange={(e) => updateFormData('client_email', e.target.value)}
             placeholder="your@email.com"
             required
+            autoComplete="off"
           />
         </div>
 
