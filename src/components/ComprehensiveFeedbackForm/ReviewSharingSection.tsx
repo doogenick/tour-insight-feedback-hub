@@ -47,8 +47,8 @@ const ReviewSharingSection: React.FC<ReviewSharingSectionProps> = ({
   };
 
   return (
-    <Card className="border-2 border-tour-primary">
-      <CardHeader className="bg-tour-primary/10">
+    <Card className="border-2 border-primary">
+      <CardHeader className="bg-primary/10">
         <CardTitle className="flex items-center gap-2">
           <Star className="h-5 w-5 text-yellow-500" />
           Share Your Experience

@@ -34,7 +34,7 @@ const ComprehensiveFeedbackForm: React.FC = () => {
     resetForm
   } = useComprehensiveFeedbackForm(selectedClient);
 
-  const { validatePage1, requireClientEmail } = useComprehensiveFeedbackValidation(
+  const { validatePage1, requireClientEmail, requireClientName } = useComprehensiveFeedbackValidation(
     selectedTour,
     selectedClient,
     formData
@@ -66,6 +66,17 @@ const ComprehensiveFeedbackForm: React.FC = () => {
   };
   
   const handleSubmit = async () => {
+    const { valid: nameValid, message: nameMsg } = requireClientName();
+    if (!nameValid) {
+      toast({
+        variant: "destructive",
+        title: "Name Required",
+        description: nameMsg,
+      });
+      setCurrentPage(3);
+      return;
+    }
+
     const { valid: emailValid, message: emailMsg } = requireClientEmail();
     if (!emailValid) {
       toast({

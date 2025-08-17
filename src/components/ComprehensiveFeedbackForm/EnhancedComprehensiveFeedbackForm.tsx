@@ -43,7 +43,7 @@ const EnhancedComprehensiveFeedbackForm: React.FC = () => {
     submitFeedback
   } = useEnhancedComprehensiveFeedbackForm(selectedClient, selectedTour?.tour_id);
 
-  const { validatePage1, requireClientEmail } = useComprehensiveFeedbackValidation(
+  const { validatePage1, requireClientEmail, requireClientName } = useComprehensiveFeedbackValidation(
     selectedTour,
     selectedClient,
     formData
@@ -75,6 +75,17 @@ const EnhancedComprehensiveFeedbackForm: React.FC = () => {
   };
   
   const handleSubmit = async () => {
+    const { valid: nameValid, message: nameMsg } = requireClientName();
+    if (!nameValid) {
+      toast({
+        variant: "destructive",
+        title: "Name Required",
+        description: nameMsg,
+      });
+      goToPage(3);
+      return;
+    }
+
     const { valid: emailValid, message: emailMsg } = requireClientEmail();
     if (!emailValid) {
       toast({

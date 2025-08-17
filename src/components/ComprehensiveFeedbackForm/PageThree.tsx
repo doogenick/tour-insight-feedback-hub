@@ -4,7 +4,6 @@ import { ComprehensiveFeedback } from '../../types/ComprehensiveFeedback';
 import { Button } from '../ui/button';
 import PersonalDetails from './PersonalDetails';
 import ReviewSharingSection from './ReviewSharingSection';
-import SignatureSection from './SignatureSection';
 import SubmissionActions from './SubmissionActions';
 
 interface PageThreeProps {

@@ -30,7 +30,18 @@ export function useComprehensiveFeedbackValidation(
     return { valid: true };
   }
 
+  // Validate required client name for final submission
+  function requireClientName(): { valid: boolean; message?: string } {
+    if (!formData.client_name || !formData.client_name.trim()) {
+      return {
+        valid: false,
+        message: "Please provide your full name before submitting.",
+      };
+    }
+    return { valid: true };
+  }
+
   // Additional page 3 validation can be added here (e.g. signature etc.)
 
-  return { validatePage1, requireClientEmail };
+  return { validatePage1, requireClientEmail, requireClientName };
 }
