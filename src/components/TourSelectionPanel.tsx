@@ -1,11 +1,12 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Tour } from '../services/api';
 import { useAppContext } from '../contexts/AppContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Check, Database, X } from 'lucide-react';
 import ManualTourEntryDialog from './MobileFeedbackFlow/ManualTourEntryDialog';
+import MultiClientFeedbackCollector from './MobileFeedbackFlow/MultiClientFeedbackCollector';
 import { useToast } from './ui/use-toast';
 
 const TourSelectionPanel: React.FC = () => {
@@ -20,6 +21,9 @@ const TourSelectionPanel: React.FC = () => {
     selectedTour
   } = useAppContext();
   const { toast } = useToast();
+  
+  const [showMultiClientCollector, setShowMultiClientCollector] = useState(false);
+  const [manualTour, setManualTour] = useState<Tour | null>(null);
 
   // Generate demo data if none exists
   useEffect(() => {
@@ -43,6 +47,25 @@ const TourSelectionPanel: React.FC = () => {
     fetchClients(tour.tour_id);
   };
 
+  const handleManualTourCreate = (tour: Tour) => {
+    setManualTour(tour);
+    setShowMultiClientCollector(true);
+  };
+
+  const handleMultiClientComplete = () => {
+    setShowMultiClientCollector(false);
+    setManualTour(null);
+  };
+
+  if (showMultiClientCollector && manualTour) {
+    return (
+      <MultiClientFeedbackCollector 
+        tour={manualTour}
+        onComplete={handleMultiClientComplete}
+      />
+    );
+  }
+
   return (
     <Card className="w-full mb-8 animate-fade-in">
       <CardHeader className="bg-muted/30">
@@ -51,10 +74,7 @@ const TourSelectionPanel: React.FC = () => {
             <Database className="h-5 w-5" />
             Tour Selection
           </span>
-          <ManualTourEntryDialog onCreate={(tour) => {
-            setSelectedTour(tour);
-            toast({ title: 'Manual tour created', description: `${tour.tour_name}` });
-          }} />
+          <ManualTourEntryDialog onCreate={handleManualTourCreate} />
         </CardTitle>
         <CardDescription>
           Select a tour to view clients and submit feedback, or create a manual entry
