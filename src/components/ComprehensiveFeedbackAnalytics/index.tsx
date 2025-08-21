@@ -17,6 +17,7 @@ import RatingsTab from './tabs/RatingsTab';
 import SatisfactionTab from './tabs/SatisfactionTab';
 import CrewPerformanceTab from './tabs/CrewPerformanceTab';
 import FeedbackTextTab from './tabs/FeedbackTextTab';
+import { FeedbackViewerContainer } from '../FeedbackViewer';
 
 const ComprehensiveFeedbackAnalytics: React.FC = () => {
   const [analytics, setAnalytics] = useState<FeedbackAnalytics | null>(null);
@@ -193,12 +194,13 @@ const ComprehensiveFeedbackAnalytics: React.FC = () => {
       <KeyMetrics analytics={analytics} />
 
       <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="ratings">Ratings</TabsTrigger>
           <TabsTrigger value="satisfaction">Satisfaction</TabsTrigger>
           <TabsTrigger value="crew">Crew Performance</TabsTrigger>
           <TabsTrigger value="feedback">Feedback</TabsTrigger>
+          <TabsTrigger value="viewer">Individual Reviews</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
@@ -237,6 +239,10 @@ const ComprehensiveFeedbackAnalytics: React.FC = () => {
 
         <TabsContent value="feedback" className="space-y-4">
           <FeedbackTextTab commonFeedback={analytics.commonFeedback} />
+        </TabsContent>
+
+        <TabsContent value="viewer" className="space-y-4">
+          <FeedbackViewerContainer feedback={filteredFeedback} />
         </TabsContent>
       </Tabs>
     </div>
