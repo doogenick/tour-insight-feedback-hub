@@ -48,7 +48,7 @@ const GuideSelectionPanel: React.FC = () => {
             }} />
           </CardTitle>
           <CardDescription>
-            Create a manual tour entry or generate demo data to begin collecting feedback
+            Create a manual tour entry to begin collecting feedback
           </CardDescription>
         </CardHeader>
       </Card>

@@ -14,8 +14,6 @@ const AnalyticsDashboard: React.FC = () => {
     tours,
     fetchTours,
     currentUser,
-    demoDataGenerated,
-    generateDemoData
   } = useAppContext();
   
   const [selectedTourId, setSelectedTourId] = React.useState<string>('all');
@@ -34,11 +32,7 @@ const AnalyticsDashboard: React.FC = () => {
       fetchTours();
     }
     
-    // Generate demo data if none exists
-    if (!demoDataGenerated && feedback.length === 0 && tours.length === 0) {
-      generateDemoData();
-    }
-  }, [fetchFeedback, fetchTours, feedback.length, tours.length, selectedTourId, demoDataGenerated, generateDemoData]);
+  }, [fetchFeedback, fetchTours, feedback.length, tours.length, selectedTourId]);
   
   // Handle tour filter change
   const handleTourChange = (tourId: string) => {

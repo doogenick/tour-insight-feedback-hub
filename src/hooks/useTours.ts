@@ -9,7 +9,7 @@ export function useTours() {
   const [selectedTour, setSelectedTour] = useState<Tour | null>(null);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [demoDataGenerated, setDemoDataGenerated] = useState<boolean>(false);
+  
   
   const { toast } = useToast();
 
@@ -46,63 +46,6 @@ export function useTours() {
       setIsLoading(false);
     }
   }, [toast]);
-  
-  const generateDemoData = useCallback(async (): Promise<void> => {
-    setIsLoading(true);
-    toast({
-      title: "Generating Demo Data...",
-      description: "Please wait while we create tours, clients, and feedback.",
-    });
-    try {
-      const { tours: generatedTours, clients: generatedClients, feedback } = 
-        await tourService.generateDemoData();
-      
-      setTours(generatedTours);
-      setClients(generatedClients);
-      setDemoDataGenerated(true);
-      
-      toast({
-        title: "Demo Data Loaded into DB",
-        description: `Created ${generatedTours.length} tours, ${generatedClients.length} clients, and ${feedback.length} feedback entries.`,
-        duration: 5000,
-      });
-    } catch (error) {
-      console.error('Error generating demo data:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to generate demo data.",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  }, [toast]);
-  
-  const resetDemoData = useCallback(async (): Promise<void> => {
-    setIsLoading(true);
-    try {
-      await tourService.resetDemoData();
-      
-      setTours([]);
-      setClients([]);
-      setDemoDataGenerated(false);
-      
-      toast({
-        title: "Demo Data Reset",
-        description: "All demo data has been cleared.",
-        duration: 3000,
-      });
-    } catch (error) {
-      console.error('Error resetting demo data:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to reset demo data.",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  }, [toast]);
 
   return {
     tours,
@@ -110,12 +53,9 @@ export function useTours() {
     selectedTour,
     selectedClient,
     isLoading,
-    demoDataGenerated,
     fetchTours,
     fetchClients,
     setSelectedTour,
-    setSelectedClient,
-    generateDemoData,
-    resetDemoData
+    setSelectedClient
   };
 }

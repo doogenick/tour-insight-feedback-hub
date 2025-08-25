@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import CrewManagement from './TourManagement/CrewManagement';
-import DummyDataGenerator from './TourManagement/DummyDataGenerator';
 import TourManagementDashboard from './TourManagement/TourManagementDashboard';
 import MobileHeader from './MobileHeader';
 import {
@@ -25,11 +24,10 @@ const AdminPage: React.FC = () => {
         <MobileHeader />
         
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 h-12 text-sm">
+          <TabsList className="grid w-full grid-cols-4 h-12 text-sm">
             <TabsTrigger value="overview" className="text-xs md:text-sm">Overview</TabsTrigger>
             <TabsTrigger value="tours" className="text-xs md:text-sm">Tours</TabsTrigger>
             <TabsTrigger value="crew" className="text-xs md:text-sm">Crew</TabsTrigger>
-            <TabsTrigger value="data" className="text-xs md:text-sm">Data</TabsTrigger>
             <TabsTrigger value="export" className="text-xs md:text-sm">Export</TabsTrigger>
           </TabsList>
 
@@ -65,9 +63,6 @@ const AdminPage: React.FC = () => {
             <CrewManagement />
           </TabsContent>
 
-          <TabsContent value="data" className="space-y-4">
-            <DummyDataGenerator />
-          </TabsContent>
 
           <TabsContent value="export" className="space-y-4">
             <Card>

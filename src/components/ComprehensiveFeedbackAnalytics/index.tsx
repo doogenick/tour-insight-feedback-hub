@@ -30,7 +30,7 @@ const ComprehensiveFeedbackAnalytics: React.FC = () => {
     nationality: '',
     ratingThreshold: 0
   });
-  const [generatingDemo, setGeneratingDemo] = useState(false);
+  
   const { toast } = useToast();
 
   const loadData = async () => {
@@ -85,29 +85,6 @@ const ComprehensiveFeedbackAnalytics: React.FC = () => {
     }
   };
 
-  const handleGenerateDemoFeedback = async () => {
-    setGeneratingDemo(true);
-    toast({
-      title: "Generating Demo Data...",
-      description: "Populating comprehensive feedback. Please wait.",
-    });
-    try {
-      const { feedback } = await tourService.generateDemoData();
-      toast({
-        title: "Demo Data Loaded into DB",
-        description: `Generated ${feedback.length} new feedback entries. Analytics will now refresh.`,
-      });
-      await loadData(); // Refresh analytics after generation
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Error generating demo data",
-        description: error instanceof Error ? error.message : undefined,
-      });
-    } finally {
-      setGeneratingDemo(false);
-    }
-  };
 
   // Prepare chart data
   const ratingChartData = analytics ? Object.entries(analytics.averageRatings).map(([key, value]) => ({
@@ -140,12 +117,12 @@ const ComprehensiveFeedbackAnalytics: React.FC = () => {
     }
   ] : [];
 
-  if (loading || generatingDemo) {
+  if (loading) {
     return (
       <div className="p-6">
         <div className="flex items-center justify-center h-64">
           <RefreshCw className="h-8 w-8 animate-spin" />
-          <span className="ml-2">{generatingDemo ? "Generating demo data..." : "Loading analytics..."}</span>
+          <span className="ml-2">Loading analytics...</span>
         </div>
       </div>
     );
@@ -157,19 +134,11 @@ const ComprehensiveFeedbackAnalytics: React.FC = () => {
         <Card>
           <CardContent className="p-6 text-center">
             <p className="text-muted-foreground">No feedback data available for analytics.</p>
+            <p className="text-sm text-muted-foreground mt-2">
+              Submit some feedback first to see analytics data.
+            </p>
           </CardContent>
         </Card>
-        <div className="flex justify-center">
-          <Button
-            onClick={handleGenerateDemoFeedback}
-            disabled={generatingDemo}
-            variant="outline"
-            className="flex items-center gap-2"
-          >
-            <Database className="h-4 w-4" />
-            {generatingDemo ? "Generating Demo Data..." : "Generate Demo Data"}
-          </Button>
-        </div>
       </div>
     );
   }
@@ -180,8 +149,6 @@ const ComprehensiveFeedbackAnalytics: React.FC = () => {
         onExportJSON={handleExportJSON}
         onExportCSV={handleExportCSV}
         onRefresh={loadData}
-        onGenerateDemo={handleGenerateDemoFeedback}
-        isGeneratingDemo={generatingDemo}
       />
 
       <FilterControls 

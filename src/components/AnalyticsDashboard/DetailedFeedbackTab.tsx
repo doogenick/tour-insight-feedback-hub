@@ -74,7 +74,7 @@ const DetailedFeedbackTab: React.FC<DetailedFeedbackTabProps> = ({
           <div className="py-8 text-center">
             <p>No feedback data available.</p>
             <p className="text-sm text-muted-foreground mt-1">
-              {isLoading ? 'Loading...' : 'Try selecting a different tour or generating demo data.'}
+              {isLoading ? 'Loading...' : 'No detailed feedback data available yet. Submit feedback to see detailed analysis.'}
             </p>
           </div>
         )}

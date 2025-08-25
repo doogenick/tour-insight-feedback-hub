@@ -4,7 +4,7 @@ import { Tour } from '../services/api';
 import { useAppContext } from '../contexts/AppContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
-import { Check, Database, X } from 'lucide-react';
+import { Check, Database } from 'lucide-react';
 import ManualTourEntryDialog from './MobileFeedbackFlow/ManualTourEntryDialog';
 import MultiClientFeedbackCollector from './MobileFeedbackFlow/MultiClientFeedbackCollector';
 import { useToast } from './ui/use-toast';
@@ -12,9 +12,6 @@ import { useToast } from './ui/use-toast';
 const TourSelectionPanel: React.FC = () => {
   const { 
     tours, 
-    demoDataGenerated, 
-    generateDemoData, 
-    resetDemoData,
     isLoading,
     setSelectedTour,
     fetchClients,
@@ -25,12 +22,6 @@ const TourSelectionPanel: React.FC = () => {
   const [showMultiClientCollector, setShowMultiClientCollector] = useState(false);
   const [manualTour, setManualTour] = useState<Tour | null>(null);
 
-  // Generate demo data if none exists
-  useEffect(() => {
-    if (tours.length === 0 && !demoDataGenerated && !isLoading) {
-      generateDemoData();
-    }
-  }, [tours.length, demoDataGenerated, generateDemoData, isLoading]);
 
   // Format date for display
   const formatDate = (dateString: string) => {
@@ -83,30 +74,6 @@ const TourSelectionPanel: React.FC = () => {
 
       <CardContent className="p-6">
         <div className="space-y-6">
-          {/* Demo Data Management */}
-          <div className="flex flex-wrap gap-2 justify-end">
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={resetDemoData}
-              disabled={isLoading || tours.length === 0}
-              className="text-xs"
-            >
-              <X className="h-3 w-3 mr-1" />
-              Reset Demo Data
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={generateDemoData}
-              disabled={isLoading}
-              className="text-xs"
-            >
-              <Database className="h-3 w-3 mr-1" />
-              Generate Demo Data
-            </Button>
-          </div>
 
           {/* Tour List */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -158,7 +125,7 @@ const TourSelectionPanel: React.FC = () => {
               <div className="col-span-2 text-center py-6 bg-muted/30 rounded-lg">
                 <p>No tours available.</p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Generate demo data to see example tours.
+                  Create a manual tour entry to begin collecting feedback.
                 </p>
               </div>
             )}

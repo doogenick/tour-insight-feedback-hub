@@ -21,8 +21,6 @@ interface AppContextType {
   isLoading: boolean;
   syncStatus: { synced: number; failed: number } | null;
   
-  // Demo Data Management
-  demoDataGenerated: boolean;
   
   // Authentication - Always demo admin for mobile
   currentUser: User | null;
@@ -41,9 +39,6 @@ interface AppContextType {
   // Tour Methods
   fetchTours: () => Promise<void>;
   
-  // Demo Data Methods
-  generateDemoData: () => Promise<void>;
-  resetDemoData: () => Promise<void>;
   
   // Auth Methods (simplified for mobile demo)
   loginUser: (name: string, role: string, email?: string) => void;
@@ -73,7 +68,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [syncStatus, setSyncStatus] = useState<{ synced: number; failed: number } | null>(null);
-  const [demoDataGenerated, setDemoDataGenerated] = useState<boolean>(false);
+  
   
   // Always set admin user for mobile demo
   const [currentUser] = useState<User>({
@@ -153,7 +148,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         }
       ];
       setTours(mockTours);
-      setDemoDataGenerated(true);
     } catch (error) {
       console.error('Error fetching tours:', error);
     } finally {
@@ -208,28 +202,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     return new Blob(['mock csv data'], { type: 'text/csv' });
   }, []);
 
-  const generateDemoData = useCallback(async () => {
-    try {
-      console.log('Generating demo data...');
-      await fetchTours();
-    } catch (error) {
-      console.error('Error generating demo data:', error);
-    }
-  }, [fetchTours]);
-
-  const resetDemoData = useCallback(async () => {
-    try {
-      console.log('Resetting demo data...');
-      setDemoDataGenerated(false);
-      setSelectedTour(null);
-      setSelectedClient(null);
-      setClients([]);
-      setTours([]);
-      setFeedback([]);
-    } catch (error) {
-      console.error('Error resetting demo data:', error);
-    }
-  }, []);
 
   // Simplified auth methods for mobile demo
   const loginUser = useCallback((name: string, role: string, email?: string) => {
@@ -249,7 +221,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     isSubmitting,
     isLoading,
     syncStatus,
-    demoDataGenerated,
+    
     currentUser,
     setSelectedTour,
     setSelectedClient,
@@ -259,8 +231,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     syncPendingFeedback,
     exportFeedback,
     fetchTours,
-    generateDemoData,
-    resetDemoData,
     loginUser,
     logoutUser
   };
