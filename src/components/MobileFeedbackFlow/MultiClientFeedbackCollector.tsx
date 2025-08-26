@@ -35,7 +35,7 @@ const MultiClientFeedbackCollector: React.FC<MultiClientFeedbackCollectorProps> 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showingForm, setShowingForm] = useState(false);
 
-  // Create a temporary client for the current form
+  // Create a temporary client for the current form - no pre-loading
   const [currentTempClient] = useState<Client>({
     client_id: `temp-${Date.now()}`,
     full_name: '',

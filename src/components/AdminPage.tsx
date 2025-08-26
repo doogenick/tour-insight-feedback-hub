@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import CrewManagement from './TourManagement/CrewManagement';
 import TourManagementDashboard from './TourManagement/TourManagementDashboard';
+import AdminFeedbackManagement from './AdminFeedbackManagement';
 import MobileHeader from './MobileHeader';
 import {
   Table,
@@ -24,9 +25,10 @@ const AdminPage: React.FC = () => {
         <MobileHeader />
         
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 h-12 text-sm">
+          <TabsList className="grid w-full grid-cols-5 h-12 text-sm">
             <TabsTrigger value="overview" className="text-xs md:text-sm">Overview</TabsTrigger>
             <TabsTrigger value="tours" className="text-xs md:text-sm">Tours</TabsTrigger>
+            <TabsTrigger value="feedback" className="text-xs md:text-sm">Feedback</TabsTrigger>
             <TabsTrigger value="crew" className="text-xs md:text-sm">Crew</TabsTrigger>
             <TabsTrigger value="export" className="text-xs md:text-sm">Export</TabsTrigger>
           </TabsList>
@@ -57,6 +59,10 @@ const AdminPage: React.FC = () => {
 
           <TabsContent value="tours" className="space-y-4">
             <TourManagementDashboard />
+          </TabsContent>
+
+          <TabsContent value="feedback" className="space-y-4">
+            <AdminFeedbackManagement />
           </TabsContent>
 
           <TabsContent value="crew" className="space-y-4">
