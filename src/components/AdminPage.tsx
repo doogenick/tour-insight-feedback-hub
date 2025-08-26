@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import CrewManagement from './TourManagement/CrewManagement';
 import TourManagementDashboard from './TourManagement/TourManagementDashboard';
 import AdminFeedbackManagement from './AdminFeedbackManagement';
+import AdminOverview from './AdminOverview';
 import MobileHeader from './MobileHeader';
 import {
   Table,
@@ -34,27 +35,7 @@ const AdminPage: React.FC = () => {
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-xl md:text-2xl">System Overview</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <div className="bg-blue-50 p-4 rounded-lg">
-                    <h3 className="font-medium text-blue-900">Active Tours</h3>
-                    <p className="text-2xl font-bold text-blue-600">8</p>
-                  </div>
-                  <div className="bg-green-50 p-4 rounded-lg">
-                    <h3 className="font-medium text-green-900">Feedback Collected</h3>
-                    <p className="text-2xl font-bold text-green-600">156</p>
-                  </div>
-                  <div className="bg-purple-50 p-4 rounded-lg">
-                    <h3 className="font-medium text-purple-900">Active Crew</h3>
-                    <p className="text-2xl font-bold text-purple-600">12</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <AdminOverview />
           </TabsContent>
 
           <TabsContent value="tours" className="space-y-4">

@@ -6,7 +6,7 @@ import { useToast } from '../ui/use-toast';
 import { useOfflineFeedback } from '../../hooks/useOfflineFeedback';
 import { useComprehensiveFeedbackForm } from '../../hooks/useComprehensiveFeedbackForm';
 import { useComprehensiveFeedbackValidation } from '../../hooks/useComprehensiveFeedbackValidation';
-import { comprehensiveFeedbackService } from '../../services/comprehensiveFeedbackService';
+import { tourSupabaseService, feedbackSupabaseService } from '../../services/supabaseServices';
 import { ComprehensiveFeedback } from '../../types/ComprehensiveFeedback';
 import { Tour } from '../../types/Tour';
 import { Client } from '../../types/Client';
@@ -193,70 +193,25 @@ const MultiClientFeedbackCollector: React.FC<MultiClientFeedbackCollectorProps> 
       // Submit each feedback to the backend using comprehensive feedback service
       for (const feedback of completedFeedbacks) {
         try {
-          await comprehensiveFeedbackService.submitFeedback({
+          await feedbackSupabaseService.submitFeedback({
             tour_id: feedback.tour_id,
-            client_id: feedback.client_id,
             client_name: feedback.client_name,
             client_email: feedback.client_email,
-            nationality: feedback.nationality,
-            cellphone: feedback.cellphone,
-            client_initials: feedback.client_initials,
-            tour_section_completed: feedback.tour_section_completed,
+            client_phone: feedback.cellphone,
+            client_nationality: feedback.nationality,
+            overall_rating: feedback.overview_rating,
+            guide_rating: feedback.guiding_rating,
+            driver_rating: feedback.driving_rating,
+            vehicle_rating: feedback.truck_comfort_rating,
             accommodation_rating: feedback.accommodation_rating,
-            information_rating: feedback.information_rating,
-            quality_equipment_rating: feedback.quality_equipment_rating,
-            truck_comfort_rating: feedback.truck_comfort_rating,
-            food_quantity_rating: feedback.food_quantity_rating,
-            food_quality_rating: feedback.food_quality_rating,
-            driving_rating: feedback.driving_rating,
-            guiding_rating: feedback.guiding_rating,
-            organisation_rating: feedback.organisation_rating,
-            guide_individual_rating: feedback.guide_individual_rating,
-            driver_individual_rating: feedback.driver_individual_rating,
-            pace_rating: feedback.pace_rating,
-            route_rating: feedback.route_rating,
-            activity_level_rating: feedback.activity_level_rating,
-            price_rating: feedback.price_rating,
+            food_rating: feedback.food_quality_rating,
             value_rating: feedback.value_rating,
-            overview_rating: feedback.overview_rating,
-            guide_professionalism: feedback.guide_professionalism,
-            guide_organisation: feedback.guide_organisation,
-            guide_people_skills: feedback.guide_people_skills,
-            guide_enthusiasm: feedback.guide_enthusiasm,
-            guide_information: feedback.guide_information,
-            driver_professionalism: feedback.driver_professionalism,
-            driver_organisation: feedback.driver_organisation,
-            driver_people_skills: feedback.driver_people_skills,
-            driver_enthusiasm: feedback.driver_enthusiasm,
-            driver_information: feedback.driver_information,
-            tour_leader_knowledge: feedback.tour_leader_knowledge,
-            safety_rating: feedback.safety_rating,
-            met_expectations: feedback.met_expectations,
-            value_for_money: feedback.value_for_money,
-            truck_satisfaction: feedback.truck_satisfaction,
-            would_recommend: feedback.would_recommend,
-            heard_about_source: feedback.heard_about_source,
-            repeat_travel: feedback.repeat_travel,
-            expectations_comment: feedback.expectations_comment,
-            value_for_money_comment: feedback.value_for_money_comment,
-            truck_satisfaction_comment: feedback.truck_satisfaction_comment,
-            tour_leader_knowledge_comment: feedback.tour_leader_knowledge_comment,
-            safety_comment: feedback.safety_comment,
-            would_recommend_comment: feedback.would_recommend_comment,
-            repeat_travel_comment: feedback.repeat_travel_comment,
-            tour_highlight: feedback.tour_highlight,
-            improvement_suggestions: feedback.improvement_suggestions,
+            highlights: feedback.tour_highlight,
+            improvements: feedback.improvement_suggestions,
             additional_comments: feedback.additional_comments,
-            heard_about_other: feedback.heard_about_other,
-            age: feedback.age,
-            gender: feedback.gender,
-            newsletter_signup: feedback.newsletter_signup,
-            willing_to_review_google: feedback.willing_to_review_google,
-            willing_to_review_tripadvisor: feedback.willing_to_review_tripadvisor,
-            client_signature: feedback.client_signature,
-            client_signature_date: feedback.client_signature_date,
-            crew_signature: feedback.crew_signature,
-            signature_data_url: feedback.signature_data_url
+            would_recommend: feedback.would_recommend,
+            likely_to_return: feedback.repeat_travel,
+            tour_expectations_met: feedback.met_expectations
           });
           successCount++;
         } catch (error) {
