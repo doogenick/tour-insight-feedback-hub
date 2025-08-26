@@ -1,16 +1,44 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '../ui/card';
 import { Badge } from '../ui/badge';
-import { Calendar, Users, MapPin } from 'lucide-react';
+import { Button } from '../ui/button';
+import { Calendar, Users, MessageSquare, Eye } from 'lucide-react';
 import { Tour } from '../../services/api/types';
+import { useSupabaseFeedback } from '../../hooks/useSupabaseFeedback';
 
 interface MobileTourCardProps {
   tour: Tour;
   onSelect: (tour: Tour) => void;
+  onViewFeedback?: (tour: Tour) => void;
 }
 
-const MobileTourCard: React.FC<MobileTourCardProps> = ({ tour, onSelect }) => {
+const MobileTourCard: React.FC<MobileTourCardProps> = ({ tour, onSelect, onViewFeedback }) => {
+  const { fetchFeedbackByTour } = useSupabaseFeedback();
+  const [feedbackCount, setFeedbackCount] = useState<number>(0);
+  const [avgRating, setAvgRating] = useState<number | null>(null);
+
+  useEffect(() => {
+    const loadFeedbackInfo = async () => {
+      try {
+        const feedback = await fetchFeedbackByTour(tour.tour_id);
+        if (feedback && feedback.length > 0) {
+          setFeedbackCount(feedback.length);
+          const ratings = feedback.map(f => f.overall_rating).filter(r => r > 0);
+          if (ratings.length > 0) {
+            const avg = ratings.reduce((sum, r) => sum + r, 0) / ratings.length;
+            setAvgRating(avg);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading feedback info:', error);
+      }
+    };
+
+    if (tour.tour_id) {
+      loadFeedbackInfo();
+    }
+  }, [tour.tour_id, fetchFeedbackByTour]);
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', { 
       month: 'short', 
@@ -27,19 +55,24 @@ const MobileTourCard: React.FC<MobileTourCardProps> = ({ tour, onSelect }) => {
   };
 
   return (
-    <Card 
-      className="cursor-pointer hover:shadow-md transition-shadow active:bg-gray-50" 
-      onClick={() => onSelect(tour)}
-    >
+    <Card className="hover:shadow-md transition-shadow">
       <CardContent className="p-4">
         <div className="space-y-3">
           <div className="flex justify-between items-start">
             <h3 className="font-medium text-base leading-tight pr-2">
               {tour.tour_name}
             </h3>
-            <Badge variant="outline" className="text-xs shrink-0">
-              {tour.tour_id}
-            </Badge>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="text-xs shrink-0">
+                {tour.tour_code || tour.tour_id}
+              </Badge>
+              {feedbackCount > 0 && (
+                <Badge variant="secondary" className="text-xs">
+                  <MessageSquare className="h-3 w-3 mr-1" />
+                  {feedbackCount}
+                </Badge>
+              )}
+            </div>
           </div>
           
           <div className="grid grid-cols-2 gap-3 text-sm text-gray-600">
@@ -64,13 +97,42 @@ const MobileTourCard: React.FC<MobileTourCardProps> = ({ tour, onSelect }) => {
               <span className="text-xs text-gray-500">Driver:</span>
               <span className="text-xs font-medium">{tour.driver_name}</span>
             </div>
+            {tour.truck_name && (
+              <div className="flex items-center gap-1">
+                <span className="text-xs text-gray-500">Truck:</span>
+                <span className="text-xs font-medium">{tour.truck_name}</span>
+              </div>
+            )}
           </div>
           
           <div className="flex justify-between items-center pt-2">
-            <Badge className="bg-green-100 text-green-800 text-xs">
-              Active
-            </Badge>
-            <span className="text-xs text-gray-500">{getDuration()}</span>
+            <div className="flex items-center gap-2">
+              <Badge className="bg-green-100 text-green-800 text-xs">
+                {tour.status || 'Active'}
+              </Badge>
+              {avgRating && (
+                <Badge variant="outline" className="text-xs">
+                  ★ {avgRating.toFixed(1)}
+                </Badge>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-gray-500">{getDuration()}</span>
+              {feedbackCount > 0 && onViewFeedback && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-6 px-2 text-xs"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onViewFeedback(tour);
+                  }}
+                >
+                  <Eye className="h-3 w-3 mr-1" />
+                  View
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </CardContent>
