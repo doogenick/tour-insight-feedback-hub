@@ -129,10 +129,10 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.tour_name || !formData.date_start || !formData.date_end) {
+    if (!formData.tour_name || !formData.tour_code || !formData.truck_name || !formData.date_start || !formData.date_end) {
       toast({
         title: "Missing Information",
-        description: "Please fill in all required fields",
+        description: "Please fill in tour name, tour code, truck name, start date, and end date",
         variant: "destructive"
       });
       return;
@@ -190,12 +190,13 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
             </div>
             
             <div>
-              <Label htmlFor="tour_code">Tour Code</Label>
+              <Label htmlFor="tour_code">Tour Code *</Label>
               <Input
                 id="tour_code"
                 value={formData.tour_code}
                 onChange={(e) => handleInputChange('tour_code', e.target.value)}
                 placeholder="e.g., TAD140525"
+                required
               />
             </div>
             
@@ -306,12 +307,13 @@ const TourCreationForm: React.FC<TourCreationFormProps> = ({
           {/* Vehicle Information */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="truck_name">Truck Name</Label>
+              <Label htmlFor="truck_name">Truck Name *</Label>
               <Input
                 id="truck_name"
                 value={formData.truck_name}
                 onChange={(e) => handleInputChange('truck_name', e.target.value)}
                 placeholder="e.g., Truck Alpha"
+                required
               />
             </div>
             

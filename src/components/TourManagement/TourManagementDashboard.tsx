@@ -6,7 +6,7 @@ import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { Calendar, Users, AlertTriangle, MapPin, Plus } from 'lucide-react';
 import { Tour, Client } from '../../services/api/types';
-import { useAppContext } from '../../contexts/AppContext';
+import { useSupabaseTours } from '../../hooks/useSupabaseTours';
 import TourCreationForm from './TourCreationForm';
 import CrewManagement from './CrewManagement';
 import ClientImport from './ClientImport';
@@ -14,7 +14,7 @@ import IncidentReporting from './IncidentReporting';
 import MobileTourCard from './MobileTourCard';
 
 const TourManagementDashboard: React.FC = () => {
-  const { tours, clients, fetchTours, fetchClients } = useAppContext();
+  const { tours, isLoading, fetchTours, createTour } = useSupabaseTours();
   const [showTourForm, setShowTourForm] = useState(false);
   const [selectedTour, setSelectedTour] = useState<Tour | null>(null);
   const [tourClients, setTourClients] = useState<{ [tourId: string]: Client[] }>({});
@@ -23,16 +23,32 @@ const TourManagementDashboard: React.FC = () => {
     fetchTours();
   }, [fetchTours]);
 
-  const handleTourCreated = (newTour: Tour) => {
-    setShowTourForm(false);
-    fetchTours();
+  const handleTourCreated = async (newTour: Tour) => {
+    try {
+      // Convert Tour type to match Supabase schema
+      await createTour({
+        tour_code: newTour.tour_code!,
+        tour_name: newTour.tour_name,
+        date_start: newTour.date_start,
+        date_end: newTour.date_end,
+        passenger_count: newTour.passenger_count,
+        guide_id: null, // Will be set later when crew is assigned
+        driver_id: null, // Will be set later when crew is assigned
+        truck_name: newTour.truck_name,
+        tour_leader: newTour.tour_leader,
+        tour_type: newTour.tour_type,
+        vehicle_name: newTour.vehicle_name,
+        status: newTour.status
+      });
+      setShowTourForm(false);
+    } catch (error) {
+      console.error('Error creating tour:', error);
+    }
   };
 
   const handleTourSelect = async (tour: Tour) => {
     setSelectedTour(tour);
-    if (!tourClients[tour.tour_id]) {
-      await fetchClients(tour.tour_id);
-    }
+    // TODO: Implement client fetching from Supabase when needed
   };
 
   const handleClientsImported = (importedClients: Client[]) => {
@@ -81,7 +97,13 @@ const TourManagementDashboard: React.FC = () => {
           )}
 
           <div className="grid gap-4">
-            {tours.length === 0 ? (
+            {isLoading ? (
+              <Card>
+                <CardContent className="py-8 text-center text-muted-foreground">
+                  Loading tours...
+                </CardContent>
+              </Card>
+            ) : tours.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
                   No tours found. Create your first tour to get started.
@@ -90,8 +112,13 @@ const TourManagementDashboard: React.FC = () => {
             ) : (
               tours.map(tour => (
                 <MobileTourCard 
-                  key={tour.tour_id} 
-                  tour={tour} 
+                  key={tour.id} 
+                  tour={{
+                    ...tour,
+                    tour_id: tour.id,
+                    guide_name: tour.guide?.full_name || 'Not assigned',
+                    driver_name: tour.driver?.full_name || 'Not assigned'
+                  } as Tour} 
                   onSelect={handleTourSelect} 
                 />
               ))

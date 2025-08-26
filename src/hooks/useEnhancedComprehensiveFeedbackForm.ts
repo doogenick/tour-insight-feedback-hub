@@ -3,7 +3,7 @@ import { ComprehensiveFeedback } from '../types/ComprehensiveFeedback';
 import { Client } from '../services/api/types';
 import { useOfflineFeedback } from './useOfflineFeedback';
 import { useToast } from '../components/ui/use-toast';
-import { comprehensiveFeedbackService } from '../services/comprehensiveFeedbackService';
+import { feedbackSupabaseService } from '../services/supabaseServices';
 import { useWifiConnection } from './useWifiConnection';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -201,32 +201,56 @@ export const useEnhancedComprehensiveFeedbackForm = (
       throw new Error('Missing client or tour information');
     }
 
-    const feedbackData: Omit<ComprehensiveFeedback, 'id' | 'status' | 'submitted_at'> = {
-      ...formData,
-      tour_id: tourId,
-      client_id: selectedClient.client_id,
-    } as Omit<ComprehensiveFeedback, 'id' | 'status' | 'submitted_at'>;
-
     try {
-      // Submit to service (local-first; may fail in rare cases)
-      const submittedFeedback = await comprehensiveFeedbackService.submitFeedback(feedbackData);
+      // Submit to Supabase backend
+      const submittedFeedback = await feedbackSupabaseService.submitFeedback({
+        tour_id: tourId,
+        client_name: formData.client_name || selectedClient.full_name,
+        client_email: formData.client_email || selectedClient.email,
+        client_phone: formData.cellphone,
+        client_nationality: formData.nationality,
+        overall_rating: formData.overview_rating || 5,
+        guide_rating: formData.guiding_rating,
+        driver_rating: formData.driving_rating,
+        vehicle_rating: formData.truck_comfort_rating,
+        accommodation_rating: formData.accommodation_rating,
+        food_rating: formData.food_quality_rating,
+        value_rating: formData.value_rating,
+        highlights: formData.tour_highlight,
+        improvements: formData.improvement_suggestions,
+        additional_comments: formData.additional_comments,
+        would_recommend: formData.would_recommend,
+        likely_to_return: formData.repeat_travel,
+        tour_expectations_met: formData.met_expectations
+      });
       
-      // Always backup locally (even when online)
-      await backupFeedback(submittedFeedback);
+      // Also backup locally as fallback
+      const feedbackForBackup: ComprehensiveFeedback = {
+        ...formData,
+        id: submittedFeedback.id,
+        tour_id: tourId,
+        client_id: selectedClient.client_id,
+        status: 'submitted',
+        submitted_at: submittedFeedback.submitted_at,
+      } as ComprehensiveFeedback;
+      
+      await backupFeedback(feedbackForBackup);
       
       // Clear the form state
       setHasUnsavedChanges(false);
       
-      return submittedFeedback;
+      return feedbackForBackup;
     } catch (error) {
-      console.error('Error submitting feedback, falling back to local backup:', error);
-      // Ensure we still persist a local copy so no data is lost
+      console.error('Error submitting feedback to Supabase, saving locally:', error);
+      // Fallback to local storage
       const fallback: ComprehensiveFeedback = {
-        ...(feedbackData as ComprehensiveFeedback),
+        ...formData,
         id: uuidv4(),
-        status: 'Pending',
+        tour_id: tourId,
+        client_id: selectedClient.client_id,
+        status: 'pending',
         submitted_at: new Date().toISOString(),
-      };
+      } as ComprehensiveFeedback;
       await backupFeedback(fallback);
       setHasUnsavedChanges(false);
       return fallback;
