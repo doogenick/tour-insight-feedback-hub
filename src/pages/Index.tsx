@@ -14,7 +14,7 @@ const Index: React.FC = () => {
         <p className="text-lg text-muted-foreground">Manage your tour feedback and analytics</p>
       </div>
       
-      <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+      <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
         <Card className="hover:shadow-lg transition-shadow">
           <CardHeader>
             <CardTitle>Admin Dashboard</CardTitle>
@@ -25,6 +25,20 @@ const Index: React.FC = () => {
             </p>
             <Button onClick={() => navigate('/admin')} className="w-full">
               Access Admin Panel
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <CardTitle>Feedback Collection</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground mb-4">
+              Start collecting client feedback for tours
+            </p>
+            <Button onClick={() => navigate('/feedback')} className="w-full">
+              Start Collection
             </Button>
           </CardContent>
         </Card>

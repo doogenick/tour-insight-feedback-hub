@@ -4,7 +4,9 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import Index from './pages/Index';
-
+import FeedbackStartPage from './pages/FeedbackStartPage';
+import TourFeedbackSessionPage from './pages/TourFeedbackSessionPage';
+import ComprehensiveFeedbackFormPage from './pages/ComprehensiveFeedbackFormPage';
 import AdminDashboard from './pages/AdminDashboard';
 import NotFound from './pages/NotFound';
 import ComprehensiveAnalytics from './pages/ComprehensiveAnalytics';
@@ -47,6 +49,10 @@ function App() {
           <Routes>
             <Route path="/" element={<Index />} />
             
+            {/* Crew feedback collection routes */}
+            <Route path="/feedback" element={<FeedbackStartPage />} />
+            <Route path="/tour/:tourId/feedback" element={<TourFeedbackSessionPage />} />
+            <Route path="/tour/:tourId/feedback/new" element={<ComprehensiveFeedbackFormPage />} />
             
             {/* All routes accessible in demo mode */}
             <Route path="/admin" element={<AdminDashboard />} />

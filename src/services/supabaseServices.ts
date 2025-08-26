@@ -26,25 +26,86 @@ interface CrewMemberData {
   active?: boolean;
 }
 
-interface FeedbackData {
+interface ComprehensiveFeedbackData {
   tour_id: string;
+  client_id?: string;
   client_name: string;
   client_email?: string;
-  client_phone?: string;
-  client_nationality?: string;
-  overall_rating: number;
-  guide_rating?: number;
-  driver_rating?: number;
-  vehicle_rating?: number;
-  accommodation_rating?: number;
-  food_rating?: number;
-  value_rating?: number;
-  highlights?: string;
-  improvements?: string;
-  additional_comments?: string;
+  nationality?: string;
+  cellphone?: string;
+  client_initials?: string;
+  tour_section_completed: string;
+  
+  // All the rating fields from ComprehensiveFeedback
+  accommodation_rating: number;
+  information_rating: number;
+  quality_equipment_rating: number;
+  truck_comfort_rating: number;
+  food_quantity_rating: number;
+  food_quality_rating: number;
+  driving_rating: number;
+  guiding_rating: number;
+  organisation_rating: number;
+  guide_individual_rating: number;
+  driver_individual_rating: number;
+  pace_rating: number;
+  route_rating: number;
+  activity_level_rating: number;
+  price_rating: number;
+  value_rating: number;
+  overview_rating: number;
+  guide_professionalism: number;
+  guide_organisation: number;
+  guide_people_skills: number;
+  guide_enthusiasm: number;
+  guide_information: number;
+  driver_professionalism: number;
+  driver_organisation: number;
+  driver_people_skills: number;
+  driver_enthusiasm: number;
+  driver_information: number;
+  tour_leader_knowledge: number;
+  safety_rating: number;
+
+  // Satisfaction metrics
+  met_expectations?: boolean;
+  value_for_money?: boolean;
+  truck_satisfaction?: boolean;
   would_recommend?: boolean;
-  likely_to_return?: boolean;
-  tour_expectations_met?: boolean;
+  heard_about_source?: string;
+  repeat_travel?: boolean;
+
+  // Comments
+  expectations_comment?: string;
+  value_for_money_comment?: string;
+  truck_satisfaction_comment?: string;
+  tour_leader_knowledge_comment?: string;
+  safety_comment?: string;
+  would_recommend_comment?: string;
+  repeat_travel_comment?: string;
+  tour_highlight?: string;
+  improvement_suggestions?: string;
+  additional_comments?: string;
+  heard_about_other?: string;
+
+  // Personal details
+  age?: string;
+  gender?: string;
+  newsletter_signup?: boolean;
+
+  // Review preferences
+  willing_to_review_google?: boolean;
+  willing_to_review_tripadvisor?: boolean;
+
+  // Signatures
+  client_signature?: string;
+  client_signature_date?: string;
+  crew_signature?: string;
+  signature_data_url?: string;
+
+  // Status
+  status?: string;
+  submitted_at?: string;
 }
 
 // Tour Services
@@ -159,10 +220,22 @@ export const crewSupabaseService = {
 
 // Feedback Services
 export const feedbackSupabaseService = {
-  async submitFeedback(feedbackData: FeedbackData) {
+  async submitFeedback(feedbackData: ComprehensiveFeedbackData) {
+    // Map the data to ensure required fields exist and provide defaults
+    const mappedData = {
+      ...feedbackData,
+      // Ensure we have the overall_rating field that Supabase expects
+      overall_rating: feedbackData.overview_rating || 3,
+      // Map other fields that might have different names
+      client_phone: feedbackData.cellphone || null,
+      client_nationality: feedbackData.nationality || null,
+      status: feedbackData.status || 'submitted',
+      submitted_at: feedbackData.submitted_at || new Date().toISOString(),
+    };
+
     const { data, error } = await supabase
       .from('comprehensive_feedback')
-      .insert(feedbackData)
+      .insert(mappedData)
       .select()
       .single();
     
@@ -201,8 +274,17 @@ export const feedbackSupabaseService = {
     
     if (error) throw error;
     
+    if (!data || data.length === 0) {
+      return {
+        totalFeedback: 0,
+        averageRating: 0,
+        uniqueTours: 0,
+        data: []
+      };
+    }
+    
     const totalFeedback = data.length;
-    const averageRating = data.reduce((sum, feedback) => sum + feedback.overall_rating, 0) / totalFeedback;
+    const averageRating = data.reduce((sum, feedback) => sum + (feedback.overall_rating || 0), 0) / totalFeedback;
     const uniqueTours = new Set(data.map(f => f.tour_id)).size;
     
     return {

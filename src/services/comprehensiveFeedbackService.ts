@@ -78,41 +78,52 @@ function calculateBooleanMetrics(feedback: ComprehensiveFeedback[], field: keyof
   };
 }
 
+// Core service methods - Updated to use Supabase instead of localforage
 export const comprehensiveFeedbackService = {
-  // Phase 1: Basic storage and retrieval
   async submitFeedback(feedbackData: Omit<ComprehensiveFeedback, 'id' | 'status' | 'submitted_at'>): Promise<ComprehensiveFeedback> {
-    const newFeedback: ComprehensiveFeedback = {
+    // Import here to avoid circular dependency
+    const { feedbackSupabaseService } = await import('./supabaseServices');
+    
+    // Ensure required fields have default values
+    const feedback = {
       ...feedbackData,
-      id: uuidv4(),
-      status: 'Pending',
-      submitted_at: new Date().toISOString()
+      client_name: feedbackData.client_name || 'Anonymous',
+      tour_section_completed: feedbackData.tour_section_completed || 'full_tour',
+      status: 'submitted',
+      submitted_at: new Date().toISOString(),
     };
 
-    await comprehensiveFeedbackStore.setItem(newFeedback.id, newFeedback);
-    
-    
-    return newFeedback;
+    try {
+      const result = await feedbackSupabaseService.submitFeedback(feedback as any);
+      // Use proper type assertion through unknown
+      return result as unknown as ComprehensiveFeedback;
+    } catch (error) {
+      throw new Error(`Failed to submit feedback: ${error}`);
+    }
   },
 
   async getAllFeedback(): Promise<ComprehensiveFeedback[]> {
-    const feedback: ComprehensiveFeedback[] = [];
-    const keys = await comprehensiveFeedbackStore.keys();
-    
-    for (const key of keys) {
-      const item = await comprehensiveFeedbackStore.getItem<ComprehensiveFeedback>(key);
-      if (item) {
-        feedback.push(item);
-      }
+    try {
+      const { feedbackSupabaseService } = await import('./supabaseServices');
+      const result = await feedbackSupabaseService.getAllFeedback();
+      // Use proper type assertion through unknown
+      return (result || []) as unknown as ComprehensiveFeedback[];
+    } catch (error) {
+      console.error('Failed to retrieve feedback from Supabase:', error);
+      return [];
     }
-    
-    return feedback.sort((a, b) => 
-      new Date(b.submitted_at || 0).getTime() - new Date(a.submitted_at || 0).getTime()
-    );
   },
 
   async getFeedbackByTour(tourId: string): Promise<ComprehensiveFeedback[]> {
-    const allFeedback = await this.getAllFeedback();
-    return allFeedback.filter(feedback => feedback.tour_id === tourId);
+    try {
+      const { feedbackSupabaseService } = await import('./supabaseServices');
+      const result = await feedbackSupabaseService.getFeedbackByTour(tourId);
+      // Use proper type assertion through unknown
+      return (result || []) as unknown as ComprehensiveFeedback[];
+    } catch (error) {
+      console.error('Failed to retrieve tour feedback from Supabase:', error);
+      return [];
+    }
   },
 
   async clearAllFeedback(): Promise<void> {
