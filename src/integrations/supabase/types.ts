@@ -14,7 +14,197 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      comprehensive_feedback: {
+        Row: {
+          accommodation_rating: number | null
+          additional_comments: string | null
+          client_email: string | null
+          client_name: string
+          client_nationality: string | null
+          client_phone: string | null
+          created_at: string
+          driver_rating: number | null
+          food_rating: number | null
+          guide_rating: number | null
+          highlights: string | null
+          id: string
+          improvements: string | null
+          likely_to_return: boolean | null
+          overall_rating: number
+          submitted_at: string
+          tour_expectations_met: boolean | null
+          tour_id: string
+          value_rating: number | null
+          vehicle_rating: number | null
+          would_recommend: boolean | null
+        }
+        Insert: {
+          accommodation_rating?: number | null
+          additional_comments?: string | null
+          client_email?: string | null
+          client_name: string
+          client_nationality?: string | null
+          client_phone?: string | null
+          created_at?: string
+          driver_rating?: number | null
+          food_rating?: number | null
+          guide_rating?: number | null
+          highlights?: string | null
+          id?: string
+          improvements?: string | null
+          likely_to_return?: boolean | null
+          overall_rating: number
+          submitted_at?: string
+          tour_expectations_met?: boolean | null
+          tour_id: string
+          value_rating?: number | null
+          vehicle_rating?: number | null
+          would_recommend?: boolean | null
+        }
+        Update: {
+          accommodation_rating?: number | null
+          additional_comments?: string | null
+          client_email?: string | null
+          client_name?: string
+          client_nationality?: string | null
+          client_phone?: string | null
+          created_at?: string
+          driver_rating?: number | null
+          food_rating?: number | null
+          guide_rating?: number | null
+          highlights?: string | null
+          id?: string
+          improvements?: string | null
+          likely_to_return?: boolean | null
+          overall_rating?: number
+          submitted_at?: string
+          tour_expectations_met?: boolean | null
+          tour_id?: string
+          value_rating?: number | null
+          vehicle_rating?: number | null
+          would_recommend?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comprehensive_feedback_tour_id_fkey"
+            columns: ["tour_id"]
+            isOneToOne: false
+            referencedRelation: "tours"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crew_members: {
+        Row: {
+          active: boolean
+          created_at: string
+          email: string | null
+          emergency_contact: string | null
+          full_name: string
+          id: string
+          passport_number: string | null
+          phone: string | null
+          role: string
+          updated_at: string
+          visa_status: string | null
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          email?: string | null
+          emergency_contact?: string | null
+          full_name: string
+          id?: string
+          passport_number?: string | null
+          phone?: string | null
+          role: string
+          updated_at?: string
+          visa_status?: string | null
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          email?: string | null
+          emergency_contact?: string | null
+          full_name?: string
+          id?: string
+          passport_number?: string | null
+          phone?: string | null
+          role?: string
+          updated_at?: string
+          visa_status?: string | null
+        }
+        Relationships: []
+      }
+      tours: {
+        Row: {
+          created_at: string
+          date_end: string | null
+          date_start: string | null
+          driver_id: string | null
+          guide_id: string | null
+          id: string
+          passenger_count: number | null
+          status: string
+          tour_code: string
+          tour_leader: string | null
+          tour_name: string
+          tour_type: string | null
+          truck_name: string | null
+          updated_at: string
+          vehicle_name: string | null
+        }
+        Insert: {
+          created_at?: string
+          date_end?: string | null
+          date_start?: string | null
+          driver_id?: string | null
+          guide_id?: string | null
+          id?: string
+          passenger_count?: number | null
+          status?: string
+          tour_code: string
+          tour_leader?: string | null
+          tour_name: string
+          tour_type?: string | null
+          truck_name?: string | null
+          updated_at?: string
+          vehicle_name?: string | null
+        }
+        Update: {
+          created_at?: string
+          date_end?: string | null
+          date_start?: string | null
+          driver_id?: string | null
+          guide_id?: string | null
+          id?: string
+          passenger_count?: number | null
+          status?: string
+          tour_code?: string
+          tour_leader?: string | null
+          tour_name?: string
+          tour_type?: string | null
+          truck_name?: string | null
+          updated_at?: string
+          vehicle_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tours_driver_id_fkey"
+            columns: ["driver_id"]
+            isOneToOne: false
+            referencedRelation: "crew_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tours_guide_id_fkey"
+            columns: ["guide_id"]
+            isOneToOne: false
+            referencedRelation: "crew_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
