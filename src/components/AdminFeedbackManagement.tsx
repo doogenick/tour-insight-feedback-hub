@@ -6,13 +6,16 @@ import { ArrowLeft, Users, Eye, FileText } from 'lucide-react';
 import { useSupabaseTours } from '../hooks/useSupabaseTours';
 import { useSupabaseFeedback } from '../hooks/useSupabaseFeedback';
 import { Tour } from '../types/Tour';
+import { Database } from '../integrations/supabase/types';
+
+type SupabaseFeedback = Database['public']['Tables']['comprehensive_feedback']['Row'] & {
+  tour?: Database['public']['Tables']['tours']['Row'];
+};
 
 const AdminFeedbackManagement: React.FC = () => {
   const { tours, fetchTours } = useSupabaseTours();
   const { feedback, fetchAllFeedback, fetchFeedbackByTour } = useSupabaseFeedback();
-  const [selectedTour, setSelectedTour] = useState<any | null>(null);
-  const [tourFeedback, setTourFeedback] = useState<any[]>([]);
-  const [viewMode, setViewMode] = useState<'tour-list' | 'feedback-viewer'>('tour-list');
+  const [viewMode, setViewMode] = useState<'tour-list' | 'detailed-viewer'>('tour-list');
   const [allFeedback, setAllFeedback] = useState<any[]>([]);
 
   useEffect(() => {
@@ -35,16 +38,11 @@ const AdminFeedbackManagement: React.FC = () => {
     return acc;
   }, {} as Record<string, any[]>);
 
-  const handleViewTourFeedback = async (tour: any) => {
-    setSelectedTour(tour);
-    const feedbackForTour = await fetchFeedbackByTour(tour.id);
-    setTourFeedback(feedbackForTour || []);
-    setViewMode('feedback-viewer');
+  const handleViewDetailedFeedback = () => {
+    setViewMode('detailed-viewer');
   };
 
   const handleBackToTourList = () => {
-    setSelectedTour(null);
-    setTourFeedback([]);
     setViewMode('tour-list');
   };
 
@@ -54,163 +52,208 @@ const AdminFeedbackManagement: React.FC = () => {
     return ratings.length > 0 ? (ratings.reduce((sum, r) => sum + r, 0) / ratings.length).toFixed(1) : 'N/A';
   };
 
-  if (viewMode === 'feedback-viewer' && selectedTour) {
+  // Show detailed feedback viewer
+  if (viewMode === 'detailed-viewer') {
     return (
       <div className="space-y-4">
         <div className="flex items-center gap-2">
           <Button variant="ghost" onClick={handleBackToTourList}>
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Tours
+            Back to Tour List
           </Button>
-          <h2 className="text-xl font-bold">Feedback for {selectedTour.tour_name}</h2>
+          <h2 className="text-xl font-bold">Individual Feedback Reviews</h2>
         </div>
         
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              Tour Details
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-              <div>
-                <span className="font-medium">Tour Code:</span>
-                <p className="text-muted-foreground">{selectedTour.tour_code}</p>
-              </div>
-              <div>
-                <span className="font-medium">Guide:</span>
-                <p className="text-muted-foreground">{selectedTour.guide?.full_name || 'Not assigned'}</p>
-              </div>
-              <div>
-                <span className="font-medium">Driver:</span>
-                <p className="text-muted-foreground">{selectedTour.driver?.full_name || 'Not assigned'}</p>
-              </div>
-              <div>
-                <span className="font-medium">Passengers:</span>
-                <p className="text-muted-foreground">{selectedTour.passenger_count}</p>
-              </div>
-              <div>
-                <span className="font-medium">Truck Name:</span>
-                <p className="text-muted-foreground">{selectedTour.truck_name}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {tourFeedback.length > 0 ? (
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium">Client Feedback ({tourFeedback.length})</h3>
-            <div className="grid gap-4">
-              {tourFeedback.map((fb, index) => (
-                <Card key={fb.id || index}>
-                  <CardContent className="pt-4">
-                     <div className="space-y-4">
-                      {/* Client Header */}
-                      <div className="flex justify-between items-start border-b pb-3">
-                        <div className="space-y-1">
-                          <h4 className="font-semibold text-lg">{fb.lead_client_name || `Client ${index + 1}`}</h4>
-                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                            {fb.client_nationality && <span>Nationality: {fb.client_nationality}</span>}
-                            {fb.client_email && <span>Email: {fb.client_email}</span>}
-                            {fb.group_size && <span>Group size: {fb.group_size}</span>}
-                          </div>
+        <div className="space-y-4">
+          {allFeedback.length === 0 ? (
+            <Card>
+              <CardContent className="py-8 text-center">
+                <p className="text-muted-foreground">No feedback submissions available yet.</p>
+              </CardContent>
+            </Card>
+          ) : (
+            allFeedback.map((feedback, index) => (
+              <Card key={feedback.id || index}>
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between">
+                    <span>{feedback.client_name}</span>
+                    <Badge variant="default" className="text-lg px-3 py-1">
+                      ★ {feedback.overall_rating}/5
+                    </Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* Client Information */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-muted/50 rounded-lg">
+                    <div>
+                      <h5 className="font-medium text-sm text-muted-foreground mb-2">CLIENT INFORMATION</h5>
+                      <div className="space-y-1 text-sm">
+                        <div className="flex justify-between">
+                          <span>Name:</span>
+                          <span className="font-medium">{feedback.client_name}</span>
                         </div>
-                        <Badge variant="default" className="text-lg px-3 py-1">★ {fb.overall_rating}/5</Badge>
-                      </div>
-                      
-                      {/* Rating Breakdown */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <h5 className="font-medium text-sm text-muted-foreground">SERVICE RATINGS</h5>
-                          <div className="grid grid-cols-2 gap-2 text-sm">
-                            <div className="flex justify-between">
-                              <span>Accommodation:</span>
-                              <Badge variant="outline">{fb.accommodation_rating}/5</Badge>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Activities:</span>
-                              <Badge variant="outline">{fb.activities_rating}/5</Badge>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Food:</span>
-                              <Badge variant="outline">{fb.food_rating}/5</Badge>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Vehicle:</span>
-                              <Badge variant="outline">{fb.vehicle_rating}/5</Badge>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {(fb.guide_rating || fb.driver_rating) && (
-                          <div className="space-y-2">
-                            <h5 className="font-medium text-sm text-muted-foreground">CREW RATINGS</h5>
-                            <div className="grid grid-cols-1 gap-2 text-sm">
-                              {fb.guide_rating && (
-                                <div className="flex justify-between">
-                                  <span>Guide:</span>
-                                  <Badge variant="outline">{fb.guide_rating}/5</Badge>
-                                </div>
-                              )}
-                              {fb.driver_rating && (
-                                <div className="flex justify-between">
-                                  <span>Driver:</span>
-                                  <Badge variant="outline">{fb.driver_rating}/5</Badge>
-                                </div>
-                              )}
-                            </div>
+                        {feedback.client_email && (
+                          <div className="flex justify-between">
+                            <span>Email:</span>
+                            <span className="font-medium">{feedback.client_email}</span>
                           </div>
                         )}
-                      </div>
-                      
-                      {/* Written Feedback */}
-                      {(fb.enjoyed_most || fb.improvements || fb.additional_comments) && (
-                        <div className="space-y-3 border-t pt-3">
-                          <h5 className="font-medium text-sm text-muted-foreground">WRITTEN FEEDBACK</h5>
-                          {fb.enjoyed_most && (
-                            <div className="space-y-1">
-                              <span className="font-medium text-green-600">What they enjoyed most:</span>
-                              <p className="text-sm bg-green-50 p-3 rounded border-l-4 border-green-200">{fb.enjoyed_most}</p>
-                            </div>
-                          )}
-                          {fb.improvements && (
-                            <div className="space-y-1">
-                              <span className="font-medium text-orange-600">Suggested improvements:</span>
-                              <p className="text-sm bg-orange-50 p-3 rounded border-l-4 border-orange-200">{fb.improvements}</p>
-                            </div>
-                          )}
-                          {fb.additional_comments && (
-                            <div className="space-y-1">
-                              <span className="font-medium text-blue-600">Additional comments:</span>
-                              <p className="text-sm bg-blue-50 p-3 rounded border-l-4 border-blue-200">{fb.additional_comments}</p>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                      
-                      {/* Footer */}
-                      <div className="flex justify-between items-center text-xs text-muted-foreground border-t pt-2">
-                        <span>{fb.created_at && `Submitted: ${new Date(fb.created_at).toLocaleString()}`}</span>
-                        {fb.recommend_to_friend !== undefined && (
-                          <span className={fb.recommend_to_friend ? "text-green-600" : "text-red-600"}>
-                            {fb.recommend_to_friend ? "Would recommend ✓" : "Would not recommend ✗"}
-                          </span>
+                        {feedback.client_phone && (
+                          <div className="flex justify-between">
+                            <span>Phone:</span>
+                            <span className="font-medium">{feedback.client_phone}</span>
+                          </div>
+                        )}
+                        {feedback.client_nationality && (
+                          <div className="flex justify-between">
+                            <span>Nationality:</span>
+                            <span className="font-medium">{feedback.client_nationality}</span>
+                          </div>
                         )}
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        ) : (
-          <Card>
-            <CardContent className="py-8 text-center">
-              <p className="text-muted-foreground">No feedback available for this tour.</p>
-            </CardContent>
-          </Card>
-        )}
+                    <div>
+                      <h5 className="font-medium text-sm text-muted-foreground mb-2">SUBMISSION DETAILS</h5>
+                      <div className="space-y-1 text-sm">
+                        <div className="flex justify-between">
+                          <span>Submitted:</span>
+                          <span className="font-medium">
+                            {new Date(feedback.submitted_at).toLocaleString()}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Tour ID:</span>
+                          <span className="font-medium">{feedback.tour_id}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Rating Breakdown */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-3">
+                      <h5 className="font-medium text-sm text-muted-foreground">SERVICE RATINGS</h5>
+                      <div className="space-y-2">
+                        {feedback.accommodation_rating && (
+                          <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                            <span className="font-medium">Accommodation</span>
+                            <Badge variant="outline">{feedback.accommodation_rating}/5</Badge>
+                          </div>
+                        )}
+                        {feedback.food_rating && (
+                          <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                            <span className="font-medium">Food</span>
+                            <Badge variant="outline">{feedback.food_rating}/5</Badge>
+                          </div>
+                        )}
+                        {feedback.vehicle_rating && (
+                          <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                            <span className="font-medium">Vehicle</span>
+                            <Badge variant="outline">{feedback.vehicle_rating}/5</Badge>
+                          </div>
+                        )}
+                        {feedback.value_rating && (
+                          <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                            <span className="font-medium">Value for Money</span>
+                            <Badge variant="outline">{feedback.value_rating}/5</Badge>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <h5 className="font-medium text-sm text-muted-foreground">CREW RATINGS</h5>
+                      <div className="space-y-2">
+                        {feedback.guide_rating && (
+                          <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                            <span className="font-medium">Guide Performance</span>
+                            <Badge variant="outline">{feedback.guide_rating}/5</Badge>
+                          </div>
+                        )}
+                        {feedback.driver_rating && (
+                          <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                            <span className="font-medium">Driver Performance</span>
+                            <Badge variant="outline">{feedback.driver_rating}/5</Badge>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Satisfaction Metrics */}
+                  {(feedback.tour_expectations_met !== null || feedback.would_recommend !== null || feedback.likely_to_return !== null) && (
+                    <div className="space-y-3">
+                      <h5 className="font-medium text-sm text-muted-foreground">SATISFACTION METRICS</h5>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        {feedback.tour_expectations_met !== null && (
+                          <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                            <span className="font-medium">Met Expectations</span>
+                            <Badge variant={feedback.tour_expectations_met ? "default" : "destructive"}>
+                              {feedback.tour_expectations_met ? "Yes" : "No"}
+                            </Badge>
+                          </div>
+                        )}
+                        {feedback.would_recommend !== null && (
+                          <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                            <span className="font-medium">Would Recommend</span>
+                            <Badge variant={feedback.would_recommend ? "default" : "destructive"}>
+                              {feedback.would_recommend ? "Yes" : "No"}
+                            </Badge>
+                          </div>
+                        )}
+                        {feedback.likely_to_return !== null && (
+                          <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                            <span className="font-medium">Likely to Return</span>
+                            <Badge variant={feedback.likely_to_return ? "default" : "destructive"}>
+                              {feedback.likely_to_return ? "Yes" : "No"}
+                            </Badge>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Written Feedback */}
+                  {(feedback.highlights || feedback.improvements || feedback.additional_comments) && (
+                    <div className="space-y-4">
+                      <h5 className="font-medium text-sm text-muted-foreground">WRITTEN FEEDBACK</h5>
+                      {feedback.highlights && (
+                        <div className="space-y-2">
+                          <span className="font-medium text-green-600">Tour Highlights</span>
+                          <p className="text-sm bg-green-50 p-4 rounded-lg border-l-4 border-green-200">
+                            {feedback.highlights}
+                          </p>
+                        </div>
+                      )}
+                      {feedback.improvements && (
+                        <div className="space-y-2">
+                          <span className="font-medium text-orange-600">Suggested Improvements</span>
+                          <p className="text-sm bg-orange-50 p-4 rounded-lg border-l-4 border-orange-200">
+                            {feedback.improvements}
+                          </p>
+                        </div>
+                      )}
+                      {feedback.additional_comments && (
+                        <div className="space-y-2">
+                          <span className="font-medium text-blue-600">Additional Comments</span>
+                          <p className="text-sm bg-blue-50 p-4 rounded-lg border-l-4 border-blue-200">
+                            {feedback.additional_comments}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {!feedback.highlights && !feedback.improvements && !feedback.additional_comments && (
+                    <div className="text-center py-4 text-muted-foreground text-sm">
+                      No written feedback provided
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ))
+          )}
+        </div>
       </div>
     );
   }
@@ -221,18 +264,27 @@ const AdminFeedbackManagement: React.FC = () => {
         <div>
           <h2 className="text-xl font-bold">Tour Feedback Management</h2>
           <p className="text-muted-foreground">
-            Select a tour to view and manage client feedback for manual data capture
+            View detailed feedback submissions with comprehensive client data
           </p>
         </div>
-        <Badge variant="secondary">
-          {tours.length} {tours.length === 1 ? 'Tour' : 'Tours'}
-        </Badge>
+        <div className="flex items-center gap-3">
+          <Badge variant="secondary">
+            {allFeedback.length} {allFeedback.length === 1 ? 'Feedback' : 'Feedbacks'}
+          </Badge>
+          <Button onClick={handleViewDetailedFeedback} disabled={allFeedback.length === 0}>
+            <Eye className="h-4 w-4 mr-2" />
+            View Individual Reviews
+          </Button>
+        </div>
       </div>
 
-      {tours.length === 0 ? (
+      {allFeedback.length === 0 ? (
         <Card>
           <CardContent className="py-8 text-center">
-            <p className="text-muted-foreground">No tours available. Create tours first to manage feedback.</p>
+            <p className="text-muted-foreground">No feedback submissions available yet.</p>
+            <p className="text-sm text-muted-foreground mt-2">
+              Feedback will appear here once clients submit comprehensive forms.
+            </p>
           </CardContent>
         </Card>
       ) : (
@@ -278,13 +330,13 @@ const AdminFeedbackManagement: React.FC = () => {
                         )}
                       </div>
                       <Button 
-                        onClick={() => handleViewTourFeedback(tour)}
+                        onClick={handleViewDetailedFeedback}
                         variant="outline"
                         size="sm"
                         disabled={tourFeedbackList.length === 0}
                       >
                         <Eye className="h-4 w-4 mr-2" />
-                        {tourFeedbackList.length === 0 ? 'No Feedback' : 'View Feedback'}
+                        {tourFeedbackList.length === 0 ? 'No Feedback' : `View ${tourFeedbackList.length} Reviews`}
                       </Button>
                     </div>
                   </div>
