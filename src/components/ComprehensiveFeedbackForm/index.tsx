@@ -179,9 +179,7 @@ const ComprehensiveFeedbackForm: React.FC = () => {
           <PageThree
             formData={formData}
             updateFormData={updateFormData}
-            clientEmail={selectedClient?.email}
             onPrev={handlePrevPage}
-            onClearForm={handleClearForm}
             onSubmit={handleSubmit}
             isSubmitting={isSubmitting}
           />

@@ -3,15 +3,12 @@ import React from 'react';
 import { ComprehensiveFeedback } from '../../types/ComprehensiveFeedback';
 import { Button } from '../ui/button';
 import PersonalDetails from './PersonalDetails';
-import ReviewSharingSection from './ReviewSharingSection';
 import SubmissionActions from './SubmissionActions';
 
 interface PageThreeProps {
   formData: Partial<ComprehensiveFeedback>;
   updateFormData: (field: keyof ComprehensiveFeedback, value: any) => void;
-  clientEmail?: string;
   onPrev: () => void;
-  onClearForm: () => void;
   onSubmit: () => void;
   isSubmitting: boolean;
 }
@@ -19,9 +16,7 @@ interface PageThreeProps {
 const PageThree: React.FC<PageThreeProps> = ({
   formData,
   updateFormData,
-  clientEmail,
   onPrev,
-  onClearForm,
   onSubmit,
   isSubmitting
 }) => {
@@ -32,15 +27,7 @@ const PageThree: React.FC<PageThreeProps> = ({
         updateFormData={updateFormData}
       />
       
-      <ReviewSharingSection
-        formData={formData}
-        updateFormData={updateFormData}
-        clientEmail={clientEmail}
-      />
-      
       <SubmissionActions
-        formData={formData}
-        onClearForm={onClearForm}
         onSubmit={onSubmit}
         isSubmitting={isSubmitting}
       />

@@ -343,9 +343,7 @@ const MultiClientFeedbackCollector: React.FC<MultiClientFeedbackCollectorProps> 
             <PageThree
               formData={formData}
               updateFormData={updateFormData}
-              clientEmail={formData.client_email}
               onPrev={handlePrevPage}
-              onClearForm={handleClearCurrentForm}
               onSubmit={handleSubmitCurrentClient}
               isSubmitting={false}
             />
