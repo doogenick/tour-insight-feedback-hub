@@ -105,45 +105,98 @@ const AdminFeedbackManagement: React.FC = () => {
               {tourFeedback.map((fb, index) => (
                 <Card key={fb.id || index}>
                   <CardContent className="pt-4">
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <p className="font-medium">{fb.lead_client_name || `Client ${index + 1}`}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {fb.client_nationality && `Nationality: ${fb.client_nationality}`}
-                          </p>
+                     <div className="space-y-4">
+                      {/* Client Header */}
+                      <div className="flex justify-between items-start border-b pb-3">
+                        <div className="space-y-1">
+                          <h4 className="font-semibold text-lg">{fb.lead_client_name || `Client ${index + 1}`}</h4>
+                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                            {fb.client_nationality && <span>Nationality: {fb.client_nationality}</span>}
+                            {fb.client_email && <span>Email: {fb.client_email}</span>}
+                            {fb.group_size && <span>Group size: {fb.group_size}</span>}
+                          </div>
                         </div>
-                        <Badge variant="default">★ {fb.overall_rating}/5</Badge>
+                        <Badge variant="default" className="text-lg px-3 py-1">★ {fb.overall_rating}/5</Badge>
                       </div>
                       
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
-                        <div>Accommodation: {fb.accommodation_rating}/5</div>
-                        <div>Activities: {fb.activities_rating}/5</div>
-                        <div>Food: {fb.food_rating}/5</div>
-                        <div>Vehicle: {fb.vehicle_rating}/5</div>
+                      {/* Rating Breakdown */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <h5 className="font-medium text-sm text-muted-foreground">SERVICE RATINGS</h5>
+                          <div className="grid grid-cols-2 gap-2 text-sm">
+                            <div className="flex justify-between">
+                              <span>Accommodation:</span>
+                              <Badge variant="outline">{fb.accommodation_rating}/5</Badge>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Activities:</span>
+                              <Badge variant="outline">{fb.activities_rating}/5</Badge>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Food:</span>
+                              <Badge variant="outline">{fb.food_rating}/5</Badge>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Vehicle:</span>
+                              <Badge variant="outline">{fb.vehicle_rating}/5</Badge>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {(fb.guide_rating || fb.driver_rating) && (
+                          <div className="space-y-2">
+                            <h5 className="font-medium text-sm text-muted-foreground">CREW RATINGS</h5>
+                            <div className="grid grid-cols-1 gap-2 text-sm">
+                              {fb.guide_rating && (
+                                <div className="flex justify-between">
+                                  <span>Guide:</span>
+                                  <Badge variant="outline">{fb.guide_rating}/5</Badge>
+                                </div>
+                              )}
+                              {fb.driver_rating && (
+                                <div className="flex justify-between">
+                                  <span>Driver:</span>
+                                  <Badge variant="outline">{fb.driver_rating}/5</Badge>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
                       </div>
                       
+                      {/* Written Feedback */}
                       {(fb.enjoyed_most || fb.improvements || fb.additional_comments) && (
-                        <div className="mt-2 space-y-1">
+                        <div className="space-y-3 border-t pt-3">
+                          <h5 className="font-medium text-sm text-muted-foreground">WRITTEN FEEDBACK</h5>
                           {fb.enjoyed_most && (
-                            <p className="text-sm">
-                              <span className="font-medium">Enjoyed most:</span> {fb.enjoyed_most}
-                            </p>
+                            <div className="space-y-1">
+                              <span className="font-medium text-green-600">What they enjoyed most:</span>
+                              <p className="text-sm bg-green-50 p-3 rounded border-l-4 border-green-200">{fb.enjoyed_most}</p>
+                            </div>
                           )}
                           {fb.improvements && (
-                            <p className="text-sm">
-                              <span className="font-medium">Improvements:</span> {fb.improvements}
-                            </p>
+                            <div className="space-y-1">
+                              <span className="font-medium text-orange-600">Suggested improvements:</span>
+                              <p className="text-sm bg-orange-50 p-3 rounded border-l-4 border-orange-200">{fb.improvements}</p>
+                            </div>
                           )}
                           {fb.additional_comments && (
-                            <p className="text-sm">
-                              <span className="font-medium">Additional comments:</span> {fb.additional_comments}
-                            </p>
+                            <div className="space-y-1">
+                              <span className="font-medium text-blue-600">Additional comments:</span>
+                              <p className="text-sm bg-blue-50 p-3 rounded border-l-4 border-blue-200">{fb.additional_comments}</p>
+                            </div>
                           )}
                         </div>
                       )}
-                      <div className="text-xs text-muted-foreground">
-                        {fb.created_at && `Submitted: ${new Date(fb.created_at).toLocaleDateString()}`}
+                      
+                      {/* Footer */}
+                      <div className="flex justify-between items-center text-xs text-muted-foreground border-t pt-2">
+                        <span>{fb.created_at && `Submitted: ${new Date(fb.created_at).toLocaleString()}`}</span>
+                        {fb.recommend_to_friend !== undefined && (
+                          <span className={fb.recommend_to_friend ? "text-green-600" : "text-red-600"}>
+                            {fb.recommend_to_friend ? "Would recommend ✓" : "Would not recommend ✗"}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </CardContent>

@@ -2,9 +2,9 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AppProvider } from './contexts/AppContext';
+
 import Index from './pages/Index';
-import FeedbackPage from './pages/FeedbackPage';
+
 import AdminDashboard from './pages/AdminDashboard';
 import NotFound from './pages/NotFound';
 import ComprehensiveAnalytics from './pages/ComprehensiveAnalytics';
@@ -41,24 +41,22 @@ const MobileDemoBanner = () => {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AppProvider>
-        <BrowserRouter>
-          <ResponsiveLayout>
-            <MobileDemoBanner />
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/feedback" element={<FeedbackPage />} />
-              
-              {/* All routes accessible in demo mode */}
-              <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/analytics" element={<ComprehensiveAnalytics />} />
-              
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            <Toaster />
-          </ResponsiveLayout>
-        </BrowserRouter>
-      </AppProvider>
+      <BrowserRouter>
+        <ResponsiveLayout>
+          <MobileDemoBanner />
+          <Routes>
+            <Route path="/" element={<Index />} />
+            
+            
+            {/* All routes accessible in demo mode */}
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/analytics" element={<ComprehensiveAnalytics />} />
+            
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+          <Toaster />
+        </ResponsiveLayout>
+      </BrowserRouter>
     </QueryClientProvider>
   );
 }

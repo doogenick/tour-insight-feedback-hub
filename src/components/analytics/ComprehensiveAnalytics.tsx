@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { FeedbackAnalytics } from './FeedbackAnalytics';
+
 import ComprehensiveFeedbackAnalytics from '../ComprehensiveFeedbackAnalytics';
 
 const ComprehensiveAnalytics: React.FC = () => {

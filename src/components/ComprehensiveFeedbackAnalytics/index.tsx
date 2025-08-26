@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Button } from '../ui/button';
 import { RefreshCw, Database } from 'lucide-react';
 import { comprehensiveFeedbackService, FeedbackAnalytics } from '../../services/comprehensiveFeedbackService';
-import { tourService } from '../../services/api';
+
 import { ComprehensiveFeedback } from '../../types/ComprehensiveFeedback';
 import FilterControls from './FilterControls';
 import RatingDistributionChart from './RatingDistributionChart';

@@ -89,7 +89,7 @@ export const comprehensiveFeedbackService = {
     };
 
     await comprehensiveFeedbackStore.setItem(newFeedback.id, newFeedback);
-    console.log('Comprehensive feedback stored:', newFeedback);
+    
     
     return newFeedback;
   },
