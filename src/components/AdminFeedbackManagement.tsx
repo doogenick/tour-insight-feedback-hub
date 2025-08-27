@@ -5,6 +5,7 @@ import { Badge } from './ui/badge';
 import { ArrowLeft, Users, Eye, FileText } from 'lucide-react';
 import { useSupabaseTours } from '../hooks/useSupabaseTours';
 import { useSupabaseFeedback } from '../hooks/useSupabaseFeedback';
+import AdminFeedbackDetail from './AdminFeedbackDetail';
 import { Tour } from '../types/Tour';
 import { Database } from '../integrations/supabase/types';
 
@@ -17,6 +18,7 @@ const AdminFeedbackManagement: React.FC = () => {
   const { feedback, fetchAllFeedback, fetchFeedbackByTour } = useSupabaseFeedback();
   const [viewMode, setViewMode] = useState<'tour-list' | 'detailed-viewer'>('tour-list');
   const [allFeedback, setAllFeedback] = useState<any[]>([]);
+  const [selectedFeedback, setSelectedFeedback] = useState<any>(null);
 
   useEffect(() => {
     loadData();
@@ -248,15 +250,34 @@ const AdminFeedbackManagement: React.FC = () => {
                     <div className="text-center py-4 text-muted-foreground text-sm">
                       No written feedback provided
                     </div>
-                  )}
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </div>
-      </div>
-    );
-  }
+                   )}
+                   
+                   {/* Detailed View Button */}
+                   <div className="pt-4 border-t">
+                     <Button 
+                       variant="outline" 
+                       onClick={() => setSelectedFeedback(feedback)}
+                       className="w-full"
+                     >
+                       <Eye className="h-4 w-4 mr-2" />
+                       View Complete Details
+                     </Button>
+                   </div>
+                 </CardContent>
+               </Card>
+             ))
+           )}
+         </div>
+
+         {selectedFeedback && (
+           <AdminFeedbackDetail 
+             feedback={selectedFeedback} 
+             onClose={() => setSelectedFeedback(null)} 
+           />
+         )}
+       </div>
+     );
+   }
 
   return (
     <div className="space-y-6">

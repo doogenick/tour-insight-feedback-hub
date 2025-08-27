@@ -12,6 +12,8 @@ interface TourData {
   tour_leader?: string;
   tour_type?: 'camping' | 'camping_accommodated' | 'accommodated';
   vehicle_name?: string;
+  crew_count?: number;
+  vehicle_type?: string;
   status?: 'planned' | 'active' | 'completed' | 'cancelled';
 }
 
@@ -131,7 +133,12 @@ export const tourSupabaseService = {
       .select()
       .single();
     
-    if (error) throw error;
+    if (error) {
+      if (error.code === '23505' && error.message.includes('unique_tour_code')) {
+        throw new Error('A tour with this tour code already exists. Please use a different tour code.');
+      }
+      throw error;
+    }
     return data;
   },
 

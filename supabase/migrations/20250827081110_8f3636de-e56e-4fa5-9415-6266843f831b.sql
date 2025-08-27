@@ -1,0 +1,70 @@
+-- First, let me check if we need to add missing columns to comprehensive_feedback table
+-- that are expected by the TypeScript interface but might not exist in the database
+
+-- Add missing fields to comprehensive_feedback table to match the ComprehensiveFeedback interface
+ALTER TABLE comprehensive_feedback 
+ADD COLUMN IF NOT EXISTS information_rating INTEGER,
+ADD COLUMN IF NOT EXISTS quality_equipment_rating INTEGER,
+ADD COLUMN IF NOT EXISTS truck_comfort_rating INTEGER,
+ADD COLUMN IF NOT EXISTS food_quantity_rating INTEGER,
+ADD COLUMN IF NOT EXISTS food_quality_rating INTEGER,
+ADD COLUMN IF NOT EXISTS driving_rating INTEGER,
+ADD COLUMN IF NOT EXISTS guiding_rating INTEGER,
+ADD COLUMN IF NOT EXISTS organisation_rating INTEGER,
+ADD COLUMN IF NOT EXISTS guide_individual_rating INTEGER,
+ADD COLUMN IF NOT EXISTS driver_individual_rating INTEGER,
+ADD COLUMN IF NOT EXISTS pace_rating INTEGER,
+ADD COLUMN IF NOT EXISTS route_rating INTEGER,
+ADD COLUMN IF NOT EXISTS activity_level_rating INTEGER,
+ADD COLUMN IF NOT EXISTS price_rating INTEGER,
+ADD COLUMN IF NOT EXISTS overview_rating INTEGER,
+ADD COLUMN IF NOT EXISTS guide_professionalism INTEGER,
+ADD COLUMN IF NOT EXISTS guide_organisation INTEGER,
+ADD COLUMN IF NOT EXISTS guide_people_skills INTEGER,
+ADD COLUMN IF NOT EXISTS guide_enthusiasm INTEGER,
+ADD COLUMN IF NOT EXISTS guide_information INTEGER,
+ADD COLUMN IF NOT EXISTS driver_professionalism INTEGER,
+ADD COLUMN IF NOT EXISTS driver_organisation INTEGER,
+ADD COLUMN IF NOT EXISTS driver_people_skills INTEGER,
+ADD COLUMN IF NOT EXISTS driver_enthusiasm INTEGER,
+ADD COLUMN IF NOT EXISTS driver_information INTEGER,
+ADD COLUMN IF NOT EXISTS tour_leader_knowledge INTEGER,
+ADD COLUMN IF NOT EXISTS safety_rating INTEGER,
+ADD COLUMN IF NOT EXISTS met_expectations BOOLEAN,
+ADD COLUMN IF NOT EXISTS value_for_money BOOLEAN,
+ADD COLUMN IF NOT EXISTS truck_satisfaction BOOLEAN,
+ADD COLUMN IF NOT EXISTS heard_about_source TEXT,
+ADD COLUMN IF NOT EXISTS repeat_travel BOOLEAN,
+ADD COLUMN IF NOT EXISTS expectations_comment TEXT,
+ADD COLUMN IF NOT EXISTS value_for_money_comment TEXT,
+ADD COLUMN IF NOT EXISTS truck_satisfaction_comment TEXT,
+ADD COLUMN IF NOT EXISTS tour_leader_knowledge_comment TEXT,
+ADD COLUMN IF NOT EXISTS safety_comment TEXT,
+ADD COLUMN IF NOT EXISTS would_recommend_comment TEXT,
+ADD COLUMN IF NOT EXISTS repeat_travel_comment TEXT,
+ADD COLUMN IF NOT EXISTS tour_highlight TEXT,
+ADD COLUMN IF NOT EXISTS improvement_suggestions TEXT,
+ADD COLUMN IF NOT EXISTS heard_about_other TEXT,
+ADD COLUMN IF NOT EXISTS age TEXT,
+ADD COLUMN IF NOT EXISTS gender TEXT,
+ADD COLUMN IF NOT EXISTS newsletter_signup BOOLEAN,
+ADD COLUMN IF NOT EXISTS willing_to_review_google BOOLEAN,
+ADD COLUMN IF NOT EXISTS willing_to_review_tripadvisor BOOLEAN,
+ADD COLUMN IF NOT EXISTS client_signature TEXT,
+ADD COLUMN IF NOT EXISTS client_signature_date TEXT,
+ADD COLUMN IF NOT EXISTS crew_signature TEXT,
+ADD COLUMN IF NOT EXISTS signature_data_url TEXT,
+ADD COLUMN IF NOT EXISTS client_id TEXT,
+ADD COLUMN IF NOT EXISTS client_initials TEXT,
+ADD COLUMN IF NOT EXISTS cellphone TEXT,
+ADD COLUMN IF NOT EXISTS nationality TEXT,
+ADD COLUMN IF NOT EXISTS tour_section_completed TEXT,
+ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'submitted';
+
+-- Add unique constraint for tour codes to prevent duplicates
+ALTER TABLE tours ADD CONSTRAINT unique_tour_code UNIQUE (tour_code);
+
+-- Add crew_count and vehicle_type columns to tours table
+ALTER TABLE tours 
+ADD COLUMN IF NOT EXISTS crew_count INTEGER DEFAULT 2 CHECK (crew_count >= 0 AND crew_count <= 3),
+ADD COLUMN IF NOT EXISTS vehicle_type TEXT DEFAULT 'truck' CHECK (vehicle_type IN ('truck', 'rental', 'subcontracted', 'none'));
