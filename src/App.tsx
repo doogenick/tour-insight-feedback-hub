@@ -10,11 +10,25 @@ import ComprehensiveFeedbackFormPage from './pages/ComprehensiveFeedbackFormPage
 import AdminDashboard from './pages/AdminDashboard';
 import NotFound from './pages/NotFound';
 import ComprehensiveAnalytics from './pages/ComprehensiveAnalytics';
+
+// Mobile-specific pages
+import MobileFeedbackHome from './pages/MobileFeedbackHome';
+import MobileFeedbackSession from './pages/MobileFeedbackSession';
+import MobileFeedbackForm from './pages/MobileFeedbackForm';
+
 import { Toaster } from './components/ui/toaster';
 import ResponsiveLayout from './components/ResponsiveLayout';
 import { useIsMobile, useIsTablet } from './hooks/use-mobile';
+import { useWifiConnection } from './hooks/useWifiConnection';
 
 const queryClient = new QueryClient();
+
+// Simple mobile detection for Capacitor
+const isMobileApp = () => {
+  return window.location.href.includes('capacitor://') || 
+         window.location.href.includes('localhost') ||
+         /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+};
 
 // Mobile/Tablet demo banner
 const MobileDemoBanner = () => {
@@ -41,24 +55,48 @@ const MobileDemoBanner = () => {
 };
 
 function App() {
+  const isMobile = useIsMobile();
+  const isTablet = useIsTablet();
+  const isMobileAppEnvironment = isMobileApp();
+  
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <ResponsiveLayout>
           <MobileDemoBanner />
           <Routes>
-            <Route path="/" element={<Index />} />
-            
-            {/* Crew feedback collection routes */}
-            <Route path="/feedback" element={<FeedbackStartPage />} />
-            <Route path="/tour/:tourId/feedback" element={<TourFeedbackSessionPage />} />
-            <Route path="/tour/:tourId/feedback/new" element={<ComprehensiveFeedbackFormPage />} />
-            
-            {/* All routes accessible in demo mode */}
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/analytics" element={<ComprehensiveAnalytics />} />
-            
-            <Route path="*" element={<NotFound />} />
+            {/* Mobile app routes - prioritize mobile interface for Capacitor */}
+            {isMobileAppEnvironment ? (
+              <>
+                <Route path="/" element={<MobileFeedbackHome />} />
+                <Route path="/mobile" element={<MobileFeedbackHome />} />
+                <Route path="/mobile-feedback/:tourId" element={<MobileFeedbackSession />} />
+                <Route path="/mobile-feedback-form/:tourId" element={<MobileFeedbackForm />} />
+                {/* Fallback all other routes to mobile home for simplicity */}
+                <Route path="*" element={<MobileFeedbackHome />} />
+              </>
+            ) : (
+              <>
+                {/* Web/Desktop routes */}
+                <Route path="/" element={<Index />} />
+                
+                {/* Crew feedback collection routes */}
+                <Route path="/feedback" element={<FeedbackStartPage />} />
+                <Route path="/tour/:tourId/feedback" element={<TourFeedbackSessionPage />} />
+                <Route path="/tour/:tourId/feedback/new" element={<ComprehensiveFeedbackFormPage />} />
+                
+                {/* Admin routes */}
+                <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/analytics" element={<ComprehensiveAnalytics />} />
+                
+                {/* Mobile routes for testing on desktop */}
+                <Route path="/mobile" element={<MobileFeedbackHome />} />
+                <Route path="/mobile-feedback/:tourId" element={<MobileFeedbackSession />} />
+                <Route path="/mobile-feedback-form/:tourId" element={<MobileFeedbackForm />} />
+                
+                <Route path="*" element={<NotFound />} />
+              </>
+            )}
           </Routes>
           <Toaster />
         </ResponsiveLayout>
