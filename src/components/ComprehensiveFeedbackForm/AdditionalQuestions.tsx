@@ -26,40 +26,7 @@ const AdditionalQuestions: React.FC<AdditionalQuestionsProps> = ({
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Value for Money */}
-      <div className="border border-black">
-        <div className="bg-gray-100 p-3 font-bold text-sm border-b border-black">
-          Do you feel the tour was value for money?
-        </div>
-        <div className="p-4 space-y-4">
-          <RadioGroup 
-            value={formData.value_for_money === null ? '' : formData.value_for_money.toString()} 
-            onValueChange={(value) => updateFormData('value_for_money', value === 'true')}
-            className="flex gap-6"
-          >
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="true" id="value_yes" />
-              <Label htmlFor="value_yes" className="cursor-pointer">Yes</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="false" id="value_no" />
-              <Label htmlFor="value_no" className="cursor-pointer">No</Label>
-            </div>
-          </RadioGroup>
-          
-          <div className="space-y-2">
-            <Label className="font-bold">Comment:</Label>
-            <Textarea
-              value={formData.value_for_money_comment || ''}
-              onChange={(e) => updateFormData('value_for_money_comment', e.target.value)}
-              placeholder="Please explain..."
-              className="min-h-[60px]"
-              rows={3}
-            />
-          </div>
-        </div>
-      </div>
+    <div className="space-y-6">{/* Removed duplicate Value for Money question - already asked in Page 2 */}
 
       {/* Truck Satisfaction */}
       <div className="border border-black">

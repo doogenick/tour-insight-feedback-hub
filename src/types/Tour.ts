@@ -10,6 +10,7 @@ export interface Tour {
   driver_name: string;
   truck_name?: string;
   tour_leader?: string;
+  third_crew_name?: string;
   tour_type?: 'camping' | 'camping_accommodated' | 'accommodated';
   vehicle_name?: string;
   hotels?: Hotel[];

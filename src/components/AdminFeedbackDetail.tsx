@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Separator } from './ui/separator';
-import { Star, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { ThumbsUp, ThumbsDown } from 'lucide-react';
 
 interface FeedbackDetailProps {
   feedback: any;
@@ -12,21 +12,39 @@ interface FeedbackDetailProps {
 const AdminFeedbackDetail: React.FC<FeedbackDetailProps> = ({ feedback, onClose }) => {
   const renderRating = (rating: number, label: string) => {
     if (!rating) return null;
+    
+    // Get rating description and color for 1-7 scale (1=Perfect, 7=Very Poor)
+    const getRatingDescription = (val: number): string => {
+      if (val <= 1.5) return 'Perfect';
+      if (val <= 2.5) return 'Excellent'; 
+      if (val <= 3.5) return 'Good';
+      if (val <= 4.5) return 'Average';
+      if (val <= 5.5) return 'Below Average';
+      if (val <= 6.5) return 'Poor';
+      return 'Very Poor';
+    };
+
+    const getRatingColor = (val: number): string => {
+      if (val <= 1.5) return 'bg-emerald-500';
+      if (val <= 2.5) return 'bg-green-500';
+      if (val <= 3.5) return 'bg-lime-500';
+      if (val <= 4.5) return 'bg-yellow-500';
+      if (val <= 5.5) return 'bg-orange-500';
+      if (val <= 6.5) return 'bg-red-500';
+      return 'bg-rose-600';
+    };
+    
     return (
       <div className="flex items-center justify-between py-2">
         <span className="text-sm font-medium">{label}</span>
-        <div className="flex items-center gap-2">
-          <div className="flex">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <Star
-                key={star}
-                className={`h-4 w-4 ${
-                  star <= rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
-                }`}
-              />
-            ))}
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1">
+            <span className="text-sm font-medium">{rating}/7</span>
+            <div className={`w-3 h-3 rounded-full ${getRatingColor(rating)}`} />
           </div>
-          <span className="text-sm text-muted-foreground">({rating}/5)</span>
+          <span className="text-xs text-muted-foreground">
+            {getRatingDescription(rating)}
+          </span>
         </div>
       </div>
     );
@@ -108,7 +126,6 @@ const AdminFeedbackDetail: React.FC<FeedbackDetailProps> = ({ feedback, onClose 
               {renderRating(feedback.food_quantity_rating, 'Food Quantity')}
               {renderRating(feedback.food_quality_rating, 'Food Quality')}
               {renderRating(feedback.value_rating, 'Value for Money')}
-              {renderRating(feedback.price_rating, 'Price Rating')}
               {renderRating(feedback.pace_rating, 'Tour Pace')}
               {renderRating(feedback.route_rating, 'Route Quality')}
               {renderRating(feedback.activity_level_rating, 'Activity Level')}

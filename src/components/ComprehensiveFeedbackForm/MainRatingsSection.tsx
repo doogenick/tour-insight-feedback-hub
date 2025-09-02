@@ -8,13 +8,15 @@ interface MainRatingsSectionProps {
   updateFormData: (field: keyof ComprehensiveFeedback, value: any) => void;
   guideName: string;
   driverName: string;
+  thirdCrewName?: string;
 }
 
 const MainRatingsSection: React.FC<MainRatingsSectionProps> = ({
   formData,
   updateFormData,
   guideName,
-  driverName
+  driverName,
+  thirdCrewName
 }) => {
   const ratingItems = [
     { key: 'accommodation', label: 'Accommodation on Tour' },
@@ -28,11 +30,10 @@ const MainRatingsSection: React.FC<MainRatingsSectionProps> = ({
     { key: 'organisation', label: 'Organisation on Tour' },
     { key: 'guide_individual', label: guideName || 'Guide' },
     { key: 'driver_individual', label: driverName || 'Driver' },
-    { key: 'third_crew', label: '3rd Crew Member' },
+    ...(thirdCrewName ? [{ key: 'third_crew', label: thirdCrewName }] : []),
     { key: 'pace', label: 'The Pace of the Tour' },
     { key: 'route', label: 'The Route and Highlights' },
     { key: 'activity_level', label: 'The Level of Activity' },
-    { key: 'price', label: 'Tour Price' },
     { key: 'value', label: 'Value for Money' },
     { key: 'overview', label: 'Tour Overview' }
   ];

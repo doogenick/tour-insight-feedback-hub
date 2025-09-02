@@ -26,19 +26,28 @@ const ComprehensiveRatingRow: React.FC<ComprehensiveRatingRowProps> = ({
       <div className="font-medium">{label}</div>
       
       <RadioGroup 
-        value={rating.toString()} 
+        value={rating?.toString() || ''} 
         onValueChange={(value) => onRatingChange(parseInt(value))}
         className="contents"
       >
-        {[1, 2, 3, 4, 5, 6, 7].map((num) => (
-          <div key={num} className="flex justify-center">
-            <RadioGroupItem 
-              value={num.toString()} 
-              id={`${label.replace(/\s+/g, '_').toLowerCase()}_${num}`}
-              className="w-4 h-4"
-            />
-          </div>
-        ))}
+        {[1, 2, 3, 4, 5, 6, 7].map((num) => {
+          const uniqueId = `${label.replace(/\s+/g, '_').toLowerCase()}_${num}`;
+          return (
+            <div key={num} className="flex justify-center">
+              <RadioGroupItem 
+                value={num.toString()} 
+                id={uniqueId}
+                className="w-4 h-4"
+              />
+              <Label 
+                htmlFor={uniqueId}
+                className="sr-only"
+              >
+                {num}
+              </Label>
+            </div>
+          );
+        })}
       </RadioGroup>
       
       <div>
