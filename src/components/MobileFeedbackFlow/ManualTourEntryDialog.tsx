@@ -109,10 +109,11 @@ const ManualTourEntryDialog: React.FC<ManualTourEntryDialogProps> = ({ onCreate 
       });
     } catch (error) {
       console.error('Error creating manual tour:', error);
+      const errorMessage = error instanceof Error ? error.message : "Failed to save tour to database. Please try again.";
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to save tour to database. Please try again."
+        description: errorMessage
       });
     } finally {
       setIsSubmitting(false);

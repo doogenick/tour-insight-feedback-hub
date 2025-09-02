@@ -127,6 +127,17 @@ export const tourSupabaseService = {
   },
 
   async createTour(tourData: TourData) {
+    // Check if tour code already exists
+    const { data: existingTour } = await supabase
+      .from('tours')
+      .select('id')
+      .eq('tour_code', tourData.tour_code)
+      .single();
+    
+    if (existingTour) {
+      throw new Error('A tour with this tour code already exists. Please use a different tour code.');
+    }
+
     const { data, error } = await supabase
       .from('tours')
       .insert(tourData)
@@ -134,7 +145,7 @@ export const tourSupabaseService = {
       .single();
     
     if (error) {
-      if (error.code === '23505' && error.message.includes('unique_tour_code')) {
+      if (error.code === '23505' && error.message.includes('tours_tour_code_key')) {
         throw new Error('A tour with this tour code already exists. Please use a different tour code.');
       }
       throw error;
