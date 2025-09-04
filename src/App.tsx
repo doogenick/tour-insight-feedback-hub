@@ -3,14 +3,13 @@ import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-// Lazy load admin components for bundle optimization
-const Index = React.lazy(() => import('./pages/Index'));
-const FeedbackStartPage = React.lazy(() => import('./pages/FeedbackStartPage'));
-const TourFeedbackSessionPage = React.lazy(() => import('./pages/TourFeedbackSessionPage'));
-const ComprehensiveFeedbackFormPage = React.lazy(() => import('./pages/ComprehensiveFeedbackFormPage'));
-const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
-const NotFound = React.lazy(() => import('./pages/NotFound'));
-const ComprehensiveAnalytics = React.lazy(() => import('./pages/ComprehensiveAnalytics'));
+import Index from './pages/Index';
+import FeedbackStartPage from './pages/FeedbackStartPage';
+import TourFeedbackSessionPage from './pages/TourFeedbackSessionPage';
+import ComprehensiveFeedbackFormPage from './pages/ComprehensiveFeedbackFormPage';
+import AdminDashboard from './pages/AdminDashboard';
+import NotFound from './pages/NotFound';
+import ComprehensiveAnalytics from './pages/ComprehensiveAnalytics';
 
 // Mobile-specific pages
 import MobileFeedbackHome from './pages/MobileFeedbackHome';
@@ -78,7 +77,7 @@ function App() {
                 <Route path="*" element={<MobileFeedbackHome />} />
               </>
             ) : (
-              <React.Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
+              <>
                 {/* Web/Desktop routes */}
                 <Route path="/" element={<Index />} />
                 
@@ -97,7 +96,7 @@ function App() {
                 <Route path="/mobile-feedback-form/:tourId" element={<MobileFeedbackForm />} />
                 
                 <Route path="*" element={<NotFound />} />
-              </React.Suspense>
+              </>
             )}
           </Routes>
           <Toaster />
