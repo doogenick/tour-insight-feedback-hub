@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Badge } from '../components/ui/badge';
 import { useToast } from '../components/ui/use-toast';
 import { offlineStorage, OfflineTour, OfflineFeedback } from '../services/offlineStorage';
+import { useAutoSync } from '../hooks/useAutoSync';
 import { 
   ArrowLeft, 
   Plus, 
@@ -13,7 +14,11 @@ import {
   User,
   Star,
   CheckCircle,
-  AlertCircle 
+  AlertCircle,
+  Upload,
+  RefreshCw,
+  Wifi,
+  WifiOff
 } from 'lucide-react';
 
 const MobileFeedbackSession: React.FC = () => {
@@ -24,6 +29,8 @@ const MobileFeedbackSession: React.FC = () => {
   const [tour, setTour] = useState<OfflineTour | null>(null);
   const [feedback, setFeedback] = useState<OfflineFeedback[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  const { isSyncing, itemsToSync, manualSync, checkItemsToSync, isOnline } = useAutoSync();
 
   useEffect(() => {
     if (tourId) {
@@ -50,6 +57,9 @@ const MobileFeedbackSession: React.FC = () => {
       
       const feedbackData = await offlineStorage.getFeedbackByTour(tourId);
       setFeedback(feedbackData);
+      
+      // Check for items to sync
+      await checkItemsToSync();
     } catch (error) {
       console.error('Error loading tour data:', error);
       toast({
@@ -118,20 +128,65 @@ const MobileFeedbackSession: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4 space-y-6 max-w-2xl">
-      {/* Header with Back Button */}
-      <div className="flex items-center gap-3">
-        <Button 
-          variant="outline" 
-          size="sm"
-          onClick={() => navigate('/mobile')}
-        >
-          <ArrowLeft className="w-4 h-4" />
-        </Button>
-        <div>
-          <h1 className="text-xl font-bold">{tour.tour_code}</h1>
-          <p className="text-sm text-muted-foreground">{tour.tour_name}</p>
+      {/* Header with Back Button and Connection Status */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => navigate('/mobile')}
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </Button>
+          <div>
+            <h1 className="text-xl font-bold">{tour.tour_code}</h1>
+            <p className="text-sm text-muted-foreground">{tour.tour_name}</p>
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          {isOnline ? (
+            <div className="flex items-center gap-1 text-green-600">
+              <Wifi className="w-4 h-4" />
+              <span className="text-xs">Online</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1 text-red-600">
+              <WifiOff className="w-4 h-4" />
+              <span className="text-xs">Offline</span>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Sync Status */}
+      {itemsToSync > 0 && (
+        <Card className="border-orange-200 bg-orange-50">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-5 h-5 text-orange-600" />
+                <span className="text-sm font-medium">
+                  {itemsToSync} items waiting to sync
+                </span>
+              </div>
+              <Button
+                onClick={manualSync}
+                disabled={!isOnline || isSyncing}
+                size="sm"
+                variant="outline"
+              >
+                {isSyncing ? (
+                  <RefreshCw className="w-4 h-4 animate-spin mr-2" />
+                ) : (
+                  <Upload className="w-4 h-4 mr-2" />
+                )}
+                {isSyncing ? 'Syncing...' : 'Sync Now'}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Tour Details */}
       <Card>

@@ -3,10 +3,9 @@ import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { useNavigate } from 'react-router-dom';
-import { useWifiConnection } from '../hooks/useWifiConnection';
 import { offlineStorage, OfflineTour } from '../services/offlineStorage';
-import { syncService } from '../services/syncService';
 import { useToast } from '../components/ui/use-toast';
+import { useAutoSync } from '../hooks/useAutoSync';
 import ManualTourEntryDialog from '../components/MobileFeedbackFlow/ManualTourEntryDialog';
 import { 
   Wifi, 
@@ -21,13 +20,12 @@ import {
 
 const MobileFeedbackHome: React.FC = () => {
   const navigate = useNavigate();
-  const { isOnline, connectionType } = useWifiConnection();
   const { toast } = useToast();
   
   const [tours, setTours] = useState<OfflineTour[]>([]);
-  const [itemsToSync, setItemsToSync] = useState(0);
-  const [isSyncing, setIsSyncing] = useState(false);
   const [loading, setLoading] = useState(true);
+  
+  const { isSyncing, itemsToSync, manualSync, checkItemsToSync, isOnline } = useAutoSync();
 
   useEffect(() => {
     loadData();
@@ -38,8 +36,7 @@ const MobileFeedbackHome: React.FC = () => {
       const storedTours = await offlineStorage.getTours();
       setTours(storedTours);
       
-      const unsyncedCount = await syncService.getItemsToSync();
-      setItemsToSync(unsyncedCount);
+      await checkItemsToSync();
     } catch (error) {
       console.error('Error loading data:', error);
     } finally {
@@ -63,41 +60,8 @@ const MobileFeedbackHome: React.FC = () => {
   };
 
   const handleSync = async () => {
-    if (!isOnline) {
-      toast({
-        variant: "destructive",
-        title: "No Internet Connection",
-        description: "Please connect to the internet to sync your data."
-      });
-      return;
-    }
-
-    setIsSyncing(true);
-    try {
-      const result = await syncService.syncToSupabase();
-      
-      if (result.success) {
-        toast({
-          title: "Sync Successful",
-          description: result.message
-        });
-        await loadData();
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Sync Failed",
-          description: result.message
-        });
-      }
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Sync Error",
-        description: "An error occurred while syncing data."
-      });
-    } finally {
-      setIsSyncing(false);
-    }
+    await manualSync();
+    await loadData();
   };
 
   const handleTourClick = (tour: OfflineTour) => {
@@ -121,7 +85,7 @@ const MobileFeedbackHome: React.FC = () => {
           {isOnline ? (
             <div className="flex items-center gap-1 text-green-600">
               <Wifi className="w-4 h-4" />
-              <span className="text-sm">Online ({connectionType})</span>
+              <span className="text-sm">Online</span>
             </div>
           ) : (
             <div className="flex items-center gap-1 text-red-600">

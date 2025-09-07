@@ -40,11 +40,23 @@ const MainRatingsSection: React.FC<MainRatingsSectionProps> = ({
 
   return (
     <div className="space-y-4">
-      <div className="bg-gray-100 border border-black p-2">
+      <div className="bg-gray-100 border border-black p-3 space-y-2">
+        <div className="text-xs font-bold text-center">
+          <div className="mb-2">RATING SCALE DEFINITIONS:</div>
+          <div className="grid grid-cols-1 md:grid-cols-7 gap-1 text-center">
+            <div className="bg-green-100 p-1 rounded">1 = Excellent</div>
+            <div className="bg-green-50 p-1 rounded">2 = Very Good</div>
+            <div className="bg-yellow-100 p-1 rounded">3 = Good</div>
+            <div className="bg-yellow-50 p-1 rounded">4 = Average</div>
+            <div className="bg-orange-100 p-1 rounded">5 = Below Avg</div>
+            <div className="bg-red-100 p-1 rounded">6 = Poor</div>
+            <div className="bg-red-200 p-1 rounded">7 = Unacceptable</div>
+          </div>
+        </div>
         <div className="grid grid-cols-9 gap-2 text-center text-xs font-bold">
-          <div>RATING: 1= Excellent 2= Very Good 3= Good 4= Average 5= Below Average 6= Poor 7= Unacceptable</div>
+          <div>ASPECT</div>
           <div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div>
-          <div>COMMENTS:</div>
+          <div>COMMENTS</div>
         </div>
       </div>
       
