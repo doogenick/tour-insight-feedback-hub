@@ -7,8 +7,8 @@ android {
         applicationId "com.safariinsight.feedbackcollector"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1        // Increment this for each release
-        versionName "1.0.0"  // Your app version
+        versionCode 2        // Increment this for each release
+        versionName "1.0.1"  // Your app version
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
