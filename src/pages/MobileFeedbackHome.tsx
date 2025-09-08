@@ -60,8 +60,15 @@ const MobileFeedbackHome: React.FC = () => {
   };
 
   const handleSync = async () => {
-    await manualSync();
-    await loadData();
+    console.log('🔄 Sync button clicked');
+    console.log('Network status:', { isOnline, connectionType: (navigator as any).connection?.effectiveType });
+    
+    const result = await manualSync();
+    console.log('🔄 Sync result:', result);
+    
+    if (result.success) {
+      await loadData();
+    }
   };
 
   const handleTourClick = (tour: OfflineTour) => {

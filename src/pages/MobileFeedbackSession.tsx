@@ -101,6 +101,18 @@ const MobileFeedbackSession: React.FC = () => {
     navigate('/mobile');
   };
 
+  const handleSync = async () => {
+    console.log('🔄 Session sync button clicked');
+    console.log('Network status:', { isOnline, connectionType: (navigator as any).connection?.effectiveType });
+    
+    const result = await manualSync();
+    console.log('🔄 Session sync result:', result);
+    
+    if (result.success) {
+      await loadTourData();
+    }
+  };
+
   const formatRating = (rating: number | null | undefined): string => {
     if (rating === null || rating === undefined) return 'N/A';
     return `${rating}/5`;
@@ -171,7 +183,7 @@ const MobileFeedbackSession: React.FC = () => {
                 </span>
               </div>
               <Button
-                onClick={manualSync}
+                onClick={handleSync}
                 disabled={!isOnline || isSyncing}
                 size="sm"
                 variant="outline"
