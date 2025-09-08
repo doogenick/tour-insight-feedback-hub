@@ -88,7 +88,7 @@ class SyncService {
             tour_id: feedback.tour_id,
             client_name: feedback.client_name,
             client_email: feedback.client_email,
-            overall_rating: (feedback as any).overall_rating,
+            overall_rating: feedback.overview_rating || 3, // Map overview_rating to overall_rating
             guide_rating: (feedback as any).guide_rating,
             driver_rating: (feedback as any).driver_rating,
             vehicle_rating: (feedback as any).vehicle_rating,
