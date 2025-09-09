@@ -5,7 +5,22 @@ import { useWifiConnection } from '../hooks/useWifiConnection';
 class SyncService {
   async syncToSupabase(): Promise<{ success: boolean; message: string; synced: number }> {
     console.log('🔄 Starting sync process...');
+    console.log('📱 User agent:', navigator.userAgent);
+    console.log('🌐 Network status:', navigator.onLine ? 'online' : 'offline');
+    
     try {
+      // Test Supabase connection first
+      const { data: testData, error: testError } = await supabase
+        .from('tours')
+        .select('count')
+        .limit(1);
+      
+      if (testError) {
+        console.error('❌ Supabase connection test failed:', testError);
+        throw new Error(`Supabase connection failed: ${testError.message}`);
+      }
+      
+      console.log('✅ Supabase connection verified');
       let syncedCount = 0;
       
       // Get unsynced tours and feedback

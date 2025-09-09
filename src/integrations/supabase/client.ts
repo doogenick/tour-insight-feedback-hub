@@ -2,8 +2,12 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
+// Use hardcoded values for mobile compatibility since environment variables 
+// may not be available in bundled mobile apps
 const SUPABASE_URL = "https://rgqbdlebshwspakxywgp.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJncWJkbGVic2h3c3Bha3h5d2dwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU4MDAzNjgsImV4cCI6MjA3MTM3NjM2OH0.d3rEcwC3wHh6QOQy2OcszOitEDXZ6e9XSOeUOrH8VJk";
+
+console.log('🔧 Supabase client initialized:', { url: SUPABASE_URL, hasKey: !!SUPABASE_PUBLISHABLE_KEY });
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
