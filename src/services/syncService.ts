@@ -10,6 +10,7 @@ class SyncService {
     
     try {
       // Test Supabase connection first
+      console.log('🔗 Testing Supabase connection...');
       const { data: testData, error: testError } = await supabase
         .from('tours')
         .select('count')
@@ -17,10 +18,11 @@ class SyncService {
       
       if (testError) {
         console.error('❌ Supabase connection test failed:', testError);
+        console.error('❌ Error details:', JSON.stringify(testError, null, 2));
         throw new Error(`Supabase connection failed: ${testError.message}`);
       }
       
-      console.log('✅ Supabase connection verified');
+      console.log('✅ Supabase connection verified, proceeding with sync');
       let syncedCount = 0;
       
       // Get unsynced tours and feedback

@@ -14,8 +14,13 @@ console.log('🔧 Supabase client initialized:', { url: SUPABASE_URL, hasKey: !!
 
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
-    storage: localStorage,
+    storage: typeof window !== 'undefined' ? localStorage : undefined,
     persistSession: true,
     autoRefreshToken: true,
+  },
+  global: {
+    headers: {
+      'X-Client-Info': 'safari-feedback-mobile'
+    }
   }
 });
