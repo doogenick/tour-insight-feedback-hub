@@ -101,6 +101,22 @@ const MobileFeedbackSession: React.FC = () => {
     navigate('/mobile');
   };
 
+  const handleReopenFeedbackCollection = async () => {
+    if (!tour) return;
+    
+    // Mark tour as active again
+    const updatedTour = { ...tour, status: 'active' as const };
+    await offlineStorage.saveTour(updatedTour);
+    
+    toast({
+      title: "Feedback Collection Reopened",
+      description: `You can now add more feedback for ${tour.tour_code}.`
+    });
+    
+    // Reload data to reflect changes
+    await loadTourData();
+  };
+
   const handleSync = async () => {
     console.log('🔄 Session sync button clicked');
     console.log('Network status:', { isOnline, connectionType: (navigator as any).connection?.effectiveType });
@@ -255,22 +271,33 @@ const MobileFeedbackSession: React.FC = () => {
                 disabled={tour.status === 'completed'}
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Add Client Feedback
+                {tour.status === 'completed' ? 'Collection Ended' : 'Add Client Feedback'}
               </Button>
             </div>
           </div>
           
-          {tour.status !== 'completed' && (
-            <Button 
-              onClick={handleEndFeedbackCollection}
-              variant="outline"
-              className="w-full"
-              disabled={feedback.length === 0}
-            >
-              <CheckCircle className="w-4 h-4 mr-2" />
-              End Feedback Collection
-            </Button>
-          )}
+          <div className="flex gap-2">
+            {tour.status !== 'completed' ? (
+              <Button 
+                onClick={handleEndFeedbackCollection}
+                variant="outline"
+                className="flex-1"
+                disabled={feedback.length === 0}
+              >
+                <CheckCircle className="w-4 h-4 mr-2" />
+                End Feedback Collection
+              </Button>
+            ) : (
+              <Button 
+                onClick={handleReopenFeedbackCollection}
+                variant="outline"
+                className="flex-1"
+              >
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Reopen Feedback Collection
+              </Button>
+            )}
+          </div>
         </CardContent>
       </Card>
 

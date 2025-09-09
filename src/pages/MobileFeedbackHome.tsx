@@ -15,7 +15,8 @@ import {
   Users, 
   Calendar,
   Upload,
-  AlertCircle 
+  AlertCircle,
+  CheckCircle 
 } from 'lucide-react';
 
 const MobileFeedbackHome: React.FC = () => {
@@ -83,6 +84,9 @@ const MobileFeedbackHome: React.FC = () => {
     );
   }
 
+  const activeTours = tours.filter(tour => tour.status !== 'completed');
+  const completedTours = tours.filter(tour => tour.status === 'completed');
+
   return (
     <div className="container mx-auto p-4 space-y-6 max-w-2xl">
       {/* Header */}
@@ -148,20 +152,20 @@ const MobileFeedbackHome: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Recent Tours */}
+      {/* Active Tours */}
       <div className="space-y-4">
-        <h2 className="text-lg font-semibold">Recent Tours</h2>
+        <h2 className="text-lg font-semibold">Active Tours</h2>
         
-        {tours.length === 0 ? (
+        {activeTours.length === 0 ? (
           <Card>
             <CardContent className="p-6 text-center">
               <p className="text-muted-foreground">
-                No tours created yet. Start by creating your first tour above.
+                No active tours. Start by creating your first tour above.
               </p>
             </CardContent>
           </Card>
         ) : (
-          tours.map((tour) => (
+          activeTours.map((tour) => (
             <Card 
               key={tour.offline_id} 
               className="cursor-pointer hover:shadow-md transition-shadow"
@@ -209,6 +213,61 @@ const MobileFeedbackHome: React.FC = () => {
           ))
         )}
       </div>
+
+      {/* Completed Tours */}
+      {completedTours.length > 0 && (
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold">Completed Tours</h2>
+          
+          {completedTours.map((tour) => (
+            <Card 
+              key={tour.offline_id} 
+              className="cursor-pointer hover:shadow-md transition-shadow opacity-75"
+              onClick={() => handleTourClick(tour)}
+            >
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-semibold">{tour.tour_code}</h3>
+                      {!tour.synced && (
+                        <Badge variant="secondary" className="text-xs">
+                          Not Synced
+                        </Badge>
+                      )}
+                      {tour.synced && (
+                        <Badge variant="default" className="text-xs">
+                          Synced
+                        </Badge>
+                      )}
+                      <Badge variant="outline" className="text-xs bg-green-50 text-green-700">
+                        Completed
+                      </Badge>
+                    </div>
+                    
+                    <p className="text-sm text-muted-foreground">
+                      {tour.tour_name}
+                    </p>
+                    
+                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-1">
+                        <Calendar className="w-3 h-3" />
+                        {tour.date_start}
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Users className="w-3 h-3" />
+                        Guide: {tour.guide_name}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
