@@ -1,32 +1,83 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { ComprehensiveFeedback } from '../../types/ComprehensiveFeedback';
 import { Users, Eye, Calendar } from 'lucide-react';
+import { supabase } from '../../integrations/supabase/client';
 
 interface TourFeedbackOverviewProps {
   feedback: ComprehensiveFeedback[];
   onViewTourFeedback: (tourId: string, tourName: string) => void;
 }
 
+interface TourData {
+  tour_id: string;
+  tour_code: string;
+  tour_name: string;
+}
+
 const TourFeedbackOverview: React.FC<TourFeedbackOverviewProps> = ({
   feedback,
   onViewTourFeedback
 }) => {
+  const [tourData, setTourData] = useState<Record<string, TourData>>({});
+  const [loading, setLoading] = useState(true);
+
+  // Fetch tour data for all tours referenced in feedback
+  useEffect(() => {
+    const fetchTourData = async () => {
+      const tourIds = [...new Set(feedback.map(f => f.tour_id))];
+      
+      if (tourIds.length === 0) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const { data: tours, error } = await supabase
+          .from('tours')
+          .select('id, tour_code, tour_name')
+          .in('id', tourIds);
+
+        if (error) {
+          console.error('Error fetching tour data:', error);
+        } else if (tours) {
+          const tourMap = tours.reduce((acc, tour) => {
+            acc[tour.id] = {
+              tour_id: tour.id,
+              tour_code: tour.tour_code,
+              tour_name: tour.tour_name
+            };
+            return acc;
+          }, {} as Record<string, TourData>);
+          setTourData(tourMap);
+        }
+      } catch (error) {
+        console.error('Error fetching tour data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTourData();
+  }, [feedback]);
+
   // Group feedback by tour
   const groupedFeedback = feedback.reduce((acc, item) => {
     const tourId = item.tour_id;
     if (!acc[tourId]) {
+      const tour = tourData[tourId];
       acc[tourId] = {
         tourId,
-        tourName: `Tour ${tourId}`, // This could be enhanced with actual tour names
+        tourCode: tour?.tour_code || tourId.substring(0, 8) + '...',
+        tourName: tour?.tour_name || `Tour ${tourId.substring(0, 8)}...`,
         feedback: []
       };
     }
     acc[tourId].feedback.push(item);
     return acc;
-  }, {} as Record<string, { tourId: string; tourName: string; feedback: ComprehensiveFeedback[] }>);
+  }, {} as Record<string, { tourId: string; tourCode: string; tourName: string; feedback: ComprehensiveFeedback[] }>);
 
   const tours = Object.values(groupedFeedback).sort((a, b) => 
     new Date(b.feedback[0].submitted_at || '').getTime() - 
@@ -46,6 +97,16 @@ const TourFeedbackOverview: React.FC<TourFeedbackOverviewProps> = ({
     
     return dates.length > 0 ? new Date(dates[0]!).toLocaleDateString() : 'Unknown';
   };
+
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="p-8 text-center">
+          <p className="text-muted-foreground">Loading tour feedback...</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (tours.length === 0) {
     return (
@@ -73,14 +134,14 @@ const TourFeedbackOverview: React.FC<TourFeedbackOverviewProps> = ({
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2">
                   <Users className="h-5 w-5" />
-                  {tour.tourName}
+                  {tour.tourCode} - {tour.tourName}
                 </CardTitle>
                 <div className="flex items-center gap-2">
                   <Badge variant="outline">
                     {tour.feedback.length} {tour.feedback.length === 1 ? 'Client' : 'Clients'}
                   </Badge>
                   <Badge variant="default">
-                    ★ {calculateAverageRating(tour.feedback)}
+                    {calculateAverageRating(tour.feedback)}/7
                   </Badge>
                 </div>
               </div>
@@ -93,11 +154,11 @@ const TourFeedbackOverview: React.FC<TourFeedbackOverviewProps> = ({
                     Latest: {getLatestSubmissionDate(tour.feedback)}
                   </span>
                   <span>
-                    Tour ID: {tour.tourId}
+                    Tour Code: {tour.tourCode}
                   </span>
                 </div>
                 <Button 
-                  onClick={() => onViewTourFeedback(tour.tourId, tour.tourName)}
+                  onClick={() => onViewTourFeedback(tour.tourId, `${tour.tourCode} - ${tour.tourName}`)}
                   variant="outline"
                   size="sm"
                 >

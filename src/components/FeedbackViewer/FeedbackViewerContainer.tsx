@@ -120,7 +120,7 @@ const FeedbackViewerContainer: React.FC<FeedbackViewerContainerProps> = ({ feedb
                     </p>
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
                       <span>{clientFeedback.client_email || 'No email provided'}</span>
-                      <span>★ {clientFeedback.overview_rating}/5</span>
+                      <span>{clientFeedback.overview_rating}/7</span>
                       <span>
                         {clientFeedback.submitted_at 
                           ? new Date(clientFeedback.submitted_at).toLocaleDateString()

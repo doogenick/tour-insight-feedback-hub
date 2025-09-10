@@ -9,24 +9,33 @@ interface ClientFeedbackDetailProps {
 }
 
 const ClientFeedbackDetail: React.FC<ClientFeedbackDetailProps> = ({ feedback }) => {
-  const renderRating = (value: number, label: string) => (
-    <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-      <span className="font-medium">{label}</span>
-      <div className="flex items-center gap-2">
-        <div className="flex items-center">
-          {[1, 2, 3, 4, 5].map((star) => (
-            <Star
-              key={star}
-              className={`h-4 w-4 ${
-                star <= value ? 'fill-primary text-primary' : 'text-muted-foreground'
-              }`}
-            />
-          ))}
+  const renderRating = (value: number, label: string) => {
+    // Invert the display logic: 1 is best (7 circles), 7 is worst (1 circle)
+    const displayValue = value > 0 ? 8 - value : 0;
+    
+    return (
+      <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+        <span className="font-medium">{label}</span>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center">
+            {[1, 2, 3, 4, 5, 6, 7].map((circle) => (
+              <div
+                key={circle}
+                className={`w-4 h-4 rounded-full border-2 mr-1 flex items-center justify-center text-xs font-bold ${
+                  circle <= displayValue 
+                    ? 'bg-primary border-primary text-primary-foreground' 
+                    : 'border-muted-foreground text-muted-foreground'
+                }`}
+              >
+                {circle}
+              </div>
+            ))}
+          </div>
+          <Badge variant="secondary">{value}/7 {value === 1 ? '(Best)' : value === 7 ? '(Worst)' : ''}</Badge>
         </div>
-        <Badge variant="secondary">{value}/5</Badge>
       </div>
-    </div>
-  );
+    );
+  };
 
   const renderBooleanResponse = (value: boolean | null, label: string) => (
     <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">

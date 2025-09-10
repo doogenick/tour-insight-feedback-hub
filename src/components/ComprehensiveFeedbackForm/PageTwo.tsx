@@ -19,6 +19,11 @@ const PageTwo: React.FC<PageTwoProps> = ({
   onPrev,
   onNext
 }) => {
+  // Scroll to top when component mounts
+  React.useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
   return (
     <div className="space-y-8">
       <PageTwoQuestions

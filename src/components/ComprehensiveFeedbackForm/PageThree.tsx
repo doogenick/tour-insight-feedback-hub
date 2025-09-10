@@ -20,6 +20,11 @@ const PageThree: React.FC<PageThreeProps> = ({
   onSubmit,
   isSubmitting
 }) => {
+  // Scroll to top when component mounts
+  React.useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
   return (
     <div className="space-y-8">
       <PersonalDetails
