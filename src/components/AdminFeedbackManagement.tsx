@@ -8,6 +8,21 @@ import { useSupabaseFeedback } from '../hooks/useSupabaseFeedback';
 import AdminFeedbackDetail from './AdminFeedbackDetail';
 import { Tour } from '../types/Tour';
 import { Database } from '../integrations/supabase/types';
+import { 
+  getDisplayValue, 
+  getPrimaryRating, 
+  getClientPhone, 
+  getClientNationality,
+  getTourHighlights,
+  getImprovementSuggestions,
+  getExpectationsMet,
+  getLikelyToReturn,
+  getGuideRating,
+  getDriverRating,
+  getFoodRating,
+  getVehicleRating,
+  formatRating
+} from '../utils/feedbackUtils';
 
 type SupabaseFeedback = Database['public']['Tables']['comprehensive_feedback']['Row'] & {
   tour?: Database['public']['Tables']['tours']['Row'];
@@ -16,9 +31,11 @@ type SupabaseFeedback = Database['public']['Tables']['comprehensive_feedback']['
 const AdminFeedbackManagement: React.FC = () => {
   const { tours, fetchTours } = useSupabaseTours();
   const { feedback, fetchAllFeedback, fetchFeedbackByTour } = useSupabaseFeedback();
-  const [viewMode, setViewMode] = useState<'tour-list' | 'detailed-viewer'>('tour-list');
+  const [viewMode, setViewMode] = useState<'tour-list' | 'detailed-viewer' | 'individual-feedback'>('tour-list');
   const [allFeedback, setAllFeedback] = useState<any[]>([]);
   const [selectedFeedback, setSelectedFeedback] = useState<any>(null);
+  const [selectedTour, setSelectedTour] = useState<Tour | null>(null);
+  const [tourFeedback, setTourFeedback] = useState<any[]>([]);
 
   useEffect(() => {
     loadData();
@@ -42,19 +59,56 @@ const AdminFeedbackManagement: React.FC = () => {
 
   const handleViewDetailedFeedback = () => {
     setViewMode('detailed-viewer');
+    setSelectedTour(null); // Show all feedback when not filtering by tour
   };
 
   const handleBackToTourList = () => {
     setViewMode('tour-list');
+    setSelectedTour(null);
+    setTourFeedback([]);
+  };
+
+  const handleTourSelect = async (tour: Tour) => {
+    setSelectedTour(tour);
+    const feedback = await fetchFeedbackByTour(tour.tour_id);
+    setTourFeedback(feedback || []);
+    setViewMode('detailed-viewer');
+  };
+
+  const handleViewIndividualFeedback = (feedback: any) => {
+    setSelectedFeedback(feedback);
+    setViewMode('individual-feedback');
+  };
+
+  const handleBackToTourFeedback = () => {
+    setViewMode('detailed-viewer');
+    setSelectedFeedback(null);
   };
 
   const calculateAverageRating = (tourFeedback: any[]) => {
     if (tourFeedback.length === 0) return 'N/A';
-    const ratings = tourFeedback.map(f => f.overall_rating).filter(r => r > 0);
+    const ratings = tourFeedback.map(f => getPrimaryRating(f)).filter(r => r > 0);
     return ratings.length > 0 ? (ratings.reduce((sum, r) => sum + r, 0) / ratings.length).toFixed(1) : 'N/A';
   };
 
-  // Show detailed feedback viewer
+  // Show individual feedback detail
+  if (viewMode === 'individual-feedback' && selectedFeedback) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" onClick={handleBackToTourFeedback}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Tour Feedback
+          </Button>
+          <h2 className="text-xl font-bold">Individual Feedback Detail</h2>
+        </div>
+        
+        <AdminFeedbackDetail feedback={selectedFeedback} onClose={handleBackToTourFeedback} />
+      </div>
+    );
+  }
+
+  // Show detailed feedback viewer (tour-specific)
   if (viewMode === 'detailed-viewer') {
     return (
       <div className="space-y-4">
@@ -63,209 +117,49 @@ const AdminFeedbackManagement: React.FC = () => {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Tour List
           </Button>
-          <h2 className="text-xl font-bold">Individual Feedback Reviews</h2>
+          <h2 className="text-xl font-bold">
+            {selectedTour ? `Feedback for ${selectedTour.tour_name} (${selectedTour.tour_code})` : 'Individual Feedback Reviews'}
+          </h2>
         </div>
         
         <div className="space-y-4">
-          {allFeedback.length === 0 ? (
+          {(selectedTour ? tourFeedback : allFeedback).length === 0 ? (
             <Card>
               <CardContent className="py-8 text-center">
-                <p className="text-muted-foreground">No feedback submissions available yet.</p>
+                <p className="text-muted-foreground">
+                  {selectedTour ? 'No feedback submissions for this tour yet.' : 'No feedback submissions available yet.'}
+                </p>
               </CardContent>
             </Card>
           ) : (
-            allFeedback.map((feedback, index) => (
-              <Card key={feedback.id || index}>
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    <span>{feedback.client_name}</span>
-                    <Badge variant="default" className="text-lg px-3 py-1">
-                      ★ {feedback.overall_rating}/5
-                    </Badge>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  {/* Client Information */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-muted/50 rounded-lg">
-                    <div>
-                      <h5 className="font-medium text-sm text-muted-foreground mb-2">CLIENT INFORMATION</h5>
-                      <div className="space-y-1 text-sm">
-                        <div className="flex justify-between">
-                          <span>Name:</span>
-                          <span className="font-medium">{feedback.client_name}</span>
-                        </div>
-                        {feedback.client_email && (
-                          <div className="flex justify-between">
-                            <span>Email:</span>
-                            <span className="font-medium">{feedback.client_email}</span>
-                          </div>
-                        )}
-                        {feedback.client_phone && (
-                          <div className="flex justify-between">
-                            <span>Phone:</span>
-                            <span className="font-medium">{feedback.client_phone}</span>
-                          </div>
-                        )}
-                        {feedback.client_nationality && (
-                          <div className="flex justify-between">
-                            <span>Nationality:</span>
-                            <span className="font-medium">{feedback.client_nationality}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <div>
-                      <h5 className="font-medium text-sm text-muted-foreground mb-2">SUBMISSION DETAILS</h5>
-                      <div className="space-y-1 text-sm">
-                        <div className="flex justify-between">
-                          <span>Submitted:</span>
-                          <span className="font-medium">
-                            {new Date(feedback.submitted_at).toLocaleString()}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Tour ID:</span>
-                          <span className="font-medium">{feedback.tour_id}</span>
-                        </div>
-                      </div>
-                    </div>
+            (selectedTour ? tourFeedback : allFeedback).map((feedback, index) => (
+              <div key={feedback.id || index} className="flex items-center justify-between p-4 bg-muted/50 rounded-lg border">
+                <div className="space-y-1">
+                  <p className="font-medium">
+                    {feedback.client_name || `Client ${index + 1}`}
+                  </p>
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <span>{feedback.client_email || 'No email provided'}</span>
+                    <span>{feedback.tour?.tour_code || feedback.tour_id}</span>
+                    <span>{formatRating(getPrimaryRating(feedback))}</span>
+                    <span>
+                      {feedback.submitted_at 
+                        ? new Date(feedback.submitted_at).toLocaleDateString()
+                        : 'No date'
+                      }
+                    </span>
                   </div>
-
-                  {/* Rating Breakdown */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-3">
-                      <h5 className="font-medium text-sm text-muted-foreground">SERVICE RATINGS</h5>
-                      <div className="space-y-2">
-                        {feedback.accommodation_rating && (
-                          <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                            <span className="font-medium">Accommodation</span>
-                            <Badge variant="outline">{feedback.accommodation_rating}/5</Badge>
-                          </div>
-                        )}
-                        {feedback.food_rating && (
-                          <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                            <span className="font-medium">Food</span>
-                            <Badge variant="outline">{feedback.food_rating}/5</Badge>
-                          </div>
-                        )}
-                        {feedback.vehicle_rating && (
-                          <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                            <span className="font-medium">Vehicle</span>
-                            <Badge variant="outline">{feedback.vehicle_rating}/5</Badge>
-                          </div>
-                        )}
-                        {feedback.value_rating && (
-                          <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                            <span className="font-medium">Value for Money</span>
-                            <Badge variant="outline">{feedback.value_rating}/5</Badge>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-3">
-                      <h5 className="font-medium text-sm text-muted-foreground">CREW RATINGS</h5>
-                      <div className="space-y-2">
-                        {feedback.guide_rating && (
-                          <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                            <span className="font-medium">Guide Performance</span>
-                            <Badge variant="outline">{feedback.guide_rating}/5</Badge>
-                          </div>
-                        )}
-                        {feedback.driver_rating && (
-                          <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                            <span className="font-medium">Driver Performance</span>
-                            <Badge variant="outline">{feedback.driver_rating}/5</Badge>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Satisfaction Metrics */}
-                  {(feedback.tour_expectations_met !== null || feedback.would_recommend !== null || feedback.likely_to_return !== null) && (
-                    <div className="space-y-3">
-                      <h5 className="font-medium text-sm text-muted-foreground">SATISFACTION METRICS</h5>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        {feedback.tour_expectations_met !== null && (
-                          <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                            <span className="font-medium">Met Expectations</span>
-                            <Badge variant={feedback.tour_expectations_met ? "default" : "destructive"}>
-                              {feedback.tour_expectations_met ? "Yes" : "No"}
-                            </Badge>
-                          </div>
-                        )}
-                        {feedback.would_recommend !== null && (
-                          <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                            <span className="font-medium">Would Recommend</span>
-                            <Badge variant={feedback.would_recommend ? "default" : "destructive"}>
-                              {feedback.would_recommend ? "Yes" : "No"}
-                            </Badge>
-                          </div>
-                        )}
-                        {feedback.likely_to_return !== null && (
-                          <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                            <span className="font-medium">Likely to Return</span>
-                            <Badge variant={feedback.likely_to_return ? "default" : "destructive"}>
-                              {feedback.likely_to_return ? "Yes" : "No"}
-                            </Badge>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Written Feedback */}
-                  {(feedback.highlights || feedback.improvements || feedback.additional_comments) && (
-                    <div className="space-y-4">
-                      <h5 className="font-medium text-sm text-muted-foreground">WRITTEN FEEDBACK</h5>
-                      {feedback.highlights && (
-                        <div className="space-y-2">
-                          <span className="font-medium text-green-600">Tour Highlights</span>
-                          <p className="text-sm bg-green-50 p-4 rounded-lg border-l-4 border-green-200">
-                            {feedback.highlights}
-                          </p>
-                        </div>
-                      )}
-                      {feedback.improvements && (
-                        <div className="space-y-2">
-                          <span className="font-medium text-orange-600">Suggested Improvements</span>
-                          <p className="text-sm bg-orange-50 p-4 rounded-lg border-l-4 border-orange-200">
-                            {feedback.improvements}
-                          </p>
-                        </div>
-                      )}
-                      {feedback.additional_comments && (
-                        <div className="space-y-2">
-                          <span className="font-medium text-blue-600">Additional Comments</span>
-                          <p className="text-sm bg-blue-50 p-4 rounded-lg border-l-4 border-blue-200">
-                            {feedback.additional_comments}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {!feedback.highlights && !feedback.improvements && !feedback.additional_comments && (
-                    <div className="text-center py-4 text-muted-foreground text-sm">
-                      No written feedback provided
-                    </div>
-                   )}
-                   
-                   {/* Detailed View Button */}
-                   <div className="pt-4 border-t">
-                     <Button 
-                       variant="outline" 
-                       onClick={() => setSelectedFeedback(feedback)}
-                       className="w-full"
-                     >
-                       <Eye className="h-4 w-4 mr-2" />
-                       View Complete Details
-                     </Button>
-                   </div>
-                 </CardContent>
-               </Card>
-             ))
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => handleViewIndividualFeedback(feedback)}
+                >
+                  <Eye className="h-4 w-4 mr-2" />
+                  View Details
+                </Button>
+              </div>
+            ))
            )}
          </div>
 
@@ -328,7 +222,7 @@ const AdminFeedbackManagement: React.FC = () => {
                       </Badge>
                       {tourFeedbackList.length > 0 && (
                         <Badge variant="default">
-                          ★ {avgRating}
+                          {avgRating}
                         </Badge>
                       )}
                     </div>
@@ -351,7 +245,7 @@ const AdminFeedbackManagement: React.FC = () => {
                         )}
                       </div>
                       <Button 
-                        onClick={handleViewDetailedFeedback}
+                        onClick={() => handleTourSelect(tour)}
                         variant="outline"
                         size="sm"
                         disabled={tourFeedbackList.length === 0}

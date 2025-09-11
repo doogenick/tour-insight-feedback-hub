@@ -23,6 +23,7 @@ export const useComprehensiveFeedbackForm = (selectedClient: Client | null) => {
     price_rating: 3,
     value_rating: 3,
     overview_rating: 3,
+    overall_rating: 3, // Add overall_rating field
     guide_professionalism: 3,
     guide_organisation: 3,
     guide_people_skills: 3,
@@ -79,6 +80,7 @@ export const useComprehensiveFeedbackForm = (selectedClient: Client | null) => {
       price_rating: 3,
       value_rating: 3,
       overview_rating: 3,
+      overall_rating: 3, // Add overall_rating field
       guide_professionalism: 3,
       guide_organisation: 3,
       guide_people_skills: 3,

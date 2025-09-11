@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Progress } from '../ui/progress';
-import { Users, Star, TrendingUp, PieChart } from 'lucide-react';
+import { Users, BarChart3, TrendingUp, PieChart } from 'lucide-react';
 import { FeedbackAnalytics } from '../../services/comprehensiveFeedbackService';
 
 interface KeyMetricsProps {
@@ -28,7 +28,7 @@ const KeyMetrics: React.FC<KeyMetricsProps> = ({ analytics }) => {
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium flex items-center gap-2">
-            <Star className="h-4 w-4" />
+            <BarChart3 className="h-4 w-4" />
             Overall Average
           </CardTitle>
         </CardHeader>

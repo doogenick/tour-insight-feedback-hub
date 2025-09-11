@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { ComprehensiveFeedback } from '../../types/ComprehensiveFeedback';
-import { User, Mail, Phone, Globe, Star, MessageSquare, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { User, Mail, Phone, Globe, BarChart3, MessageSquare, ThumbsUp, ThumbsDown } from 'lucide-react';
 
 interface ClientFeedbackDetailProps {
   feedback: ComprehensiveFeedback;
@@ -10,28 +10,39 @@ interface ClientFeedbackDetailProps {
 
 const ClientFeedbackDetail: React.FC<ClientFeedbackDetailProps> = ({ feedback }) => {
   const renderRating = (value: number, label: string) => {
-    // Invert the display logic: 1 is best (7 circles), 7 is worst (1 circle)
-    const displayValue = value > 0 ? 8 - value : 0;
+    if (!value || value <= 0) return null;
+    
+    // Color coding: 1=best (green), 7=worst (red)
+    const getRatingColor = (val: number): string => {
+      if (val <= 1.5) return 'bg-green-100 text-green-800 border-green-200'; // Perfect
+      if (val <= 2.5) return 'bg-green-50 text-green-700 border-green-300'; // Excellent
+      if (val <= 3.5) return 'bg-yellow-50 text-yellow-700 border-yellow-300'; // Good
+      if (val <= 4.5) return 'bg-yellow-100 text-yellow-800 border-yellow-400'; // Fair
+      if (val <= 5.5) return 'bg-orange-50 text-orange-700 border-orange-300'; // Poor
+      if (val <= 6.5) return 'bg-red-50 text-red-700 border-red-300'; // Very Poor
+      return 'bg-red-100 text-red-800 border-red-400'; // Worst
+    };
+    
+    const getRatingLabel = (val: number): string => {
+      if (val <= 1.5) return 'Perfect';
+      if (val <= 2.5) return 'Excellent';
+      if (val <= 3.5) return 'Good';
+      if (val <= 4.5) return 'Fair';
+      if (val <= 5.5) return 'Poor';
+      if (val <= 6.5) return 'Very Poor';
+      return 'Worst';
+    };
     
     return (
       <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
         <span className="font-medium">{label}</span>
         <div className="flex items-center gap-2">
-          <div className="flex items-center">
-            {[1, 2, 3, 4, 5, 6, 7].map((circle) => (
-              <div
-                key={circle}
-                className={`w-4 h-4 rounded-full border-2 mr-1 flex items-center justify-center text-xs font-bold ${
-                  circle <= displayValue 
-                    ? 'bg-primary border-primary text-primary-foreground' 
-                    : 'border-muted-foreground text-muted-foreground'
-                }`}
-              >
-                {circle}
-              </div>
-            ))}
-          </div>
-          <Badge variant="secondary">{value}/7 {value === 1 ? '(Best)' : value === 7 ? '(Worst)' : ''}</Badge>
+          <Badge 
+            variant="outline" 
+            className={`${getRatingColor(value)} font-semibold`}
+          >
+            {value}/7 - {getRatingLabel(value)}
+          </Badge>
         </div>
       </div>
     );
@@ -115,9 +126,17 @@ const ClientFeedbackDetail: React.FC<ClientFeedbackDetailProps> = ({ feedback })
               </div>
             </div>
           </div>
-          <div className="pt-2 border-t">
-            <p className="text-sm text-muted-foreground">Tour Section Completed</p>
-            <Badge variant="outline" className="mt-1">{feedback.tour_section_completed}</Badge>
+          <div className="pt-2 border-t space-y-2">
+            <div>
+              <p className="text-sm text-muted-foreground">Tour Code</p>
+              <Badge variant="default" className="mt-1 bg-blue-100 text-blue-800">
+                {feedback.tour_id || 'Unknown'}
+              </Badge>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Tour Section Completed</p>
+              <Badge variant="outline" className="mt-1">{feedback.tour_section_completed}</Badge>
+            </div>
           </div>
         </CardContent>
       </Card>

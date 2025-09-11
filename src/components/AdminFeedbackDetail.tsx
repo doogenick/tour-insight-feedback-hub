@@ -11,39 +11,35 @@ interface FeedbackDetailProps {
 
 const AdminFeedbackDetail: React.FC<FeedbackDetailProps> = ({ feedback, onClose }) => {
   const renderRating = (rating: number, label: string) => {
-    if (!rating) return null;
+    if (!rating || rating <= 0) return null;
     
-    // Get rating description and color for 1-7 scale (1=Perfect, 7=Very Poor)
-    const getRatingDescription = (val: number): string => {
-      if (val <= 1.5) return 'Perfect';
-      if (val <= 2.5) return 'Excellent'; 
-      if (val <= 3.5) return 'Good';
-      if (val <= 4.5) return 'Average';
-      if (val <= 5.5) return 'Below Average';
-      if (val <= 6.5) return 'Poor';
-      return 'Very Poor';
-    };
-
+    // Color coding: 1=best (green), 7=worst (red)
     const getRatingColor = (val: number): string => {
-      if (val <= 1.5) return 'bg-emerald-500';
-      if (val <= 2.5) return 'bg-green-500';
-      if (val <= 3.5) return 'bg-lime-500';
-      if (val <= 4.5) return 'bg-yellow-500';
-      if (val <= 5.5) return 'bg-orange-500';
-      if (val <= 6.5) return 'bg-red-500';
-      return 'bg-rose-600';
+      if (val <= 1.5) return 'bg-green-100 text-green-800 border-green-200'; // Perfect
+      if (val <= 2.5) return 'bg-green-50 text-green-700 border-green-300'; // Excellent
+      if (val <= 3.5) return 'bg-yellow-50 text-yellow-700 border-yellow-300'; // Good
+      if (val <= 4.5) return 'bg-yellow-100 text-yellow-800 border-yellow-400'; // Fair
+      if (val <= 5.5) return 'bg-orange-50 text-orange-700 border-orange-300'; // Poor
+      if (val <= 6.5) return 'bg-red-50 text-red-700 border-red-300'; // Very Poor
+      return 'bg-red-100 text-red-800 border-red-400'; // Worst
+    };
+    
+    const getRatingLabel = (val: number): string => {
+      if (val <= 1.5) return 'Perfect';
+      if (val <= 2.5) return 'Excellent';
+      if (val <= 3.5) return 'Good';
+      if (val <= 4.5) return 'Fair';
+      if (val <= 5.5) return 'Poor';
+      if (val <= 6.5) return 'Very Poor';
+      return 'Worst';
     };
     
     return (
       <div className="flex items-center justify-between py-2">
         <span className="text-sm font-medium">{label}</span>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1">
-            <span className="text-sm font-medium">{rating}/7</span>
-            <div className={`w-3 h-3 rounded-full ${getRatingColor(rating)}`} />
-          </div>
-          <span className="text-xs text-muted-foreground">
-            {getRatingDescription(rating)}
+        <div className="flex items-center gap-2">
+          <span className={`px-2 py-1 rounded text-xs font-semibold border ${getRatingColor(rating)}`}>
+            {rating}/7 - {getRatingLabel(rating)}
           </span>
         </div>
       </div>

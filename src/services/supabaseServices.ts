@@ -277,7 +277,7 @@ export const feedbackSupabaseService = {
       .from('comprehensive_feedback')
       .select(`
         *,
-        tour:tours(tour_code, tour_name, guide_id, driver_id)
+        tour:tours(tour_code, tour_name, guide_id, driver_id, guide:crew_members!tours_guide_id_fkey(full_name), driver:crew_members!tours_driver_id_fkey(full_name))
       `)
       .order('submitted_at', { ascending: false });
     

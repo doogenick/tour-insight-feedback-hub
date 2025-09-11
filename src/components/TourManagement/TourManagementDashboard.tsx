@@ -4,20 +4,22 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
-import { Calendar, Users, AlertTriangle, MapPin, Plus, ArrowLeft, FileText } from 'lucide-react';
+import { Calendar, Users, AlertTriangle, MapPin, Plus, ArrowLeft, FileText, Eye } from 'lucide-react';
 import { Tour, Client } from '../../services/api/types';
 import { useSupabaseTours } from '../../hooks/useSupabaseTours';
 import { useSupabaseFeedback } from '../../hooks/useSupabaseFeedback';
 import TourCreationForm from './TourCreationForm';
+import TourEditForm from './TourEditForm';
 import CrewManagement from './CrewManagement';
 import ClientImport from './ClientImport';
 import IncidentReporting from './IncidentReporting';
 import MobileTourCard from './MobileTourCard';
 
 const TourManagementDashboard: React.FC = () => {
-  const { tours, isLoading, fetchTours, createTour } = useSupabaseTours();
+  const { tours, isLoading, fetchTours, createTour, updateTour } = useSupabaseTours();
   const { fetchFeedbackByTour } = useSupabaseFeedback();
   const [showTourForm, setShowTourForm] = useState(false);
+  const [editingTour, setEditingTour] = useState<Tour | null>(null);
   const [selectedTour, setSelectedTour] = useState<Tour | null>(null);
   const [tourClients, setTourClients] = useState<{ [tourId: string]: Client[] }>({});
   const [viewMode, setViewMode] = useState<'tour-list' | 'feedback-viewer'>('tour-list');
@@ -50,6 +52,16 @@ const TourManagementDashboard: React.FC = () => {
     }
   };
 
+  const handleTourUpdated = async (updatedTour: Tour) => {
+    try {
+      await updateTour(updatedTour.tour_id, updatedTour);
+      setEditingTour(null);
+      fetchTours(); // Refresh the tours list
+    } catch (error) {
+      console.error('Error updating tour:', error);
+    }
+  };
+
   const handleTourSelect = async (tour: Tour) => {
     setSelectedTour(tour);
     // TODO: Implement client fetching from Supabase when needed
@@ -66,7 +78,9 @@ const TourManagementDashboard: React.FC = () => {
 
   const handleViewFeedback = async (tour: Tour) => {
     setSelectedTour(tour);
+    console.log('Fetching feedback for tour:', tour.tour_id, 'Tour code:', tour.tour_code);
     const feedback = await fetchFeedbackByTour(tour.tour_id);
+    console.log('Retrieved feedback:', feedback);
     setTourFeedback(feedback || []);
     setViewMode('feedback-viewer');
   };
@@ -103,11 +117,15 @@ const TourManagementDashboard: React.FC = () => {
               </div>
               <div>
                 <span className="font-medium">Guide:</span>
-                <p className="text-muted-foreground">{selectedTour.guide_name}</p>
+                <p className="text-muted-foreground">{selectedTour.guide_name || 'None'}</p>
               </div>
               <div>
                 <span className="font-medium">Driver:</span>
-                <p className="text-muted-foreground">{selectedTour.driver_name}</p>
+                <p className="text-muted-foreground">{selectedTour.driver_name || 'None'}</p>
+              </div>
+              <div>
+                <span className="font-medium">Tour Leader:</span>
+                <p className="text-muted-foreground">{selectedTour.tour_leader || 'None'}</p>
               </div>
               <div>
                 <span className="font-medium">Passengers:</span>
@@ -135,15 +153,18 @@ const TourManagementDashboard: React.FC = () => {
                           <p className="text-sm text-muted-foreground">
                             {fb.client_nationality && `Nationality: ${fb.client_nationality}`}
                           </p>
+                          <p className="text-xs text-blue-600 font-medium">
+                            Tour Code: {selectedTour.tour_code}
+                          </p>
                         </div>
-                        <Badge variant="default">★ {fb.overall_rating}/5</Badge>
+                        <Badge variant="default">{fb.overall_rating || fb.overview_rating || 0}/7</Badge>
                       </div>
                       
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
-                        <div>Accommodation: {fb.accommodation_rating}/5</div>
-                        <div>Activities: {fb.activities_rating}/5</div>
-                        <div>Food: {fb.food_rating}/5</div>
-                        <div>Vehicle: {fb.vehicle_rating}/5</div>
+                        <div>Accommodation: {fb.accommodation_rating || 'N/A'}/7</div>
+                        <div>Food: {fb.food_rating || fb.food_quality_rating || 'N/A'}/7</div>
+                        <div>Vehicle: {fb.vehicle_rating || fb.truck_comfort_rating || 'N/A'}/7</div>
+                        <div>Value: {fb.value_rating || 'N/A'}/7</div>
                       </div>
                       
                       {(fb.highlights || fb.improvements || fb.additional_comments) && (
@@ -167,6 +188,21 @@ const TourManagementDashboard: React.FC = () => {
                       )}
                       <div className="text-xs text-muted-foreground">
                         {fb.submitted_at && `Submitted: ${new Date(fb.submitted_at).toLocaleDateString()}`}
+                      </div>
+                      
+                      <div className="pt-2 border-t">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => {
+                            // Open individual feedback detail
+                            window.open(`/admin?feedback=${fb.id}`, '_blank');
+                          }}
+                          className="w-full"
+                        >
+                          <Eye className="h-4 w-4 mr-2" />
+                          View Complete Details
+                        </Button>
                       </div>
                     </div>
                   </CardContent>
@@ -221,6 +257,14 @@ const TourManagementDashboard: React.FC = () => {
             />
           )}
 
+          {editingTour && (
+            <TourEditForm
+              tour={editingTour}
+              onTourUpdated={handleTourUpdated}
+              onCancel={() => setEditingTour(null)}
+            />
+          )}
+
           <div className="grid gap-4">
             {isLoading ? (
               <Card>
@@ -241,11 +285,13 @@ const TourManagementDashboard: React.FC = () => {
                   tour={{
                     ...tour,
                     tour_id: tour.id,
-                    guide_name: tour.guide?.full_name || 'Not assigned',
-                    driver_name: tour.driver?.full_name || 'Not assigned'
+                    guide_name: tour.guide?.full_name || 'None',
+                    driver_name: tour.driver?.full_name || 'None',
+                    truck_name: tour.truck_name || 'Subcontracted'
                   } as Tour} 
                   onSelect={handleTourSelect}
                   onViewFeedback={handleViewFeedback}
+                  onEdit={setEditingTour}
                 />
               ))
             )}

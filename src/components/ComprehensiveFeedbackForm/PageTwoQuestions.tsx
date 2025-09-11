@@ -43,7 +43,7 @@ const PageTwoQuestions: React.FC<PageTwoQuestionsProps> = ({
               <Checkbox
                 id="expectations-yes"
                 checked={formData.met_expectations === true}
-                onCheckedChange={(checked) => updateFormData('met_expectations', checked ? true : null)}
+                onCheckedChange={(checked) => updateFormData('met_expectations', checked === true ? true : null)}
               />
               <Label htmlFor="expectations-yes" className="cursor-pointer">Yes</Label>
             </div>
@@ -51,7 +51,7 @@ const PageTwoQuestions: React.FC<PageTwoQuestionsProps> = ({
               <Checkbox
                 id="expectations-no"
                 checked={formData.met_expectations === false}
-                onCheckedChange={(checked) => updateFormData('met_expectations', checked ? false : null)}
+                onCheckedChange={(checked) => updateFormData('met_expectations', checked === true ? false : null)}
               />
               <Label htmlFor="expectations-no" className="cursor-pointer">No</Label>
             </div>
@@ -79,7 +79,7 @@ const PageTwoQuestions: React.FC<PageTwoQuestionsProps> = ({
               <Checkbox
                 id="value-yes"
                 checked={formData.value_for_money === true}
-                onCheckedChange={(checked) => updateFormData('value_for_money', checked ? true : null)}
+                onCheckedChange={(checked) => updateFormData('value_for_money', checked === true ? true : null)}
               />
               <Label htmlFor="value-yes" className="cursor-pointer">Yes</Label>
             </div>
@@ -87,7 +87,7 @@ const PageTwoQuestions: React.FC<PageTwoQuestionsProps> = ({
               <Checkbox
                 id="value-no"
                 checked={formData.value_for_money === false}
-                onCheckedChange={(checked) => updateFormData('value_for_money', checked ? false : null)}
+                onCheckedChange={(checked) => updateFormData('value_for_money', checked === true ? false : null)}
               />
               <Label htmlFor="value-no" className="cursor-pointer">No</Label>
             </div>
@@ -115,7 +115,7 @@ const PageTwoQuestions: React.FC<PageTwoQuestionsProps> = ({
               <Checkbox
                 id="recommend-yes"
                 checked={formData.would_recommend === true}
-                onCheckedChange={(checked) => updateFormData('would_recommend', checked ? true : null)}
+                onCheckedChange={(checked) => updateFormData('would_recommend', checked === true ? true : null)}
               />
               <Label htmlFor="recommend-yes" className="cursor-pointer">Yes</Label>
             </div>
@@ -123,7 +123,7 @@ const PageTwoQuestions: React.FC<PageTwoQuestionsProps> = ({
               <Checkbox
                 id="recommend-no"
                 checked={formData.would_recommend === false}
-                onCheckedChange={(checked) => updateFormData('would_recommend', checked ? false : null)}
+                onCheckedChange={(checked) => updateFormData('would_recommend', checked === true ? false : null)}
               />
               <Label htmlFor="recommend-no" className="cursor-pointer">No</Label>
             </div>

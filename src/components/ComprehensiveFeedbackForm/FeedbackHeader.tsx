@@ -1,8 +1,13 @@
 
 import React from 'react';
 import { CardHeader, CardTitle, CardDescription } from '../ui/card';
+import { Tour } from '../../types/Tour';
 
-const FeedbackHeader: React.FC = () => {
+interface FeedbackHeaderProps {
+  tour?: Tour | null;
+}
+
+const FeedbackHeader: React.FC<FeedbackHeaderProps> = ({ tour }) => {
   return (
     <CardHeader className="text-center bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-t-lg">
       <div className="flex justify-between items-center mb-4">
@@ -23,6 +28,18 @@ const FeedbackHeader: React.FC = () => {
       <CardTitle className="text-2xl font-bold bg-black text-white py-2 px-4 inline-block">
         TOUR FEEDBACK FORM
       </CardTitle>
+      
+      {tour && (
+        <div className="mt-4 p-3 bg-white/10 rounded-lg">
+          <div className="text-lg font-semibold">{tour.tour_name}</div>
+          <div className="text-sm opacity-90">Tour Code: <span className="font-bold">{tour.tour_code}</span></div>
+          {tour.date_start && tour.date_end && (
+            <div className="text-sm opacity-90">
+              {new Date(tour.date_start).toLocaleDateString()} - {new Date(tour.date_end).toLocaleDateString()}
+            </div>
+          )}
+        </div>
+      )}
       
       <CardDescription className="text-white/90 text-sm mt-4 leading-relaxed">
         Thank you for choosing to travel with Nomad Africa Adventure Tours. In order to ensure we deliver the best possible service, 

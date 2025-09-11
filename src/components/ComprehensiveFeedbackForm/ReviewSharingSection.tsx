@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui
 import { Button } from '../ui/button';
 import { useWifiConnection } from '../../hooks/useWifiConnection';
 import { useToast } from '../ui/use-toast';
-import { Wifi, WifiOff, ExternalLink, Star, Mail, MessageSquare } from 'lucide-react';
+import { Wifi, WifiOff, ExternalLink, BarChart3, Mail, MessageSquare } from 'lucide-react';
 
 interface ReviewSharingSectionProps {
   formData: Partial<ComprehensiveFeedback>;
@@ -50,7 +50,7 @@ const ReviewSharingSection: React.FC<ReviewSharingSectionProps> = ({
     <Card className="border-2 border-primary">
       <CardHeader className="bg-primary/10">
         <CardTitle className="flex items-center gap-2">
-          <Star className="h-5 w-5 text-yellow-500" />
+          <BarChart3 className="h-5 w-5 text-blue-500" />
           Share Your Experience
           <div className="ml-auto flex items-center gap-2">
             {hasWifi ? (

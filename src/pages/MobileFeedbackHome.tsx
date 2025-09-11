@@ -114,9 +114,14 @@ const MobileFeedbackHome: React.FC = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <AlertCircle className="w-5 h-5 text-orange-600" />
-                <span className="text-sm font-medium">
-                  {itemsToSync} items waiting to sync
-                </span>
+                <div>
+                  <span className="text-sm font-medium">
+                    {itemsToSync} items waiting to sync
+                  </span>
+                  <p className="text-xs text-orange-700 mt-1">
+                    {isOnline ? 'Tap to sync now' : 'Connect to internet to sync'}
+                  </p>
+                </div>
               </div>
               <Button
                 onClick={handleSync}
@@ -131,6 +136,20 @@ const MobileFeedbackHome: React.FC = () => {
                 )}
                 {isSyncing ? 'Syncing...' : 'Sync Now'}
               </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Success Message */}
+      {itemsToSync === 0 && tours.length > 0 && (
+        <Card className="border-green-200 bg-green-50">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <CheckCircle className="w-5 h-5 text-green-600" />
+              <span className="text-sm font-medium text-green-800">
+                All data synced successfully
+              </span>
             </div>
           </CardContent>
         </Card>

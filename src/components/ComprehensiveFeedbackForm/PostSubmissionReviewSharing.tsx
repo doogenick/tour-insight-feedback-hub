@@ -4,7 +4,7 @@ import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { useWifiConnection } from '../../hooks/useWifiConnection';
 import { useToast } from '../ui/use-toast';
-import { Star, ExternalLink, Mail, MessageSquare, Wifi, WifiOff, CheckCircle, Clock } from 'lucide-react';
+import { BarChart3, ExternalLink, Mail, MessageSquare, Wifi, WifiOff, CheckCircle, Clock } from 'lucide-react';
 
 interface PostSubmissionReviewSharingProps {
   clientName: string;
@@ -71,7 +71,7 @@ const PostSubmissionReviewSharing: React.FC<PostSubmissionReviewSharingProps> = 
       <CardContent className="p-6 space-y-6">
         <div className="text-center space-y-2">
           <div className="flex items-center justify-center gap-2">
-            <Star className="h-5 w-5 text-yellow-500" />
+            <BarChart3 className="h-5 w-5 text-blue-500" />
             <h3 className="text-lg font-semibold">Help Other Travelers</h3>
           </div>
           <p className="text-sm text-muted-foreground">
@@ -91,7 +91,7 @@ const PostSubmissionReviewSharing: React.FC<PostSubmissionReviewSharingProps> = 
                 <CardContent className="p-4 text-center">
                   <div className="space-y-3">
                     <div className="w-12 h-12 mx-auto bg-red-100 rounded-full flex items-center justify-center">
-                      <Star className="h-6 w-6 text-red-600" />
+                      <BarChart3 className="h-6 w-6 text-red-600" />
                     </div>
                     <h4 className="font-semibold">Google Reviews</h4>
                     <p className="text-sm text-muted-foreground">
@@ -112,7 +112,7 @@ const PostSubmissionReviewSharing: React.FC<PostSubmissionReviewSharingProps> = 
                 <CardContent className="p-4 text-center">
                   <div className="space-y-3">
                     <div className="w-12 h-12 mx-auto bg-green-100 rounded-full flex items-center justify-center">
-                      <Star className="h-6 w-6 text-green-600" />
+                      <BarChart3 className="h-6 w-6 text-green-600" />
                     </div>
                     <h4 className="font-semibold">TripAdvisor</h4>
                     <p className="text-sm text-muted-foreground">

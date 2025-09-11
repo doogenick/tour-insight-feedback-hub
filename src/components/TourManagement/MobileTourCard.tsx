@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
-import { Calendar, Users, MessageSquare, Eye } from 'lucide-react';
+import { Calendar, Users, MessageSquare, Eye, Edit } from 'lucide-react';
 import { Tour } from '../../services/api/types';
 import { useSupabaseFeedback } from '../../hooks/useSupabaseFeedback';
 
@@ -11,9 +11,10 @@ interface MobileTourCardProps {
   tour: Tour;
   onSelect: (tour: Tour) => void;
   onViewFeedback?: (tour: Tour) => void;
+  onEdit?: (tour: Tour) => void;
 }
 
-const MobileTourCard: React.FC<MobileTourCardProps> = ({ tour, onSelect, onViewFeedback }) => {
+const MobileTourCard: React.FC<MobileTourCardProps> = ({ tour, onSelect, onViewFeedback, onEdit }) => {
   const { fetchFeedbackByTour } = useSupabaseFeedback();
   const [feedbackCount, setFeedbackCount] = useState<number>(0);
   const [avgRating, setAvgRating] = useState<number | null>(null);
@@ -24,7 +25,7 @@ const MobileTourCard: React.FC<MobileTourCardProps> = ({ tour, onSelect, onViewF
         const feedback = await fetchFeedbackByTour(tour.tour_id);
         if (feedback && feedback.length > 0) {
           setFeedbackCount(feedback.length);
-          const ratings = feedback.map(f => f.overall_rating).filter(r => r > 0);
+          const ratings = feedback.map(f => f.overall_rating || f.overview_rating).filter(r => r > 0);
           if (ratings.length > 0) {
             const avg = ratings.reduce((sum, r) => sum + r, 0) / ratings.length;
             setAvgRating(avg);
@@ -97,6 +98,12 @@ const MobileTourCard: React.FC<MobileTourCardProps> = ({ tour, onSelect, onViewF
               <span className="text-xs text-gray-500">Driver:</span>
               <span className="text-xs font-medium">{tour.driver_name}</span>
             </div>
+            {tour.tour_leader && (
+              <div className="flex items-center gap-1">
+                <span className="text-xs text-gray-500">Tour Leader:</span>
+                <span className="text-xs font-medium">{tour.tour_leader}</span>
+              </div>
+            )}
             {tour.truck_name && (
               <div className="flex items-center gap-1">
                 <span className="text-xs text-gray-500">Truck:</span>
@@ -112,26 +119,42 @@ const MobileTourCard: React.FC<MobileTourCardProps> = ({ tour, onSelect, onViewF
               </Badge>
               {avgRating && (
                 <Badge variant="outline" className="text-xs">
-                  ★ {avgRating.toFixed(1)}
+                  {avgRating.toFixed(1)}/7
                 </Badge>
               )}
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs text-gray-500">{getDuration()}</span>
-              {feedbackCount > 0 && onViewFeedback && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-6 px-2 text-xs"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onViewFeedback(tour);
-                  }}
-                >
-                  <Eye className="h-3 w-3 mr-1" />
-                  View
-                </Button>
-              )}
+              <div className="flex items-center gap-1">
+                {onEdit && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-6 px-2 text-xs"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEdit(tour);
+                    }}
+                  >
+                    <Edit className="h-3 w-3 mr-1" />
+                    Edit
+                  </Button>
+                )}
+                {feedbackCount > 0 && onViewFeedback && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-6 px-2 text-xs"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onViewFeedback(tour);
+                    }}
+                  >
+                    <Eye className="h-3 w-3 mr-1" />
+                    View
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         </div>
