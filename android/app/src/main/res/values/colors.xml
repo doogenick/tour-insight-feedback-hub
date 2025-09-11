@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Nomadtours Safari Theme Colors -->
+    <!-- Primary colors - Safari gold and earth tones -->
+    <color name="colorPrimary">#D4AF37</color>  <!-- Gold -->
+    <color name="colorPrimaryDark">#B8860B</color>  <!-- Dark gold -->
+    <color name="colorAccent">#8B4513</color>  <!-- Saddle brown -->
+    
+    <!-- Secondary colors - African earth tones -->
+    <color name="colorSecondary">#CD853F</color>  <!-- Peru -->
+    <color name="colorSecondaryDark">#A0522D</color>  <!-- Sienna -->
+    
+    <!-- Background colors - Safari inspired -->
+    <color name="colorBackground">#FFF8DC</color>  <!-- Cornsilk -->
+    <color name="colorSurface">#F5F5DC</color>  <!-- Beige -->
+    <color name="colorSurfaceVariant">#F0E68C</color>  <!-- Khaki -->
+    
+    <!-- Text colors -->
+    <color name="colorOnPrimary">#FFFFFF</color>
+    <color name="colorOnBackground">#2F4F4F</color>  <!-- Dark slate gray -->
+    <color name="colorOnSurface">#556B2F</color>  <!-- Dark olive green -->
+    
+    <!-- Status colors -->
+    <color name="colorSuccess">#228B22</color>  <!-- Forest green -->
+    <color name="colorWarning">#FF8C00</color>  <!-- Dark orange -->
+    <color name="colorError">#DC143C</color>  <!-- Crimson -->
+    
+    <!-- Safari theme colors -->
+    <color name="safari_gold">#D4AF37</color>
+    <color name="safari_brown">#8B4513</color>
+    <color name="safari_green">#228B22</color>
+    <color name="safari_sand">#F5F5DC</color>
+    <color name="savanna_grass">#9ACD32</color>
+    <color name="sunset_orange">#FF8C00</color>
+    
+    <!-- Neutral colors - Earth tones -->
+    <color name="colorNeutral50">#FFF8DC</color>
+    <color name="colorNeutral100">#F5F5DC</color>
+    <color name="colorNeutral200">#F0E68C</color>
+    <color name="colorNeutral300">#DDBEA9</color>
+    <color name="colorNeutral400">#BC9A6A</color>
+    <color name="colorNeutral500">#8B7355</color>
+    <color name="colorNeutral600">#6B5B47</color>
+    <color name="colorNeutral700">#4A3C2A</color>
+    <color name="colorNeutral800">#2F2B1F</color>
+    <color name="colorNeutral900">#1A1611</color>
+</resources>

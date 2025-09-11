@@ -10,8 +10,9 @@ const Header: React.FC = () => {
     <header className="bg-primary text-primary-foreground shadow-sm">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          <Link to="/" className="text-xl font-bold">
-            Tour Insight Feedback Hub
+          <Link to="/" className="flex items-center gap-3 text-xl font-bold">
+            <img src="/logo.svg" alt="Nomadtours Logo" className="h-8 w-auto" />
+            <span>Nomadtours Feedback Hub</span>
           </Link>
           
           <nav className="flex items-center space-x-6">

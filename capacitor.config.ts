@@ -2,8 +2,8 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.safariinsight.feedbackcollector',  
-  appName: 'Safari Feedback Collector',
+  appId: 'com.nomadtours.feedback',  
+  appName: 'Nomadtours Feedback',
   webDir: 'dist',
   bundledWebRuntime: false,
   // Remove server config for production - use bundled web app

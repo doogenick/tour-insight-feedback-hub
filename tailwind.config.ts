@@ -63,15 +63,18 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Tour feedback app custom colors
+				// Nomadtours Safari theme colors
 				tour: {
-					primary: '#1e5f94',
-					secondary: '#4a90e2',
-					accent: '#f0c14b',
-					success: '#4caf50',
-					error: '#e53935',
-					light: '#f5f9ff',
-					dark: '#2c3e50'
+					primary: '#D4AF37',      // Safari gold
+					secondary: '#8B4513',    // Saddle brown
+					accent: '#CD853F',       // Peru
+					success: '#228B22',      // Forest green
+					error: '#DC143C',        // Crimson
+					light: '#FFF8DC',        // Cornsilk
+					dark: '#2F4F4F',         // Dark slate gray
+					sand: '#F5F5DC',         // Beige
+					grass: '#9ACD32',        // Savanna grass
+					sunset: '#FF8C00'        // Sunset orange
 				}
 			},
 			borderRadius: {

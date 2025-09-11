@@ -91,7 +91,11 @@ const MobileFeedbackHome: React.FC = () => {
     <div className="container mx-auto p-4 space-y-6 max-w-2xl">
       {/* Header */}
       <div className="text-center space-y-2">
-        <h1 className="text-2xl font-bold">Safari Feedback Collection</h1>
+        <div className="flex items-center justify-center gap-3 mb-4">
+          <img src="/logo.svg" alt="Nomadtours Logo" className="h-12 w-auto" />
+        </div>
+        <h1 className="text-2xl font-bold text-slate-800">Nomadtours Feedback</h1>
+        <p className="text-sm text-slate-600">African Safari Adventures</p>
         <div className="flex items-center justify-center gap-2">
           {isOnline ? (
             <div className="flex items-center gap-1 text-green-600">

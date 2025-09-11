@@ -12,16 +12,15 @@ const MobileHeader: React.FC = () => {
     <Card className="w-full p-4 mb-6 bg-tour-primary text-white shadow-lg">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-            <User className="h-6 w-6" />
-          </div>
+          <img src="/logo.svg" alt="Nomadtours Logo" className="h-10 w-auto" />
           <div>
             <h2 className="text-lg font-semibold">
-              {currentUser?.name || 'Admin User'}
+              Nomadtours Feedback
             </h2>
-            {isDemoMode && (
-              <p className="text-sm opacity-90">Demo Mode</p>
-            )}
+            <p className="text-sm opacity-90">
+              {currentUser?.name || 'Admin User'}
+              {isDemoMode && ' • Demo Mode'}
+            </p>
           </div>
         </div>
         

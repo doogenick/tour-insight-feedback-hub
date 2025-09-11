@@ -1,0 +1,22 @@
+<svg width="200" height="60" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="30" cy="30" r="25" fill="#D4AF37" stroke="#8B4513" stroke-width="2"/>
+  
+  <!-- Lion silhouette -->
+  <path d="M20 20 Q25 15 30 20 Q35 15 40 20 Q38 25 35 30 Q40 35 35 40 Q30 38 25 40 Q20 35 25 30 Q20 25 20 20 Z" fill="#8B4513"/>
+  
+  <!-- Lion mane -->
+  <path d="M15 25 Q20 20 25 25 Q30 20 35 25 Q40 20 45 25 Q42 30 40 35 Q35 32 30 35 Q25 32 20 35 Q17 30 15 25 Z" fill="#B8860B"/>
+  
+  <!-- Lion eyes -->
+  <circle cx="25" cy="28" r="2" fill="#2F4F4F"/>
+  <circle cx="35" cy="28" r="2" fill="#2F4F4F"/>
+  
+  <!-- Company name -->
+  <text x="70" y="25" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#8B4513">NOMADTOURS</text>
+  <text x="70" y="45" font-family="Arial, sans-serif" font-size="12" fill="#556B2F">African Safari Adventures</text>
+  
+  <!-- Decorative elements -->
+  <path d="M10 50 Q15 45 20 50 Q25 45 30 50" stroke="#9ACD32" stroke-width="2" fill="none"/>
+  <path d="M170 50 Q175 45 180 50 Q185 45 190 50" stroke="#9ACD32" stroke-width="2" fill="none"/>
+</svg>

@@ -1,7 +1,8 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Safari Feedback Collector</string>
-    <string name="title_activity_main">Safari Feedback Collector</string>
-    <string name="package_name">com.safariinsight.feedbackcollector</string>
-    <string name="custom_url_scheme">com.safariinsight.feedbackcollector</string>
+    <string name="app_name">Nomadtours Feedback</string>
+    <string name="title_activity_main">Nomadtours Feedback</string>
+    <string name="package_name">com.nomadtours.feedback</string>
+    <string name="custom_url_scheme">com.nomadtours.feedback</string>
+    <string name="app_description">African Safari Feedback Collection by Nomadtours.co.za</string>
 </resources>

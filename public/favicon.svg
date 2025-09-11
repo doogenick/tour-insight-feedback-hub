@@ -1,0 +1,14 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="16" cy="16" r="15" fill="#D4AF37" stroke="#8B4513" stroke-width="1"/>
+  
+  <!-- Lion silhouette -->
+  <path d="M12 12 Q14 10 16 12 Q18 10 20 12 Q19 14 18 16 Q20 18 18 20 Q16 19 14 20 Q12 18 14 16 Q12 14 12 12 Z" fill="#8B4513"/>
+  
+  <!-- Lion mane -->
+  <path d="M10 14 Q12 12 14 14 Q16 12 18 14 Q20 12 22 14 Q21 16 20 18 Q18 17 16 18 Q14 17 12 18 Q11 16 10 14 Z" fill="#B8860B"/>
+  
+  <!-- Lion eyes -->
+  <circle cx="14" cy="15" r="1" fill="#2F4F4F"/>
+  <circle cx="18" cy="15" r="1" fill="#2F4F4F"/>
+</svg>

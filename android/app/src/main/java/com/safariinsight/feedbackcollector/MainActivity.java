@@ -1,4 +1,4 @@
-package com.safariinsight.feedbackcollector;
+package com.nomadtours.feedback;
 
 import com.getcapacitor.BridgeActivity;
 
