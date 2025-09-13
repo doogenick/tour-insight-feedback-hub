@@ -3,8 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
-import { Calendar, Users, MessageSquare, Eye, Edit } from 'lucide-react';
-import { Tour } from '../../services/api/types';
+import { Calendar, Users, MessageSquare, Eye, Edit, Trash2 } from 'lucide-react';
+import { Tour } from '../../types/Tour';
 import { useSupabaseFeedback } from '../../hooks/useSupabaseFeedback';
 
 interface MobileTourCardProps {
@@ -12,9 +12,10 @@ interface MobileTourCardProps {
   onSelect: (tour: Tour) => void;
   onViewFeedback?: (tour: Tour) => void;
   onEdit?: (tour: Tour) => void;
+  onDelete?: (tourId: string) => void;
 }
 
-const MobileTourCard: React.FC<MobileTourCardProps> = ({ tour, onSelect, onViewFeedback, onEdit }) => {
+const MobileTourCard: React.FC<MobileTourCardProps> = ({ tour, onSelect, onViewFeedback, onEdit, onDelete }) => {
   const { fetchFeedbackByTour } = useSupabaseFeedback();
   const [feedbackCount, setFeedbackCount] = useState<number>(0);
   const [avgRating, setAvgRating] = useState<number | null>(null);
@@ -138,6 +139,20 @@ const MobileTourCard: React.FC<MobileTourCardProps> = ({ tour, onSelect, onViewF
                   >
                     <Edit className="h-3 w-3 mr-1" />
                     Edit
+                  </Button>
+                )}
+                {onDelete && (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    className="h-6 px-2 text-xs"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete(tour.tour_id);
+                    }}
+                  >
+                    <Trash2 className="h-3 w-3 mr-1" />
+                    Delete
                   </Button>
                 )}
                 {feedbackCount > 0 && onViewFeedback && (

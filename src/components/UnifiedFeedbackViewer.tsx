@@ -36,6 +36,13 @@ const UnifiedFeedbackViewer: React.FC<UnifiedFeedbackViewerProps> = ({
     loadData();
   }, []);
 
+  // Refresh data when tours change
+  useEffect(() => {
+    if (tours.length > 0) {
+      loadData();
+    }
+  }, [tours.length]);
+
   useEffect(() => {
     if (initialTourId && tours.length > 0) {
       const tour = tours.find(t => t.id === initialTourId);

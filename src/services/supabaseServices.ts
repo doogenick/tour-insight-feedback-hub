@@ -229,14 +229,16 @@ export const tourSupabaseService = {
     return data;
   },
 
-  async deleteTour(id: string) {
+  async deleteTour(tourId: string) {
     const { error } = await supabase
       .from('tours')
       .delete()
-      .eq('id', id);
+      .eq('id', tourId);
     
     if (error) throw error;
+    return { success: true };
   },
+
 
   async getTourByCode(tourCode: string) {
     const { data, error } = await supabase

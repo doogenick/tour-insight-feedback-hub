@@ -4,8 +4,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
-import { Calendar, Users, AlertTriangle, MapPin, Plus, ArrowLeft, FileText, Eye } from 'lucide-react';
-import { Tour, Client } from '../../services/api/types';
+import { Calendar, Users, AlertTriangle, MapPin, Plus, ArrowLeft, FileText, Eye, Trash2, Edit } from 'lucide-react';
+import { Tour } from '../../types/Tour';
+import { Client } from '../../types/Client';
 import { useSupabaseTours } from '../../hooks/useSupabaseTours';
 import { useSupabaseFeedback } from '../../hooks/useSupabaseFeedback';
 import TourCreationForm from './TourCreationForm';
@@ -14,9 +15,10 @@ import CrewManagement from './CrewManagement';
 import ClientImport from './ClientImport';
 import IncidentReporting from './IncidentReporting';
 import MobileTourCard from './MobileTourCard';
+import DeleteTourDialog from './DeleteTourDialog';
 
 const TourManagementDashboard: React.FC = () => {
-  const { tours, isLoading, fetchTours, createTour, updateTour } = useSupabaseTours();
+  const { tours, isLoading, fetchTours, createTour, updateTour, deleteTour } = useSupabaseTours();
   const { fetchFeedbackByTour } = useSupabaseFeedback();
   const [showTourForm, setShowTourForm] = useState(false);
   const [editingTour, setEditingTour] = useState<Tour | null>(null);
@@ -292,6 +294,7 @@ const TourManagementDashboard: React.FC = () => {
                   onSelect={handleTourSelect}
                   onViewFeedback={handleViewFeedback}
                   onEdit={setEditingTour}
+                  onDelete={deleteTour}
                 />
               ))
             )}

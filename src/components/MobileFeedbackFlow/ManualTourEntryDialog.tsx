@@ -8,6 +8,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { Tour } from '../../types/Tour';
 import { useSupabaseTours } from '../../hooks/useSupabaseTours';
 import { useToast } from '../ui/use-toast';
+import { testSupabaseConnection } from '../../utils/testSupabaseConnection';
+import { applyMigration } from '../../utils/applyMigration';
 
 interface ManualTourEntryDialogProps {
   onCreate: (tour: Tour) => void;
@@ -25,6 +27,24 @@ const ManualTourEntryDialog: React.FC<ManualTourEntryDialogProps> = ({ onCreate 
   
   const { createTour } = useSupabaseTours();
   const { toast } = useToast();
+
+  const handleTestConnection = async () => {
+    const result = await testSupabaseConnection();
+    toast({
+      variant: result.success ? "default" : "destructive",
+      title: result.success ? "Connection Test Passed" : "Connection Test Failed",
+      description: result.success ? result.message : result.error,
+    });
+  };
+
+  const handleApplyMigration = async () => {
+    const result = await applyMigration();
+    toast({
+      variant: result.success ? "default" : "destructive",
+      title: result.success ? "Migration Applied" : "Migration Failed",
+      description: result.success ? result.message : result.error,
+    });
+  };
 
   const handleCreate = async () => {
     if (!tourCode.trim()) {
@@ -110,7 +130,24 @@ const ManualTourEntryDialog: React.FC<ManualTourEntryDialogProps> = ({ onCreate 
       });
     } catch (error) {
       console.error('Error creating manual tour:', error);
-      const errorMessage = error instanceof Error ? error.message : "Failed to save tour to database. Please try again.";
+      console.error('Error details:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+        error: error
+      });
+      
+      let errorMessage = "Failed to save tour to database. Please try again.";
+      
+      if (error instanceof Error) {
+        if (error.message.includes('tour code already exists')) {
+          errorMessage = "A tour with this code already exists. Please use a different tour code.";
+        } else if (error.message.includes('feedback_gathering_status')) {
+          errorMessage = "Database schema issue. Please contact support.";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
       toast({
         variant: "destructive",
         title: "Error",
@@ -216,16 +253,35 @@ const ManualTourEntryDialog: React.FC<ManualTourEntryDialogProps> = ({ onCreate 
           )}
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)} disabled={isSubmitting}>
-            Cancel
-          </Button>
-          <Button 
-            onClick={handleCreate} 
-            disabled={!tourCode.trim() || isSubmitting}
-          >
-            {isSubmitting ? 'Creating...' : 'Create and continue'}
-          </Button>
+        <DialogFooter className="flex-col gap-2">
+          <div className="flex gap-2 w-full">
+            <Button 
+              variant="outline" 
+              onClick={handleTestConnection}
+              className="flex-1"
+            >
+              Test Connection
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={handleApplyMigration}
+              className="flex-1"
+            >
+              Apply Migration
+            </Button>
+          </div>
+          <div className="flex gap-2 w-full">
+            <Button variant="outline" onClick={() => setOpen(false)} disabled={isSubmitting} className="flex-1">
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleCreate} 
+              disabled={!tourCode.trim() || isSubmitting}
+              className="flex-1"
+            >
+              {isSubmitting ? 'Creating...' : 'Create and continue'}
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -16,6 +16,7 @@ export interface Tour {
   hotels?: Hotel[];
   properties?: Property[];
   status?: 'planned' | 'active' | 'completed' | 'cancelled';
+  feedback_gathering_status?: 'inactive' | 'active' | 'completed';
   created_at?: string;
   updated_at?: string;
 }
