@@ -2,6 +2,10 @@
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
+import { initializeAppVersion } from './utils/appVersionManager'
+
+// Initialize app version management
+initializeAppVersion();
 
 // Add mobile viewport meta tag if not present
 if (!document.querySelector('meta[name="viewport"]')) {

@@ -20,7 +20,7 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
   },
   global: {
     headers: {
-      'X-Client-Info': 'safari-feedback-mobile'
+      'X-Client-Info': 'nomad-feedback-mobile'
     }
   }
 });

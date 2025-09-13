@@ -157,10 +157,12 @@ export const tourSupabaseService = {
       throw new Error('A tour with this tour code already exists. Please use a different tour code.');
     }
 
-    // Ensure feedback_gathering_status is set if not provided
+    // Ensure feedback_gathering_status is set if not provided and add version tracking
     const tourDataWithStatus = {
       ...tourData,
-      feedback_gathering_status: tourData.feedback_gathering_status || 'inactive'
+      feedback_gathering_status: tourData.feedback_gathering_status || 'inactive',
+      app_version: '1.0.5',
+      created_by_client: 'nomad-feedback-mobile'
     };
 
     const { data, error } = await supabase
@@ -342,6 +344,9 @@ export const feedbackSupabaseService = {
       client_nationality: feedbackData.nationality || null,
       status: feedbackData.status || 'submitted',
       submitted_at: feedbackData.submitted_at || new Date().toISOString(),
+      // Add version tracking
+      app_version: '1.0.5',
+      submitted_by_client: 'nomad-feedback-mobile'
     };
 
     const { data, error } = await supabase
