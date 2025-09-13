@@ -1,0 +1,21 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle with textured edge -->
+  <circle cx="256" cy="256" r="240" fill="white" stroke="#2D5A4A" stroke-width="8" stroke-dasharray="12,8"/>
+  
+  <!-- Stylized head with bandana -->
+  <g fill="#2D5A4A">
+    <!-- Head outline -->
+    <path d="M 180 220 Q 180 160 220 160 Q 256 140 292 160 Q 332 160 332 220 Q 332 280 312 320 Q 292 360 256 360 Q 220 360 200 320 Q 180 280 180 220 Z"/>
+    
+    <!-- Bandana/head covering -->
+    <path d="M 190 200 Q 190 140 230 140 Q 256 120 282 140 Q 322 140 322 200 Q 322 220 312 240 Q 302 260 292 280 Q 282 300 256 300 Q 230 300 220 280 Q 210 260 200 240 Q 190 220 190 200 Z"/>
+    
+    <!-- Bandana knot and flowing ends -->
+    <path d="M 282 280 Q 302 260 322 280 Q 342 300 322 320 Q 302 340 282 320 Q 262 300 282 280 Z"/>
+    <path d="M 322 320 Q 342 340 362 360 Q 382 380 362 400 Q 342 420 322 400 Q 302 380 322 360 Q 322 340 322 320 Z"/>
+    <path d="M 322 360 Q 342 380 362 400 Q 382 420 362 440 Q 342 460 322 440 Q 302 420 322 400 Q 322 380 322 360 Z"/>
+    
+    <!-- Stylized chin/smile -->
+    <path d="M 200 320 Q 230 340 256 340 Q 282 340 312 320 Q 302 360 256 360 Q 210 360 200 320 Z"/>
+  </g>
+</svg>

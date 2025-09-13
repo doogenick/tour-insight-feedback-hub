@@ -1,14 +1,20 @@
 <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-  <!-- Background circle -->
-  <circle cx="16" cy="16" r="15" fill="#D4AF37" stroke="#8B4513" stroke-width="1"/>
+  <!-- Background circle with textured edge -->
+  <circle cx="16" cy="16" r="15" fill="white" stroke="#2D5A4A" stroke-width="1" stroke-dasharray="1,1"/>
   
-  <!-- Lion silhouette -->
-  <path d="M12 12 Q14 10 16 12 Q18 10 20 12 Q19 14 18 16 Q20 18 18 20 Q16 19 14 20 Q12 18 14 16 Q12 14 12 12 Z" fill="#8B4513"/>
-  
-  <!-- Lion mane -->
-  <path d="M10 14 Q12 12 14 14 Q16 12 18 14 Q20 12 22 14 Q21 16 20 18 Q18 17 16 18 Q14 17 12 18 Q11 16 10 14 Z" fill="#B8860B"/>
-  
-  <!-- Lion eyes -->
-  <circle cx="14" cy="15" r="1" fill="#2F4F4F"/>
-  <circle cx="18" cy="15" r="1" fill="#2F4F4F"/>
+  <!-- Stylized head with bandana -->
+  <g fill="#2D5A4A">
+    <!-- Head outline -->
+    <path d="M 11 14 Q 11 10 14 10 Q 16 9 18 10 Q 21 10 21 14 Q 21 18 19 20 Q 17 22 16 22 Q 15 22 13 20 Q 11 18 11 14 Z"/>
+    
+    <!-- Bandana/head covering -->
+    <path d="M 12 12 Q 12 8 15 8 Q 16 7 17 8 Q 20 8 20 12 Q 20 13 19 14 Q 18 15 17 16 Q 16 17 16 17 Q 16 17 15 16 Q 14 15 13 14 Q 12 13 12 12 Z"/>
+    
+    <!-- Bandana knot and flowing ends -->
+    <path d="M 17 16 Q 18 15 19 16 Q 20 17 19 18 Q 18 19 17 18 Q 16 17 17 16 Z"/>
+    <path d="M 19 18 Q 20 19 21 20 Q 22 21 21 22 Q 20 23 19 22 Q 18 21 19 20 Q 19 19 19 18 Z"/>
+    
+    <!-- Stylized chin/smile -->
+    <path d="M 13 20 Q 15 21 16 21 Q 17 21 19 20 Q 18 22 16 22 Q 14 22 13 20 Z"/>
+  </g>
 </svg>
