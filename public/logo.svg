@@ -1,21 +1,22 @@
 <svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
   <!-- Background circle with textured edge -->
-  <circle cx="100" cy="100" r="95" fill="white" stroke="#2D5A4A" stroke-width="3" stroke-dasharray="3,2" stroke-dashoffset="0"/>
+  <circle cx="100" cy="100" r="95" fill="white" stroke="#2D5A4A" stroke-width="4" stroke-dasharray="4,3" stroke-dashoffset="0"/>
   
   <!-- Stylized head with bandana -->
   <g fill="#2D5A4A">
-    <!-- Head outline -->
-    <path d="M 70 85 Q 70 65 90 65 Q 100 60 110 65 Q 130 65 130 85 Q 130 105 120 125 Q 110 145 100 145 Q 90 145 80 125 Q 70 105 70 85 Z"/>
+    <!-- Head outline - more rounded and natural -->
+    <path d="M 75 90 Q 75 70 95 70 Q 100 65 105 70 Q 125 70 125 90 Q 125 110 115 130 Q 105 150 100 150 Q 95 150 85 130 Q 75 110 75 90 Z"/>
     
-    <!-- Bandana/head covering -->
-    <path d="M 75 75 Q 75 55 95 55 Q 100 50 105 55 Q 125 55 125 75 Q 125 80 120 85 Q 115 90 110 95 Q 105 100 100 100 Q 95 100 90 95 Q 85 90 80 85 Q 75 80 75 75 Z"/>
+    <!-- Bandana/head covering - more prominent and flowing -->
+    <path d="M 80 80 Q 80 60 100 60 Q 100 55 100 60 Q 120 60 120 80 Q 120 85 115 90 Q 110 95 105 100 Q 100 105 100 105 Q 100 105 95 100 Q 90 95 85 90 Q 80 85 80 80 Z"/>
     
-    <!-- Bandana knot and flowing ends -->
-    <path d="M 110 95 Q 115 90 120 95 Q 125 100 120 105 Q 115 110 110 105 Q 105 100 110 95 Z"/>
-    <path d="M 120 105 Q 125 110 130 115 Q 135 120 130 125 Q 125 130 120 125 Q 115 120 120 115 Q 120 110 120 105 Z"/>
-    <path d="M 120 115 Q 125 120 130 125 Q 135 130 130 135 Q 125 140 120 135 Q 115 130 120 125 Q 120 120 120 115 Z"/>
+    <!-- Bandana knot and flowing ends - more dramatic -->
+    <path d="M 105 100 Q 110 95 115 100 Q 120 105 115 110 Q 110 115 105 110 Q 100 105 105 100 Z"/>
+    <path d="M 115 110 Q 120 115 125 120 Q 130 125 125 130 Q 120 135 115 130 Q 110 125 115 120 Q 115 115 115 110 Z"/>
+    <path d="M 115 120 Q 120 125 125 130 Q 130 135 125 140 Q 120 145 115 140 Q 110 135 115 130 Q 115 125 115 120 Z"/>
+    <path d="M 115 130 Q 120 135 125 140 Q 130 145 125 150 Q 120 155 115 150 Q 110 145 115 140 Q 115 135 115 130 Z"/>
     
-    <!-- Stylized chin/smile -->
-    <path d="M 85 125 Q 95 130 100 130 Q 105 130 115 125 Q 110 135 100 135 Q 90 135 85 125 Z"/>
+    <!-- Stylized chin/smile - more pronounced -->
+    <path d="M 85 130 Q 95 135 100 135 Q 105 135 115 130 Q 110 140 100 140 Q 90 140 85 130 Z"/>
   </g>
 </svg>
