@@ -161,7 +161,7 @@ export const tourSupabaseService = {
     const tourDataWithStatus = {
       ...tourData,
       feedback_gathering_status: tourData.feedback_gathering_status || 'inactive',
-      app_version: '1.0.5',
+      app_version: '1.0.6',
       created_by_client: 'nomad-feedback-mobile'
     };
 
@@ -345,7 +345,7 @@ export const feedbackSupabaseService = {
       status: feedbackData.status || 'submitted',
       submitted_at: feedbackData.submitted_at || new Date().toISOString(),
       // Add version tracking
-      app_version: '1.0.5',
+      app_version: '1.0.6',
       submitted_by_client: 'nomad-feedback-mobile'
     };
 

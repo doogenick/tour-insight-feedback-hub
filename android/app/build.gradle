@@ -7,8 +7,8 @@ android {
         applicationId "com.nomadtours.feedback"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 6        // Increment this for each release
-        versionName "1.0.5"  // Your app version
+        versionCode 7        // Increment this for each release
+        versionName "1.0.6"  // Your app version
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.

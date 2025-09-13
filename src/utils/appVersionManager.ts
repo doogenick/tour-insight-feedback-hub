@@ -3,7 +3,7 @@
  * Handles version tracking and ensures only the live app can write data
  */
 
-export const APP_VERSION = '1.0.5';
+export const APP_VERSION = '1.0.6';
 export const CLIENT_IDENTIFIER = 'nomad-feedback-mobile';
 
 /**
