@@ -185,7 +185,7 @@ const UnifiedFeedbackViewer: React.FC<UnifiedFeedbackViewerProps> = ({
             <CardContent>
               <div className="text-2xl font-bold">
                 {feedback.length > 0 
-                  ? (feedback.reduce((sum, fb) => sum + (fb.overall_rating || fb.overview_rating || 0), 0) / feedback.length).toFixed(1)
+                  ? (feedback.reduce((sum, fb) => sum + (fb.overall_rating || fb.overview_rating || 0), 0) / feedback.length).toFixed(2)
                   : '0.0'
                 }
               </div>
@@ -207,7 +207,7 @@ const UnifiedFeedbackViewer: React.FC<UnifiedFeedbackViewerProps> = ({
                     <div className="flex items-center gap-4 text-sm">
                       <span>{count} feedback entries</span>
                       <Badge variant="outline" className={getRatingColor(avgRating)}>
-                        {avgRating.toFixed(1)}/7 - {getRatingDescription(avgRating)}
+                        {avgRating.toFixed(2)}/7.00 - {getRatingDescription(avgRating)}
                       </Badge>
                     </div>
                   </div>
@@ -247,7 +247,7 @@ const UnifiedFeedbackViewer: React.FC<UnifiedFeedbackViewerProps> = ({
                     <div className="flex items-center gap-3">
                       <h3 className="font-semibold">{fb.client_name || 'Anonymous'}</h3>
                       <Badge variant="outline" className={getRatingColor(fb.overall_rating || fb.overview_rating || 0)}>
-                        {(fb.overall_rating || fb.overview_rating || 0).toFixed(1)}/7
+                        {(fb.overall_rating || fb.overview_rating || 0).toFixed(2)}/7.00
                       </Badge>
                     </div>
                     <div className="text-sm text-muted-foreground">

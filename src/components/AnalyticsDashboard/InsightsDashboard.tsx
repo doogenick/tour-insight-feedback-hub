@@ -126,7 +126,7 @@ const InsightsDashboard: React.FC<InsightsDashboardProps> = ({ feedback, isLoadi
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{metrics.satisfactionRate.toFixed(1)}%</div>
+            <div className="text-2xl font-bold">{metrics.satisfactionRate.toFixed(2)}%</div>
             <Progress value={metrics.satisfactionRate} className="mt-2" />
             <p className="text-xs text-muted-foreground mt-1">
               {metrics.totalFeedback - metrics.poorRatings} of {metrics.totalFeedback} satisfied
@@ -168,7 +168,7 @@ const InsightsDashboard: React.FC<InsightsDashboardProps> = ({ feedback, isLoadi
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{metrics.recentAvg.toFixed(1)}</div>
+            <div className="text-2xl font-bold">{metrics.recentAvg.toFixed(2)}</div>
             <div className="flex items-center gap-1 mt-1">
               <Badge variant={
                 metrics.trend === 'improving' ? "default" : 
@@ -220,7 +220,7 @@ const InsightsDashboard: React.FC<InsightsDashboardProps> = ({ feedback, isLoadi
                   <div className="flex justify-between items-center">
                     <span className="font-medium capitalize">{category}</span>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium">{score.toFixed(1)}</span>
+                      <span className="text-sm font-medium">{score.toFixed(2)}</span>
                       <Badge variant={
                         performance === 'excellent' ? "default" :
                         performance === 'good' ? "secondary" : "destructive"

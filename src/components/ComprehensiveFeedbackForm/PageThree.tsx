@@ -4,6 +4,7 @@ import { ComprehensiveFeedback } from '../../types/ComprehensiveFeedback';
 import { Button } from '../ui/button';
 import PersonalDetails from './PersonalDetails';
 import SubmissionActions from './SubmissionActions';
+import ReviewConsent from './ReviewConsent';
 
 interface PageThreeProps {
   formData: Partial<ComprehensiveFeedback>;
@@ -30,6 +31,13 @@ const PageThree: React.FC<PageThreeProps> = ({
       <PersonalDetails
         formData={formData}
         updateFormData={updateFormData}
+      />
+      
+      <ReviewConsent
+        willingToReviewGoogle={formData.willing_to_review_google || false}
+        willingToReviewTripadvisor={formData.willing_to_review_tripadvisor || false}
+        onGoogleChange={(checked) => updateFormData('willing_to_review_google', checked)}
+        onTripadvisorChange={(checked) => updateFormData('willing_to_review_tripadvisor', checked)}
       />
       
       <SubmissionActions

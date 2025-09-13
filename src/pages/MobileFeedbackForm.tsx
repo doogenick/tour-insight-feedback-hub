@@ -9,6 +9,7 @@ import { useComprehensiveFeedbackValidation } from '../hooks/useComprehensiveFee
 import { ComprehensiveFeedback } from '../types/ComprehensiveFeedback';
 import { Tour } from '../types/Tour';
 import { Client } from '../types/Client';
+import { EmailService } from '../services/emailService';
 
 // Import comprehensive feedback form components
 import PageOne from '../components/ComprehensiveFeedbackForm/PageOne';
@@ -185,6 +186,34 @@ const MobileFeedbackForm: React.FC = () => {
       } as OfflineFeedback;
 
       await offlineStorage.saveFeedback(offlineFeedback);
+
+      // Send review reminder if user consented
+      if (formData.willing_to_review_google || formData.willing_to_review_tripadvisor) {
+        const reviewPlatforms: ('google' | 'tripadvisor')[] = [];
+        if (formData.willing_to_review_google) reviewPlatforms.push('google');
+        if (formData.willing_to_review_tripadvisor) reviewPlatforms.push('tripadvisor');
+        
+        const emailResult = await EmailService.sendReviewReminder({
+          clientName: formData.client_name || 'Valued Customer',
+          clientEmail: formData.client_email || '',
+          tourName: tour.tour_name || 'Your Tour',
+          tourCode: tour.tour_code || '',
+          reviewPlatforms
+        });
+        
+        if (emailResult.success) {
+          toast({
+            title: "Review Reminder Sent",
+            description: "Check your email for direct links to leave your review!",
+          });
+        } else {
+          toast({
+            variant: "destructive",
+            title: "Email Error",
+            description: "Feedback saved, but review reminder email failed to send.",
+          });
+        }
+      }
 
       toast({
         title: "Feedback Saved",

@@ -15,6 +15,7 @@ import { useComprehensiveFeedbackValidation } from '@/hooks/useComprehensiveFeed
 import { useSupabaseTours } from '@/hooks/useSupabaseTours';
 import { useSupabaseFeedback } from '@/hooks/useSupabaseFeedback';
 import { Tour } from '@/types/Tour';
+import { EmailService } from '@/services/emailService';
 
 const ComprehensiveFeedbackFormPage: React.FC = () => {
   const { tourId } = useParams<{ tourId: string }>();
@@ -115,9 +116,37 @@ const ComprehensiveFeedbackFormPage: React.FC = () => {
 
       await submitFeedback(submissionData);
       
+      // Send review reminder if user consented
+      if (formData.willing_to_review_google || formData.willing_to_review_tripadvisor) {
+        const reviewPlatforms: ('google' | 'tripadvisor')[] = [];
+        if (formData.willing_to_review_google) reviewPlatforms.push('google');
+        if (formData.willing_to_review_tripadvisor) reviewPlatforms.push('tripadvisor');
+        
+        const emailResult = await EmailService.sendReviewReminder({
+          clientName: formData.client_name || selectedClient.name || 'Valued Customer',
+          clientEmail: formData.client_email || selectedClient.email || '',
+          tourName: currentTour?.tour_name || 'Your Tour',
+          tourCode: currentTour?.tour_code || '',
+          reviewPlatforms
+        });
+        
+        if (emailResult.success) {
+          toast({
+            title: "Review Reminder Sent",
+            description: "Check your email for direct links to leave your review!",
+          });
+        } else {
+          toast({
+            variant: "destructive",
+            title: "Email Error",
+            description: "Feedback submitted, but review reminder email failed to send.",
+          });
+        }
+      }
+      
       toast({
         title: "Success",
-        description: "Feedback submitted successfully!",
+        description: "Thank you for your feedback! Your responses have been submitted successfully.",
       });
       
       resetForm();

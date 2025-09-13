@@ -59,7 +59,8 @@ function calculateAverage(feedback: ComprehensiveFeedback[], field: keyof Compre
     .filter(v => typeof v === 'number' && !isNaN(v));
   
   if (values.length === 0) return 0;
-  return Math.round((values.reduce((sum, val) => sum + val, 0) / values.length) * 100) / 100;
+  const average = values.reduce((sum, val) => sum + val, 0) / values.length;
+  return parseFloat(average.toFixed(2));
 }
 
 function calculateBooleanMetrics(feedback: ComprehensiveFeedback[], field: keyof ComprehensiveFeedback) {

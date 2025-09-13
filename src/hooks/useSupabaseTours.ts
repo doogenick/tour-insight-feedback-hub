@@ -100,24 +100,6 @@ export function useSupabaseTours() {
     }
   }, [toast]);
 
-  const deleteTour = useCallback(async (id: string) => {
-    try {
-      await tourSupabaseService.deleteTour(id);
-      setTours(prev => prev.filter(tour => tour.id !== id));
-      toast({
-        title: "Success",
-        description: "Tour deleted successfully.",
-      });
-    } catch (error) {
-      console.error('Error deleting tour:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to delete tour.",
-      });
-      throw error;
-    }
-  }, [toast]);
 
   return {
     tours,

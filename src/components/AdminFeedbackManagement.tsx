@@ -88,7 +88,7 @@ const AdminFeedbackManagement: React.FC = () => {
   const calculateAverageRating = (tourFeedback: any[]) => {
     if (tourFeedback.length === 0) return 'N/A';
     const ratings = tourFeedback.map(f => getPrimaryRating(f)).filter(r => r > 0);
-    return ratings.length > 0 ? (ratings.reduce((sum, r) => sum + r, 0) / ratings.length).toFixed(1) : 'N/A';
+    return ratings.length > 0 ? (ratings.reduce((sum, r) => sum + r, 0) / ratings.length).toFixed(2) : 'N/A';
   };
 
   // Show individual feedback detail

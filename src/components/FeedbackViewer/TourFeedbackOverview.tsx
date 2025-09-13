@@ -86,7 +86,7 @@ const TourFeedbackOverview: React.FC<TourFeedbackOverviewProps> = ({
 
   const calculateAverageRating = (tourFeedback: ComprehensiveFeedback[]) => {
     const ratings = tourFeedback.map(f => f.overview_rating).filter(r => r > 0);
-    return ratings.length > 0 ? (ratings.reduce((sum, r) => sum + r, 0) / ratings.length).toFixed(1) : 'N/A';
+    return ratings.length > 0 ? (ratings.reduce((sum, r) => sum + r, 0) / ratings.length).toFixed(2) : 'N/A';
   };
 
   const getLatestSubmissionDate = (tourFeedback: ComprehensiveFeedback[]) => {

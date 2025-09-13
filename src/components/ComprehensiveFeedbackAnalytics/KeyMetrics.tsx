@@ -33,7 +33,7 @@ const KeyMetrics: React.FC<KeyMetricsProps> = ({ analytics }) => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{analytics.averageRatings.overview.toFixed(1)}</div>
+          <div className="text-2xl font-bold">{analytics.averageRatings.overview.toFixed(2)}</div>
           <Progress 
             value={((7 - analytics.averageRatings.overview) / 6) * 100} 
             className="mt-2" 

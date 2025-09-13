@@ -104,11 +104,11 @@ export const getVehicleRating = (feedback: any): number | null => {
 };
 
 /**
- * Format rating for display (e.g., "4.5/7")
+ * Format rating for display with 2 decimal places (e.g., "4.50/7.00")
  */
 export const formatRating = (rating: number | null, maxRating: number = 7): string => {
   if (!rating || rating <= 0) return 'N/A';
-  return `${rating}/${maxRating}`;
+  return `${rating.toFixed(2)}/${maxRating.toFixed(2)}`;
 };
 
 /**
@@ -136,4 +136,46 @@ export const getRatingColor = (rating: number): string => {
   if (rating <= 5.5) return 'bg-orange-500'; // Poor - Orange
   if (rating <= 6.5) return 'bg-red-500'; // Very Poor - Red
   return 'bg-rose-600'; // Worst - Rose
+};
+
+/**
+ * Calculate average rating with 2 decimal places precision
+ */
+export const calculateAverageRating = (ratings: number[]): number => {
+  if (ratings.length === 0) return 0;
+  const validRatings = ratings.filter(rating => rating > 0);
+  if (validRatings.length === 0) return 0;
+  const sum = validRatings.reduce((acc, rating) => acc + rating, 0);
+  return parseFloat((sum / validRatings.length).toFixed(2));
+};
+
+/**
+ * Calculate weighted average rating with 2 decimal places precision
+ */
+export const calculateWeightedAverage = (ratings: { value: number; weight: number }[]): number => {
+  if (ratings.length === 0) return 0;
+  const validRatings = ratings.filter(r => r.value > 0 && r.weight > 0);
+  if (validRatings.length === 0) return 0;
+  
+  const totalWeight = validRatings.reduce((acc, r) => acc + r.weight, 0);
+  if (totalWeight === 0) return 0;
+  
+  const weightedSum = validRatings.reduce((acc, r) => acc + (r.value * r.weight), 0);
+  return parseFloat((weightedSum / totalWeight).toFixed(2));
+};
+
+/**
+ * Format rating for display with consistent 2 decimal places
+ */
+export const formatRatingDisplay = (rating: number | null): string => {
+  if (!rating || rating <= 0) return 'N/A';
+  return rating.toFixed(2);
+};
+
+/**
+ * Format percentage with 2 decimal places
+ */
+export const formatPercentage = (value: number, total: number): string => {
+  if (total === 0) return '0.00%';
+  return `${((value / total) * 100).toFixed(2)}%`;
 };

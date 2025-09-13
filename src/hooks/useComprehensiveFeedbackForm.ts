@@ -41,7 +41,9 @@ export const useComprehensiveFeedbackForm = (selectedClient: Client | null) => {
     safety_rating: 3,
     would_recommend: null,
     heard_about_source: '',
-    repeat_travel: null
+    repeat_travel: null,
+    willing_to_review_google: false,
+    willing_to_review_tripadvisor: false
   });
 
   const [currentPage, setCurrentPage] = useState<1 | 2 | 3>(1);

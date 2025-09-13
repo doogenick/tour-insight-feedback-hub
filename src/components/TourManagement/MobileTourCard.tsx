@@ -6,13 +6,15 @@ import { Button } from '../ui/button';
 import { Calendar, Users, MessageSquare, Eye, Edit, Trash2 } from 'lucide-react';
 import { Tour } from '../../types/Tour';
 import { useSupabaseFeedback } from '../../hooks/useSupabaseFeedback';
+import DeleteTourDialog from './DeleteTourDialog';
+import EditTourDialog from './EditTourDialog';
 
 interface MobileTourCardProps {
   tour: Tour;
   onSelect: (tour: Tour) => void;
   onViewFeedback?: (tour: Tour) => void;
-  onEdit?: (tour: Tour) => void;
-  onDelete?: (tourId: string) => void;
+  onEdit?: (tourId: string) => void;
+  onDelete?: (tourId: string) => Promise<void>;
 }
 
 const MobileTourCard: React.FC<MobileTourCardProps> = ({ tour, onSelect, onViewFeedback, onEdit, onDelete }) => {
@@ -120,7 +122,7 @@ const MobileTourCard: React.FC<MobileTourCardProps> = ({ tour, onSelect, onViewF
               </Badge>
               {avgRating && (
                 <Badge variant="outline" className="text-xs">
-                  {avgRating.toFixed(1)}/7
+                  {avgRating.toFixed(2)}/7.00
                 </Badge>
               )}
             </div>
@@ -128,32 +130,38 @@ const MobileTourCard: React.FC<MobileTourCardProps> = ({ tour, onSelect, onViewF
               <span className="text-xs text-gray-500">{getDuration()}</span>
               <div className="flex items-center gap-1">
                 {onEdit && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-6 px-2 text-xs"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onEdit(tour);
-                    }}
+                  <EditTourDialog
+                    tourId={tour.tour_id}
+                    tourName={tour.tour_name}
+                    onEdit={onEdit}
                   >
-                    <Edit className="h-3 w-3 mr-1" />
-                    Edit
-                  </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-6 px-2 text-xs"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Edit className="h-3 w-3 mr-1" />
+                      Edit
+                    </Button>
+                  </EditTourDialog>
                 )}
                 {onDelete && (
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    className="h-6 px-2 text-xs"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onDelete(tour.tour_id);
-                    }}
+                  <DeleteTourDialog
+                    tourId={tour.tour_id}
+                    tourName={tour.tour_name}
+                    onDelete={onDelete}
                   >
-                    <Trash2 className="h-3 w-3 mr-1" />
-                    Delete
-                  </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      className="h-6 px-2 text-xs"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Trash2 className="h-3 w-3 mr-1" />
+                      Delete
+                    </Button>
+                  </DeleteTourDialog>
                 )}
                 {feedbackCount > 0 && onViewFeedback && (
                   <Button

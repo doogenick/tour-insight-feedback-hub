@@ -293,7 +293,18 @@ const TourManagementDashboard: React.FC = () => {
                   } as Tour} 
                   onSelect={handleTourSelect}
                   onViewFeedback={handleViewFeedback}
-                  onEdit={setEditingTour}
+                  onEdit={(tourId) => {
+                    const tour = tours.find(t => t.id === tourId);
+                    if (tour) {
+                      setEditingTour({
+                        ...tour,
+                        tour_id: tour.id,
+                        guide_name: tour.guide?.full_name || 'None',
+                        driver_name: tour.driver?.full_name || 'None',
+                        truck_name: tour.truck_name || 'Subcontracted'
+                      } as Tour);
+                    }
+                  }}
                   onDelete={deleteTour}
                 />
               ))
