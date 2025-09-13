@@ -7,6 +7,7 @@ import Index from './pages/Index';
 import FeedbackStartPage from './pages/FeedbackStartPage';
 import TourFeedbackSessionPage from './pages/TourFeedbackSessionPage';
 import ComprehensiveFeedbackFormPage from './pages/ComprehensiveFeedbackFormPage';
+import FeedbackManagementPage from './pages/FeedbackManagementPage';
 import AdminDashboard from './pages/AdminDashboard';
 import NotFound from './pages/NotFound';
 import ComprehensiveAnalytics from './pages/ComprehensiveAnalytics';
@@ -89,6 +90,7 @@ function App() {
                 {/* Admin routes */}
                 <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/analytics" element={<ComprehensiveAnalytics />} />
+                <Route path="/feedback-management" element={<FeedbackManagementPage />} />
                 
                 {/* Mobile routes for testing on desktop */}
                 <Route path="/mobile" element={<MobileFeedbackHome />} />

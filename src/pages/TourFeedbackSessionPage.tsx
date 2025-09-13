@@ -34,7 +34,7 @@ const TourFeedbackSessionPage: React.FC = () => {
   };
 
   const handleViewFeedback = (feedbackId: string) => {
-    navigate(`/analytics?view=individual&tourId=${tourId}&feedbackId=${feedbackId}`);
+    navigate(`/feedback-management?view=individual&tourId=${tourId}&feedbackId=${feedbackId}`);
   };
 
   if (!currentTour) {

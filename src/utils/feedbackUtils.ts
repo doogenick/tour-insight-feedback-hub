@@ -126,13 +126,14 @@ export const getRatingDescription = (rating: number): string => {
 
 /**
  * Get rating color class based on 1-7 scale
+ * Updated to use professional blue-gray scale instead of yellow/range
  */
 export const getRatingColor = (rating: number): string => {
-  if (rating <= 1.5) return 'bg-emerald-500';
-  if (rating <= 2.5) return 'bg-green-500';
-  if (rating <= 3.5) return 'bg-lime-500';
-  if (rating <= 4.5) return 'bg-yellow-500';
-  if (rating <= 5.5) return 'bg-orange-500';
-  if (rating <= 6.5) return 'bg-red-500';
-  return 'bg-rose-600';
+  if (rating <= 1.5) return 'bg-emerald-500'; // Perfect - Green
+  if (rating <= 2.5) return 'bg-green-500'; // Excellent - Green
+  if (rating <= 3.5) return 'bg-blue-500'; // Good - Blue
+  if (rating <= 4.5) return 'bg-slate-500'; // Fair - Slate
+  if (rating <= 5.5) return 'bg-orange-500'; // Poor - Orange
+  if (rating <= 6.5) return 'bg-red-500'; // Very Poor - Red
+  return 'bg-rose-600'; // Worst - Rose
 };

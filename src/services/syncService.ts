@@ -1,5 +1,6 @@
 import { offlineStorage, OfflineTour, OfflineFeedback } from './offlineStorage';
 import { supabase } from '../integrations/supabase/client';
+import { feedbackSupabaseService, tourSupabaseService } from './supabaseServices';
 import { useWifiConnection } from '../hooks/useWifiConnection';
 // import { validateComprehensiveFeedback, validateTour } from '../schemas/feedbackSchemas';
 
@@ -139,6 +140,22 @@ class SyncService {
         
         try {
           await this.retryOperation(async () => {
+            // Check for duplicates before syncing
+            if (feedback.tour_id && feedback.client_name && feedback.client_email) {
+              const existingFeedback = await feedbackSupabaseService.checkForDuplicateFeedback(
+                feedback.tour_id,
+                feedback.client_name,
+                feedback.client_email
+              );
+              
+              if (existingFeedback) {
+                console.log(`⚠️ Duplicate feedback detected for ${feedback.client_name} (${feedback.client_email}). Skipping sync.`);
+                // Mark as synced to prevent future attempts
+                await offlineStorage.markFeedbackSynced(feedback.offline_id, 'duplicate');
+                return;
+              }
+            }
+
             // Map feedback data to match Supabase schema exactly
             const feedbackData = {
               tour_id: feedback.tour_id,
@@ -267,6 +284,12 @@ class SyncService {
         } catch (err) {
           console.error('❌ Error syncing feedback:', err);
           console.error('Full error details:', JSON.stringify(err, null, 2));
+          
+          // Check if it's a duplicate constraint error
+          if (err && typeof err === 'object' && 'code' in err && err.code === '23505') {
+            console.log(`⚠️ Duplicate constraint violation for ${feedback.client_name}. Marking as synced.`);
+            await offlineStorage.markFeedbackSynced(feedback.offline_id, 'duplicate');
+          }
         }
       }
 
@@ -317,6 +340,94 @@ class SyncService {
     } catch (error) {
       console.error('Error getting items to sync:', error);
       return 0;
+    }
+  }
+
+  async syncActiveToursOnly(): Promise<{ success: boolean; message: string; synced: number }> {
+    console.log('🔄 Syncing only active tours...');
+    
+    // Get all tours from Supabase that are marked as active
+    const { data: activeTours, error: toursError } = await supabase
+      .from('tours')
+      .select('*')
+      .eq('feedback_gathering_status', 'active');
+    
+    if (toursError) {
+      console.error('❌ Error fetching active tours:', toursError);
+      return { success: false, message: 'Failed to fetch active tours', synced: 0 };
+    }
+    
+    console.log(`📊 Found ${activeTours?.length || 0} active tours on server`);
+    
+    // Get all offline tours
+    const offlineTours = await offlineStorage.getTours();
+    console.log(`📱 Found ${offlineTours.length} offline tours`);
+    
+    // Remove offline tours that are no longer active
+    const activeTourIds = new Set(activeTours?.map(tour => tour.id) || []);
+    const toursToRemove = offlineTours.filter(tour => 
+      tour.tour_id && !activeTourIds.has(tour.tour_id)
+    );
+    
+    console.log(`🗑️ Removing ${toursToRemove.length} inactive tours from mobile`);
+    
+    // Remove inactive tours and their feedback
+    for (const tour of toursToRemove) {
+      await offlineStorage.deleteTour(tour.offline_id);
+      // Also remove associated feedback
+      const tourFeedback = await offlineStorage.getFeedbackByTour(tour.offline_id);
+      for (const feedback of tourFeedback) {
+        await offlineStorage.deleteFeedback(feedback.offline_id);
+      }
+    }
+    
+    // Sync remaining active tours
+    const remainingTours = offlineTours.filter(tour => 
+      !tour.tour_id || activeTourIds.has(tour.tour_id)
+    );
+    
+    console.log(`🔄 Syncing ${remainingTours.length} remaining active tours`);
+    
+    // Perform normal sync for active tours
+    return await this.syncToSupabase();
+  }
+
+  async endTourFeedbackGathering(tourId: string): Promise<{ success: boolean; message: string }> {
+    console.log(`🔄 Ending feedback gathering for tour ${tourId}...`);
+    
+    try {
+      // First, sync all data for this tour
+      await this.syncToSupabase();
+      
+      // Mark tour as completed in Supabase
+      await tourSupabaseService.endFeedbackGathering(tourId);
+      
+      // Remove tour and its feedback from mobile
+      const offlineTours = await offlineStorage.getTours();
+      const tourToRemove = offlineTours.find(tour => tour.tour_id === tourId);
+      
+      if (tourToRemove) {
+        await offlineStorage.deleteTour(tourToRemove.offline_id);
+        
+        // Remove associated feedback
+        const tourFeedback = await offlineStorage.getFeedbackByTour(tourToRemove.offline_id);
+        for (const feedback of tourFeedback) {
+          await offlineStorage.deleteFeedback(feedback.offline_id);
+        }
+        
+        console.log(`🗑️ Removed tour ${tourId} and ${tourFeedback.length} feedback entries from mobile`);
+      }
+      
+      return { 
+        success: true, 
+        message: `Feedback gathering ended for tour ${tourId}. Data synced and mobile cleaned up.` 
+      };
+    } catch (error) {
+      console.error('❌ Error ending feedback gathering:', error);
+      return { 
+        success: false, 
+        message: `Failed to end feedback gathering: ${error}` 
+      };
     }
   }
 }

@@ -59,7 +59,7 @@ const ManualTourEntryDialog: React.FC<ManualTourEntryDialogProps> = ({ onCreate 
     try {
       const today = new Date().toISOString().slice(0, 10);
       
-      // Save to Supabase backend
+      // Save to Supabase backend with active feedback gathering status
       const savedTour = await createTour({
         tour_code: tourCode.trim(),
         tour_name: `Manual: ${tourCode.trim()}`,
@@ -74,7 +74,8 @@ const ManualTourEntryDialog: React.FC<ManualTourEntryDialogProps> = ({ onCreate 
         vehicle_name: vehicleType === 'none' ? null : truckName.trim(),
         crew_count: crewCount,
         vehicle_type: vehicleType,
-        status: 'active'
+        status: 'active',
+        feedback_gathering_status: 'active' // Automatically start feedback gathering
       });
 
       // Create local Tour object for immediate use
@@ -105,7 +106,7 @@ const ManualTourEntryDialog: React.FC<ManualTourEntryDialogProps> = ({ onCreate 
       
       toast({
         title: "Tour Created",
-        description: `Manual tour "${tourCode}" has been saved to the database.`
+        description: `Tour "${tourCode}" created and ready for feedback collection.`
       });
     } catch (error) {
       console.error('Error creating manual tour:', error);
@@ -123,13 +124,13 @@ const ManualTourEntryDialog: React.FC<ManualTourEntryDialogProps> = ({ onCreate 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="secondary">Manual feedback submission</Button>
+        <Button variant="secondary">Create New Tour</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Manual Tour Entry</DialogTitle>
+          <DialogTitle>Create New Tour</DialogTitle>
           <DialogDescription>
-            Use this when your tour isn’t listed. These details are saved locally and used for client feedback.
+            Create a new tour directly from mobile. The tour will automatically be set to active for feedback collection.
           </DialogDescription>
         </DialogHeader>
 

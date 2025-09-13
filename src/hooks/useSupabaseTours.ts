@@ -24,6 +24,23 @@ export function useSupabaseTours() {
     }
   }, [toast]);
 
+  const fetchActiveTours = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const data = await tourSupabaseService.getToursByFeedbackStatus('active');
+      setTours(data || []);
+    } catch (error) {
+      console.error('Error fetching active tours:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to load active tours from database.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [toast]);
+
   const createTour = useCallback(async (tourData: any) => {
     try {
       const newTour = await tourSupabaseService.createTour(tourData);
@@ -87,6 +104,7 @@ export function useSupabaseTours() {
     tours,
     isLoading,
     fetchTours,
+    fetchActiveTours,
     createTour,
     updateTour,
     deleteTour

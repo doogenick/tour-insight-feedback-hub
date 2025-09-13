@@ -124,11 +124,21 @@ const ComprehensiveFeedbackFormPage: React.FC = () => {
       navigate(`/tour/${tourId}/feedback`);
     } catch (error) {
       console.error('Error submitting feedback:', error);
-      toast({
-        variant: "destructive",
-        title: "Submission Error",
-        description: "Failed to submit feedback. Please try again.",
-      });
+      
+      // Handle duplicate feedback error specifically
+      if (error instanceof Error && error.message.includes('already submitted')) {
+        toast({
+          variant: "destructive",
+          title: "Duplicate Feedback",
+          description: error.message,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Submission Error",
+          description: "Failed to submit feedback. Please try again.",
+        });
+      }
     } finally {
       setIsSubmitting(false);
     }

@@ -1,5 +1,23 @@
 import { supabase } from "@/integrations/supabase/client";
 
+interface DuplicateEntry {
+  id: string;
+  submitted_at: string;
+  overall_rating: number;
+}
+
+interface DuplicateGroup {
+  key: string;
+  tour: {
+    tour_code: string;
+    tour_name: string;
+  };
+  client_name: string;
+  client_email: string;
+  count: number;
+  entries: DuplicateEntry[];
+}
+
 interface TourData {
   tour_code: string;
   tour_name: string;
@@ -15,6 +33,7 @@ interface TourData {
   crew_count?: number;
   vehicle_type?: string;
   status?: 'planned' | 'active' | 'completed' | 'cancelled';
+  feedback_gathering_status?: 'inactive' | 'active' | 'completed';
 }
 
 interface CrewMemberData {
@@ -138,9 +157,15 @@ export const tourSupabaseService = {
       throw new Error('A tour with this tour code already exists. Please use a different tour code.');
     }
 
+    // Ensure feedback_gathering_status is set if not provided
+    const tourDataWithStatus = {
+      ...tourData,
+      feedback_gathering_status: tourData.feedback_gathering_status || 'inactive'
+    };
+
     const { data, error } = await supabase
       .from('tours')
-      .insert(tourData)
+      .insert(tourDataWithStatus)
       .select()
       .single();
     
@@ -160,6 +185,45 @@ export const tourSupabaseService = {
       .eq('id', id)
       .select()
       .single();
+    
+    if (error) throw error;
+    return data;
+  },
+
+  async startFeedbackGathering(tourId: string) {
+    const { data, error } = await supabase
+      .from('tours')
+      .update({ feedback_gathering_status: 'active' })
+      .eq('id', tourId)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return data;
+  },
+
+  async endFeedbackGathering(tourId: string) {
+    const { data, error } = await supabase
+      .from('tours')
+      .update({ feedback_gathering_status: 'completed' })
+      .eq('id', tourId)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return data;
+  },
+
+  async getToursByFeedbackStatus(status: 'inactive' | 'active' | 'completed') {
+    const { data, error } = await supabase
+      .from('tours')
+      .select(`
+        *,
+        guide:crew_members!tours_guide_id_fkey(full_name),
+        driver:crew_members!tours_driver_id_fkey(full_name)
+      `)
+      .eq('feedback_gathering_status', status)
+      .order('created_at', { ascending: false });
     
     if (error) throw error;
     return data;
@@ -238,7 +302,34 @@ export const crewSupabaseService = {
 
 // Feedback Services
 export const feedbackSupabaseService = {
+  async checkForDuplicateFeedback(tourId: string, clientName: string, clientEmail: string) {
+    // Check if feedback already exists for this client and tour
+    const { data, error } = await supabase
+      .from('comprehensive_feedback')
+      .select('id, client_name, client_email, submitted_at')
+      .eq('tour_id', tourId)
+      .eq('client_name', clientName)
+      .eq('client_email', clientEmail)
+      .limit(1);
+    
+    if (error) throw error;
+    return data && data.length > 0 ? data[0] : null;
+  },
+
   async submitFeedback(feedbackData: ComprehensiveFeedbackData) {
+    // Check for duplicates before submitting
+    if (feedbackData.tour_id && feedbackData.client_name && feedbackData.client_email) {
+      const existingFeedback = await this.checkForDuplicateFeedback(
+        feedbackData.tour_id,
+        feedbackData.client_name,
+        feedbackData.client_email
+      );
+      
+      if (existingFeedback) {
+        throw new Error(`Feedback already submitted by ${feedbackData.client_name} (${feedbackData.client_email}) for this tour. Previous submission was on ${new Date(existingFeedback.submitted_at).toLocaleDateString()}.`);
+      }
+    }
+
     // Map the data to ensure required fields exist and provide defaults
     const mappedData = {
       ...feedbackData,
@@ -257,7 +348,13 @@ export const feedbackSupabaseService = {
       .select()
       .single();
     
-    if (error) throw error;
+    if (error) {
+      // Check if it's a duplicate constraint violation
+      if (error.code === '23505' && error.constraint === 'unique_client_feedback_per_tour') {
+        throw new Error(`Feedback already submitted by ${feedbackData.client_name} (${feedbackData.client_email}) for this tour.`);
+      }
+      throw error;
+    }
     return data;
   },
 
@@ -311,5 +408,91 @@ export const feedbackSupabaseService = {
       uniqueTours,
       data
     };
+  },
+
+  async findDuplicateFeedback() {
+    // Find all feedback entries grouped by tour_id, client_name, and client_email
+    const { data, error } = await supabase
+      .from('comprehensive_feedback')
+      .select(`
+        id,
+        tour_id,
+        client_name,
+        client_email,
+        submitted_at,
+        overall_rating,
+        tour:tours(tour_code, tour_name)
+      `)
+      .order('tour_id, client_name, client_email, submitted_at');
+    
+    if (error) throw error;
+    
+    // Group by tour_id, client_name, client_email to find duplicates
+    const grouped = data.reduce((acc, item) => {
+      const key = `${item.tour_id}-${item.client_name}-${item.client_email}`;
+      if (!acc[key]) {
+        acc[key] = [];
+      }
+      acc[key].push(item);
+      return acc;
+    }, {} as Record<string, any[]>);
+    
+    // Find groups with more than one entry (duplicates)
+    const duplicates = Object.entries(grouped)
+      .filter(([key, entries]) => entries.length > 1)
+      .map(([key, entries]) => ({
+        key,
+        tour: entries[0].tour,
+        client_name: entries[0].client_name,
+        client_email: entries[0].client_email,
+        count: entries.length,
+        entries: entries.map(entry => ({
+          id: entry.id,
+          submitted_at: entry.submitted_at,
+          overall_rating: entry.overall_rating
+        }))
+      }));
+    
+    return {
+      total_feedback: data.length,
+      unique_clients: Object.keys(grouped).length,
+      duplicate_groups: duplicates.length,
+      duplicates: duplicates
+    };
+  },
+
+  async deleteFeedback(feedbackId: string) {
+    const { error } = await supabase
+      .from('comprehensive_feedback')
+      .delete()
+      .eq('id', feedbackId);
+    
+    if (error) throw error;
+    return { success: true };
+  },
+
+  async deleteDuplicateFeedback(duplicateGroup: DuplicateGroup, keepLatest: boolean = true) {
+    // Sort entries by submission date (newest first)
+    const sortedEntries = [...duplicateGroup.entries].sort((a, b) => 
+      new Date(b.submitted_at).getTime() - new Date(a.submitted_at).getTime()
+    );
+    
+    // Keep the first entry (newest if keepLatest=true, oldest if false)
+    const keepEntry = keepLatest ? sortedEntries[0] : sortedEntries[sortedEntries.length - 1];
+    const deleteEntries = keepLatest ? sortedEntries.slice(1) : sortedEntries.slice(0, -1);
+    
+    // Delete the duplicate entries
+    const deletePromises = deleteEntries.map(entry => this.deleteFeedback(entry.id));
+    
+    try {
+      await Promise.all(deletePromises);
+      return {
+        success: true,
+        kept: keepEntry,
+        deleted: deleteEntries.length
+      };
+    } catch (error) {
+      throw new Error(`Failed to delete duplicates: ${error}`);
+    }
   }
 };

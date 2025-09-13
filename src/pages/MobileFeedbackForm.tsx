@@ -139,6 +139,37 @@ const MobileFeedbackForm: React.FC = () => {
 
     setSubmitting(true);
     try {
+      // Check for duplicate feedback before saving
+      if (formData.client_name && formData.client_email) {
+        // Import the service to check for duplicates
+        const { feedbackSupabaseService } = await import('../services/supabaseServices');
+        
+        try {
+          const existingFeedback = await feedbackSupabaseService.checkForDuplicateFeedback(
+            tour.tour_id || '', // Use tour_id if available
+            formData.client_name,
+            formData.client_email
+          );
+          
+          if (existingFeedback) {
+            toast({
+              variant: "destructive",
+              title: "Duplicate Feedback",
+              description: `Feedback already submitted by ${formData.client_name} (${formData.client_email}) for this tour. Previous submission was on ${new Date(existingFeedback.submitted_at).toLocaleDateString()}.`
+            });
+            return;
+          }
+        } catch (duplicateCheckError) {
+          // If duplicate check fails (e.g., no internet), we'll still save locally
+          // but show a warning that it will be checked during sync
+          console.warn('Could not check for duplicates:', duplicateCheckError);
+          toast({
+            title: "Offline Mode",
+            description: "Saving feedback locally. Duplicate check will be performed when syncing online."
+          });
+        }
+      }
+
       // Create offline feedback entry
       const offlineFeedback: OfflineFeedback = {
         ...formData,

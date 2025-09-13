@@ -98,6 +98,10 @@ export const comprehensiveFeedbackService = {
       // Use proper type assertion through unknown
       return result as unknown as ComprehensiveFeedback;
     } catch (error) {
+      // Re-throw the error with more context if it's a duplicate error
+      if (error instanceof Error && error.message.includes('already submitted')) {
+        throw error; // Re-throw duplicate errors as-is since they have user-friendly messages
+      }
       throw new Error(`Failed to submit feedback: ${error}`);
     }
   },

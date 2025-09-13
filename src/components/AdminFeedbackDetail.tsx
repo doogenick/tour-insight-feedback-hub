@@ -13,12 +13,12 @@ const AdminFeedbackDetail: React.FC<FeedbackDetailProps> = ({ feedback, onClose 
   const renderRating = (rating: number, label: string) => {
     if (!rating || rating <= 0) return null;
     
-    // Color coding: 1=best (green), 7=worst (red)
+    // Color coding: 1=best (green), 7=worst (red) - Updated to remove yellow/range
     const getRatingColor = (val: number): string => {
       if (val <= 1.5) return 'bg-green-100 text-green-800 border-green-200'; // Perfect
       if (val <= 2.5) return 'bg-green-50 text-green-700 border-green-300'; // Excellent
-      if (val <= 3.5) return 'bg-yellow-50 text-yellow-700 border-yellow-300'; // Good
-      if (val <= 4.5) return 'bg-yellow-100 text-yellow-800 border-yellow-400'; // Fair
+      if (val <= 3.5) return 'bg-blue-50 text-blue-700 border-blue-300'; // Good
+      if (val <= 4.5) return 'bg-slate-50 text-slate-700 border-slate-300'; // Fair
       if (val <= 5.5) return 'bg-orange-50 text-orange-700 border-orange-300'; // Poor
       if (val <= 6.5) return 'bg-red-50 text-red-700 border-red-300'; // Very Poor
       return 'bg-red-100 text-red-800 border-red-400'; // Worst
