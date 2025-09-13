@@ -1,73 +1,203 @@
-# Welcome to your Lovable project
+# Tour Insight Feedback Hub
 
-## Project info
+A comprehensive feedback management system for tour operators, featuring both web and mobile applications for collecting, analyzing, and managing customer feedback.
 
-**URL**: https://lovable.dev/projects/6ff54e34-dd61-4d8e-a1ed-5a707d2c411a
+## 🏗️ Project Structure
 
-## How can I edit this code?
-
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/6ff54e34-dd61-4d8e-a1ed-5a707d2c411a) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+tour-insight-feedback-hub/
+├── src/
+│   ├── components/           # React components
+│   │   ├── ui/              # Shadcn UI components
+│   │   ├── AnalyticsDashboard/     # Analytics components
+│   │   ├── ComprehensiveFeedbackForm/  # Feedback form components
+│   │   ├── FeedbackViewer/          # Feedback display components
+│   │   ├── TourManagement/          # Tour management components
+│   │   └── MobileFeedbackFlow/      # Mobile-specific components
+│   ├── pages/               # Page components
+│   ├── hooks/               # Custom React hooks
+│   ├── services/            # API and business logic
+│   ├── types/               # TypeScript type definitions
+│   ├── utils/               # Utility functions
+│   └── integrations/        # External service integrations
+├── android/                 # Android mobile app
+├── supabase/                # Database migrations and config
+├── dist/                    # Built web application
+└── scripts/                 # Build and utility scripts
 ```
 
-**Edit a file directly in GitHub**
+## 🛠️ Technology Stack
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Frontend
+- **React 18** - UI framework
+- **TypeScript** - Type safety
+- **Vite** - Build tool and dev server
+- **Tailwind CSS** - Styling
+- **Shadcn UI** - Component library
+- **React Router** - Navigation
+- **Recharts** - Data visualization
 
-**Use GitHub Codespaces**
+### Backend & Database
+- **Supabase** - Backend-as-a-Service
+- **PostgreSQL** - Database
+- **Row Level Security (RLS)** - Data access control
+- **Real-time subscriptions** - Live data updates
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Mobile
+- **Capacitor** - Cross-platform mobile framework
+- **Android** - Native mobile app
+- **LocalForage** - Offline storage
 
-## What technologies are used for this project?
+### Development Tools
+- **ESLint** - Code linting
+- **Prettier** - Code formatting
+- **Vitest** - Testing framework
 
-This project is built with:
+## ✨ Implemented Features
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### 🎯 Core Functionality
+- **Comprehensive Feedback Collection** - Multi-page feedback forms with 2 decimal precision ratings
+- **Tour Management** - Create, edit, delete, and manage tours
+- **Real-time Analytics** - Live feedback analysis and insights
+- **Duplicate Prevention** - Prevents duplicate feedback submissions
+- **Offline Support** - Mobile app works offline with sync capabilities
 
-## How can I deploy this project?
+### 📱 Mobile App Features
+- **Native Android App** - Version 1.0.6 (versionCode 7)
+- **Offline Data Collection** - Works without internet connection
+- **Auto-sync** - Syncs data when connection is restored
+- **Manual Tour Creation** - Create tours directly from mobile
+- **Review Reminders** - Email integration for Google/TripAdvisor reviews
 
-Simply open [Lovable](https://lovable.dev/projects/6ff54e34-dd61-4d8e-a1ed-5a707d2c411a) and click on Share -> Publish.
+### 🌐 Web App Features
+- **Admin Dashboard** - Complete tour and feedback management
+- **Analytics Dashboard** - Comprehensive data visualization
+- **Feedback Management** - View, filter, and analyze feedback
+- **Tour Management** - Full CRUD operations for tours
+- **Data Export** - Export feedback data for analysis
 
-## Can I connect a custom domain to my Lovable project?
+### 🔒 Security & Data Management
+- **Version Tracking** - App version control and access management
+- **Row Level Security** - Database-level access control
+- **Client Identification** - Distinguishes between web and mobile clients
+- **Data Preservation** - All historical data maintained
+- **Legacy Data Handling** - Graceful handling of old app versions
 
-Yes, you can!
+### 📊 Analytics & Reporting
+- **Rating Analysis** - 2 decimal precision rating calculations
+- **Satisfaction Metrics** - Customer satisfaction tracking
+- **Crew Performance** - Guide and driver performance analysis
+- **Trend Analysis** - Performance trends over time
+- **Custom Filtering** - Filter by tour, date, nationality, etc.
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## 🚀 Getting Started
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+### Prerequisites
+- Node.js 18+ and npm
+- Android Studio (for mobile development)
+- Supabase account
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd tour-insight-feedback-hub
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Set up environment**
+   ```bash
+   # Copy environment template
+   cp .env.example .env.local
+   # Add your Supabase credentials
+   ```
+
+4. **Start development server**
+   ```bash
+   npm run dev
+   ```
+
+5. **Build for production**
+   ```bash
+   npm run build
+   ```
+
+### Mobile App Development
+
+1. **Sync with Capacitor**
+   ```bash
+   npx cap sync
+   ```
+
+2. **Open in Android Studio**
+   ```bash
+   npx cap open android
+   ```
+
+3. **Build APK**
+   ```bash
+   cd android
+   ./gradlew assembleDebug
+   ```
+
+## 📋 Future Enhancements
+
+### 🔮 Planned Features
+- **iOS Mobile App** - Native iOS application
+- **Advanced Analytics** - Machine learning insights
+- **Email Integration** - Automated email notifications
+- **Multi-language Support** - Internationalization
+- **API Documentation** - Comprehensive API docs
+- **User Authentication** - Role-based access control
+- **Data Backup** - Automated backup solutions
+- **Performance Monitoring** - Application performance tracking
+
+### 🎯 Potential Improvements
+- **Real-time Notifications** - Push notifications for new feedback
+- **Advanced Reporting** - PDF report generation
+- **Integration APIs** - Third-party service integrations
+- **Mobile Offline Maps** - Offline map functionality
+- **Voice Feedback** - Voice-to-text feedback collection
+- **Photo Upload** - Image attachment support
+- **QR Code Integration** - QR code-based tour identification
+
+## 🗄️ Database Schema
+
+### Key Tables
+- **tours** - Tour information and management
+- **comprehensive_feedback** - Customer feedback data
+- **crew_members** - Guide and driver information
+- **tour_crew_assignments** - Tour-crew relationships
+
+### Security Features
+- **Row Level Security (RLS)** - Table-level access control
+- **Version Tracking** - App version and client identification
+- **Data Validation** - Constraint-based data integrity
+- **Audit Logging** - Change tracking and history
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+## 📄 License
+
+This project is proprietary software. All rights reserved.
+
+## 🆘 Support
+
+For technical support or questions, please contact the development team.
+
+---
+
+**Version**: 1.0.6  
+**Last Updated**: September 2025  
+**Status**: Production Ready
