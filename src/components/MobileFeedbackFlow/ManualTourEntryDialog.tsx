@@ -91,7 +91,11 @@ const ManualTourEntryDialog: React.FC<ManualTourEntryDialogProps> = ({ onCreate 
         driver_name: crewCount > 1 ? driverName.trim() : 'No Driver',
         truck_name: savedTour.truck_name || 'No Vehicle',
         tour_leader: savedTour.tour_leader || 'External',
-        status: savedTour.status as 'planned' | 'active' | 'completed' | 'cancelled'
+        third_crew_name: crewCount > 2 ? 'Third Crew Member' : undefined,
+        vehicle_type: vehicleType as 'truck' | 'rental' | 'subcontracted' | 'none',
+        crew_count: crewCount,
+        status: savedTour.status as 'planned' | 'active' | 'completed' | 'cancelled',
+        feedback_gathering_status: 'active'
       };
 
       onCreate(manualTour);

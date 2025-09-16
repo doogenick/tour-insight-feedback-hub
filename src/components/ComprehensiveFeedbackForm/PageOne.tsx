@@ -32,6 +32,7 @@ const PageOne: React.FC<PageOneProps> = ({
   // Show crew detailed ratings if there are crew members (regardless of vehicle type)
   const showCrewDetailedRatings = showCrewRatings;
 
+
   return (
     <div className="space-y-8">
       <TourDetailsSection 

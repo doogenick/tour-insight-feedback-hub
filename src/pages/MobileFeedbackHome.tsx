@@ -53,6 +53,7 @@ const MobileFeedbackHome: React.FC = () => {
       created_offline: true
     };
     
+    
     await offlineStorage.saveTour(offlineTour);
     await loadData();
     

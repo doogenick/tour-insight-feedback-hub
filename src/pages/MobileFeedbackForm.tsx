@@ -47,6 +47,7 @@ const MobileFeedbackForm: React.FC = () => {
     status: tour.status
   } : null;
 
+
   // Create a mock client (mobile doesn't pre-select clients)
   const mockClient: Client = {
     client_id: 'mobile-client',

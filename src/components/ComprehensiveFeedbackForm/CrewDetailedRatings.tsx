@@ -45,22 +45,24 @@ const CrewDetailedRatings: React.FC<CrewDetailedRatingsProps> = ({
     
     const handleValueChange = (value: string) => {
       console.log(`Changing ${fieldKey} from ${currentValue} to ${value}`);
+      console.log('Form data before update:', formData);
       updateFormData(fieldKey, parseInt(value));
+      console.log('Form data after update:', formData);
     };
     
     return (
-      <div className="flex justify-center gap-3 my-2">
+      <div className="flex justify-center gap-2 my-2">
         <RadioGroup 
           value={currentValue.toString()} 
           onValueChange={handleValueChange}
-          className="flex gap-3"
+          className="flex gap-2"
         >
           {[1, 2, 3, 4, 5, 6, 7].map((num) => (
             <div key={num} className="flex flex-col items-center">
               <RadioGroupItem 
                 value={num.toString()} 
                 id={`${crewKey}_${categoryKey}_${num}`}
-                className="w-6 h-6 border-2 cursor-pointer"
+                className="w-5 h-5 border-2 cursor-pointer"
               />
               <Label 
                 htmlFor={`${crewKey}_${categoryKey}_${num}`}

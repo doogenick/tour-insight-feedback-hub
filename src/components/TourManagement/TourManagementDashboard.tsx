@@ -46,7 +46,13 @@ const TourManagementDashboard: React.FC = () => {
         tour_leader: newTour.tour_leader,
         tour_type: newTour.tour_type,
         vehicle_name: newTour.vehicle_name,
-        status: newTour.status
+        status: newTour.status,
+        // Add crew information as text fields
+        guide_name: newTour.guide_name,
+        driver_name: newTour.driver_name,
+        third_crew_name: newTour.third_crew_name,
+        vehicle_type: newTour.vehicle_type,
+        crew_count: newTour.crew_count
       });
       setShowTourForm(false);
     } catch (error) {

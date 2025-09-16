@@ -34,6 +34,10 @@ interface TourData {
   vehicle_type?: string;
   status?: 'planned' | 'active' | 'completed' | 'cancelled';
   feedback_gathering_status?: 'inactive' | 'active' | 'completed';
+  // Add crew information as text fields
+  guide_name?: string;
+  driver_name?: string;
+  third_crew_name?: string;
 }
 
 interface CrewMemberData {
