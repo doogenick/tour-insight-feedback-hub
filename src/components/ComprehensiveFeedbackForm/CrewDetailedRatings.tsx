@@ -40,43 +40,35 @@ const CrewDetailedRatings: React.FC<CrewDetailedRatingsProps> = ({
     const fieldKey = `${crewKey}_${categoryKey}` as keyof ComprehensiveFeedback;
     const currentValue = formData[fieldKey] as number || 3;
     
+    const handleValueChange = (value: string) => {
+      console.log(`Changing ${fieldKey} from ${currentValue} to ${value}`);
+      updateFormData(fieldKey, parseInt(value));
+    };
+    
     return (
-      <RadioGroup 
-        value={currentValue.toString()} 
-        onValueChange={(value) => updateFormData(fieldKey, parseInt(value))}
-        className={`
-          flex justify-center gap-3 my-2
-          ${isMobile ? 'gap-2' : ''}
-          ${isTablet ? 'gap-4' : ''}
-          ${isDesktop ? 'gap-3' : ''}
-        `}
-      >
-        {[1, 2, 3, 4, 5, 6, 7].map((num) => (
-          <div key={num} className="flex flex-col items-center">
-            <RadioGroupItem 
-              value={num.toString()} 
-              id={`${crewKey}_${categoryKey}_${num}`}
-              className={`
-                border-2 touch-manipulation
-                ${isMobile ? 'w-4 h-4' : ''}
-                ${isTablet ? 'w-6 h-6' : ''}
-                ${isDesktop ? 'w-5 h-5' : ''}
-              `}
-            />
-            <Label 
-              htmlFor={`${crewKey}_${categoryKey}_${num}`}
-              className={`
-                mt-1 cursor-pointer select-none
-                ${isMobile ? 'text-xs' : ''}
-                ${isTablet ? 'text-base' : ''}
-                ${isDesktop ? 'text-sm' : ''}
-              `}
-            >
-              {num}
-            </Label>
-          </div>
-        ))}
-      </RadioGroup>
+      <div className="flex justify-center gap-3 my-2">
+        <RadioGroup 
+          value={currentValue.toString()} 
+          onValueChange={handleValueChange}
+          className="flex gap-3"
+        >
+          {[1, 2, 3, 4, 5, 6, 7].map((num) => (
+            <div key={num} className="flex flex-col items-center">
+              <RadioGroupItem 
+                value={num.toString()} 
+                id={`${crewKey}_${categoryKey}_${num}`}
+                className="w-6 h-6 border-2 cursor-pointer"
+              />
+              <Label 
+                htmlFor={`${crewKey}_${categoryKey}_${num}`}
+                className="mt-1 cursor-pointer select-none text-sm"
+              >
+                {num}
+              </Label>
+            </div>
+          ))}
+        </RadioGroup>
+      </div>
     );
   };
 
