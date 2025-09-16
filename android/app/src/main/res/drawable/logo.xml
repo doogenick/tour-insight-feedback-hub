@@ -5,12 +5,11 @@
     android:viewportWidth="200"
     android:viewportHeight="200">
 
-    <!-- Background circle with textured edge -->
+    <!-- Background circle -->
     <path
         android:fillColor="#FFFFFF"
         android:strokeColor="#2D5A4A"
         android:strokeWidth="3"
-        android:strokeDashArray="3,2"
         android:pathData="M 100,5 A 95,95 0 1,1 100,195 A 95,95 0 1,1 100,5 Z" />
 
     <!-- Stylized head with bandana -->
