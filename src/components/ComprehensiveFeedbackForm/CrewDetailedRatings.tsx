@@ -44,10 +44,7 @@ const CrewDetailedRatings: React.FC<CrewDetailedRatingsProps> = ({
     const currentValue = formData[fieldKey] as number || 3;
     
     const handleValueChange = (value: string) => {
-      console.log(`Changing ${fieldKey} from ${currentValue} to ${value}`);
-      console.log('Form data before update:', formData);
       updateFormData(fieldKey, parseInt(value));
-      console.log('Form data after update:', formData);
     };
     
     return (
@@ -55,7 +52,7 @@ const CrewDetailedRatings: React.FC<CrewDetailedRatingsProps> = ({
         <RadioGroup 
           value={currentValue.toString()} 
           onValueChange={handleValueChange}
-          className="flex gap-2"
+          className="contents"
         >
           {[1, 2, 3, 4, 5, 6, 7].map((num) => (
             <div key={num} className="flex flex-col items-center">
