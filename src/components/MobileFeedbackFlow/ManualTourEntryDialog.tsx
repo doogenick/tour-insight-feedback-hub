@@ -144,15 +144,28 @@ const ManualTourEntryDialog: React.FC<ManualTourEntryDialogProps> = ({ onCreate 
       <DialogTrigger asChild>
         <Button variant="secondary">Create New Tour</Button>
       </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
+      <DialogContent className="max-h-[90vh] flex flex-col">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle>Create New Tour</DialogTitle>
           <DialogDescription>
             Create a new tour directly from mobile. The tour will automatically be set to active for feedback collection.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid gap-4 py-4">
+        {/* Sticky Action Button at Top */}
+        <div className="flex-shrink-0 py-4 border-b">
+          <Button 
+            onClick={handleCreate} 
+            disabled={!tourCode.trim() || isSubmitting}
+            className="w-full"
+            size="lg"
+          >
+            {isSubmitting ? 'Creating...' : 'Create and Continue'}
+          </Button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto">
+          <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="tourCode" className="text-right">Tour code *</Label>
             <Input 
@@ -232,19 +245,20 @@ const ManualTourEntryDialog: React.FC<ManualTourEntryDialogProps> = ({ onCreate 
               />
             </div>
           )}
+          </div>
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)} disabled={isSubmitting}>
+        {/* Cancel Button at Bottom */}
+        <div className="flex-shrink-0 py-4 border-t">
+          <Button 
+            variant="outline" 
+            onClick={() => setOpen(false)} 
+            disabled={isSubmitting}
+            className="w-full"
+          >
             Cancel
           </Button>
-          <Button 
-            onClick={handleCreate} 
-            disabled={!tourCode.trim() || isSubmitting}
-          >
-            {isSubmitting ? 'Creating...' : 'Create and continue'}
-          </Button>
-        </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );

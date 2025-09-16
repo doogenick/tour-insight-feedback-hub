@@ -60,6 +60,7 @@ const PageOne: React.FC<PageOneProps> = ({
           updateFormData={updateFormData}
           guideName={selectedTour?.guide_name || ''}
           driverName={selectedTour?.driver_name || ''}
+          thirdCrewName={selectedTour?.third_crew_name}
         />
       )}
       

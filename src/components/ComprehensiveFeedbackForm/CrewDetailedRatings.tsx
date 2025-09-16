@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ComprehensiveFeedback } from '../../services/api/types';
+import { ComprehensiveFeedback } from '../../types/ComprehensiveFeedback';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Textarea } from '../ui/textarea';
 import { Label } from '../ui/label';
@@ -11,13 +11,15 @@ interface CrewDetailedRatingsProps {
   updateFormData: (field: keyof ComprehensiveFeedback, value: any) => void;
   guideName: string;
   driverName: string;
+  thirdCrewName?: string;
 }
 
 const CrewDetailedRatings: React.FC<CrewDetailedRatingsProps> = ({
   formData,
   updateFormData,
   guideName,
-  driverName
+  driverName,
+  thirdCrewName
 }) => {
   const isMobile = useIsMobile();
   const isTablet = useIsTablet();
@@ -33,7 +35,8 @@ const CrewDetailedRatings: React.FC<CrewDetailedRatingsProps> = ({
 
   const crewMembers = [
     { key: 'guide', name: guideName || 'Guide' },
-    { key: 'driver', name: driverName || 'Driver' }
+    { key: 'driver', name: driverName || 'Driver' },
+    ...(thirdCrewName ? [{ key: 'third_crew', name: thirdCrewName }] : [])
   ];
 
   const RatingScale = ({ crewKey, categoryKey }: { crewKey: string; categoryKey: string }) => {

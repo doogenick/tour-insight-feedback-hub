@@ -11,6 +11,7 @@ import FeedbackManagementPage from './pages/FeedbackManagementPage';
 import AdminDashboard from './pages/AdminDashboard';
 import NotFound from './pages/NotFound';
 import ComprehensiveAnalytics from './pages/ComprehensiveAnalytics';
+import ExpenseManagementPage from './pages/ExpenseManagementPage';
 
 // Mobile-specific pages
 import MobileFeedbackHome from './pages/MobileFeedbackHome';
@@ -91,6 +92,10 @@ function App() {
                 <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/analytics" element={<ComprehensiveAnalytics />} />
                 <Route path="/feedback-management" element={<FeedbackManagementPage />} />
+                
+                {/* Expense Management routes */}
+                <Route path="/expenses" element={<ExpenseManagementPage />} />
+                <Route path="/expenses/tour/:tourId" element={<ExpenseManagementPage />} />
                 
                 {/* Mobile routes for testing on desktop */}
                 <Route path="/mobile" element={<MobileFeedbackHome />} />

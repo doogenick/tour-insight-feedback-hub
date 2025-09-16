@@ -14,7 +14,7 @@ const Index: React.FC = () => {
         <p className="text-lg text-muted-foreground">Manage your tour feedback and analytics</p>
       </div>
       
-      <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
         <Card className="hover:shadow-lg transition-shadow">
           <CardHeader>
             <CardTitle>Admin Dashboard</CardTitle>
@@ -53,6 +53,20 @@ const Index: React.FC = () => {
             </p>
             <Button onClick={() => navigate('/analytics')} variant="outline" className="w-full">
               View Analytics
+            </Button>
+          </CardContent>
+        </Card>
+        
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <CardTitle>Expense Management</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground mb-4">
+              Manage tour expenses, budgets, and reconciliations
+            </p>
+            <Button onClick={() => navigate('/expenses')} variant="outline" className="w-full">
+              Manage Expenses
             </Button>
           </CardContent>
         </Card>

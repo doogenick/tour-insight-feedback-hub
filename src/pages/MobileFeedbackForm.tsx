@@ -41,6 +41,9 @@ const MobileFeedbackForm: React.FC = () => {
     driver_name: tour.driver_name,
     truck_name: tour.truck_name,
     tour_leader: tour.tour_leader,
+    third_crew_name: tour.third_crew_name,
+    vehicle_type: tour.vehicle_type,
+    crew_count: tour.crew_count,
     status: tour.status
   } : null;
 
