@@ -48,8 +48,8 @@ const MobileDemoBanner = () => {
           </svg>
         </div>
         <div>
-          <p className="font-bold text-sm">{isTablet ? 'Tablet' : 'Mobile'} Demo Mode</p>
-          <p className="text-xs">Full admin access enabled for {isTablet ? 'tablet' : 'mobile'} use</p>
+          <p className="font-bold text-sm">Tour Feedback System</p>
+          <p className="text-xs">Feedback collection and management</p>
         </div>
       </div>
     </div>

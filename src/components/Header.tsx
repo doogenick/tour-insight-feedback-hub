@@ -61,7 +61,7 @@ const Header: React.FC = () => {
               </div>
             ) : (
               <div className="text-sm text-primary-foreground/80">
-                {isDemoMode ? 'Demo Mode Active' : 'Please log in for full access'}
+                Please log in for full access
               </div>
             )}
           </nav>

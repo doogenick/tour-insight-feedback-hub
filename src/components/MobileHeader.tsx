@@ -19,7 +19,6 @@ const MobileHeader: React.FC = () => {
             </h2>
             <p className="text-sm opacity-90">
               {currentUser?.name || 'Admin User'}
-              {isDemoMode && ' • Demo Mode'}
             </p>
           </div>
         </div>

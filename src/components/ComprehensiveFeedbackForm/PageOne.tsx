@@ -28,6 +28,9 @@ const PageOne: React.FC<PageOneProps> = ({
   const showVehicleRatings = selectedTour?.vehicle_type && selectedTour.vehicle_type !== 'none';
   const showNomadCrewRatings = selectedTour?.vehicle_type && 
     ['truck', 'rental'].includes(selectedTour.vehicle_type);
+  
+  // Show crew detailed ratings if there are crew members (regardless of vehicle type)
+  const showCrewDetailedRatings = showCrewRatings;
 
   return (
     <div className="space-y-8">
@@ -51,7 +54,7 @@ const PageOne: React.FC<PageOneProps> = ({
         showNomadCrewRatings={showNomadCrewRatings}
       />
       
-      {showCrewRatings && showNomadCrewRatings && (
+      {showCrewDetailedRatings && (
         <CrewDetailedRatings
           formData={formData}
           updateFormData={updateFormData}

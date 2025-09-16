@@ -47,13 +47,13 @@ const TourDetailsSection: React.FC<TourDetailsSectionProps> = ({
       </div>
       
       <div className="text-center border-r border-black px-2 min-w-0">
-        <div className="font-bold truncate">{selectedTour.tour_leader || selectedTour.tour_code}</div>
-        <div className="text-xs text-gray-600">CODE</div>
+        <div className="font-bold truncate">{selectedTour.tour_leader || 'Tour Leader'}</div>
+        <div className="text-xs text-gray-600">TOUR LEADER</div>
       </div>
       
       <div className="text-center pl-2 min-w-0">
-        <div className="font-bold truncate">{selectedTour.tour_leader || selectedTour.guide_name || 'Tour Leader'}</div>
-        <div className="text-xs text-gray-600">TOUR LEADER</div>
+        <div className="font-bold truncate">{selectedClient.full_name || 'Client'}</div>
+        <div className="text-xs text-gray-600">CLIENT</div>
       </div>
     </div>
   );
