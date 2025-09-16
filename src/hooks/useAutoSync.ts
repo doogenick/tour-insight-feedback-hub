@@ -10,17 +10,32 @@ export function useAutoSync() {
   const [itemsToSync, setItemsToSync] = useState(0);
   const [lastSyncAttempt, setLastSyncAttempt] = useState<Date | null>(null);
   const syncTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const refreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const retryCountRef = useRef(0);
 
   // Check for items to sync
   const checkItemsToSync = async () => {
     try {
       const count = await syncService.getItemsToSync();
+      console.log(`📊 Current items to sync: ${count}`);
       setItemsToSync(count);
       return count;
     } catch (error) {
       console.error('Error checking items to sync:', error);
       return 0;
+    }
+  };
+
+  // Force refresh tour data from server
+  const refreshTourData = async () => {
+    try {
+      console.log('🔄 Refreshing tour data from server...');
+      // Check for tour status changes and remove completed tours
+      await syncService.syncActiveToursOnly();
+      // Recheck sync status after tour refresh
+      await checkItemsToSync();
+    } catch (error) {
+      console.error('Error refreshing tour data:', error);
     }
   };
 
@@ -44,7 +59,10 @@ export function useAutoSync() {
           duration: 3000
         });
         retryCountRef.current = 0;
+        
+        // Force refresh after successful sync
         await checkItemsToSync();
+        await refreshTourData();
       } else {
         throw new Error(result.message);
       }
@@ -105,7 +123,10 @@ export function useAutoSync() {
           title: "Sync Successful",
           description: result.message
         });
+        
+        // Force refresh after successful sync
         await checkItemsToSync();
+        await refreshTourData();
       } else {
         toast({
           variant: "destructive",
@@ -158,12 +179,49 @@ export function useAutoSync() {
     checkItemsToSync();
   }, []);
 
+  // Periodic refresh when there are items to sync
+  useEffect(() => {
+    if (itemsToSync > 0 && isOnline) {
+      console.log('🔄 Starting periodic refresh (30s intervals)');
+      refreshIntervalRef.current = setInterval(async () => {
+        console.log('🔄 Periodic refresh: checking for tour updates...');
+        await refreshTourData();
+      }, 30000); // Check every 30 seconds
+
+      return () => {
+        if (refreshIntervalRef.current) {
+          console.log('🛑 Stopping periodic refresh');
+          clearInterval(refreshIntervalRef.current);
+        }
+      };
+    } else {
+      // Clear interval when no items to sync or offline
+      if (refreshIntervalRef.current) {
+        clearInterval(refreshIntervalRef.current);
+        refreshIntervalRef.current = null;
+      }
+    }
+  }, [itemsToSync, isOnline]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (syncTimeoutRef.current) {
+        clearTimeout(syncTimeoutRef.current);
+      }
+      if (refreshIntervalRef.current) {
+        clearInterval(refreshIntervalRef.current);
+      }
+    };
+  }, []);
+
   return {
     isSyncing,
     itemsToSync,
     lastSyncAttempt,
     manualSync,
     checkItemsToSync,
+    refreshTourData,
     isOnline
   };
 }

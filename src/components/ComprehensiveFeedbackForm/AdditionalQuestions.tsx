@@ -68,18 +68,29 @@ const AdditionalQuestions: React.FC<AdditionalQuestionsProps> = ({
           Rate your Tour Leader's knowledge (1=Excellent, 7=Poor)
         </div>
         <div className="p-4 space-y-4">
-          <RadioGroup 
-            value={(formData.tour_leader_knowledge || 3).toString()} 
-            onValueChange={(value) => updateFormData('tour_leader_knowledge', parseInt(value))}
-            className="flex gap-4"
-          >
-            {[1, 2, 3, 4, 5, 6, 7].map((num) => (
-              <div key={num} className="flex items-center space-x-2">
-                <RadioGroupItem value={num.toString()} id={`leader_${num}`} />
-                <Label htmlFor={`leader_${num}`} className="cursor-pointer">{num}</Label>
-              </div>
-            ))}
-          </RadioGroup>
+          <div className="flex justify-center">
+            <RadioGroup 
+              value={(formData.tour_leader_knowledge || 3).toString()} 
+              onValueChange={(value) => updateFormData('tour_leader_knowledge', parseInt(value))}
+              className="flex gap-2"
+            >
+              {[1, 2, 3, 4, 5, 6, 7].map((num) => (
+                <div key={num} className="flex flex-col items-center">
+                  <RadioGroupItem 
+                    value={num.toString()} 
+                    id={`leader_${num}`}
+                    className="w-5 h-5 border-2 cursor-pointer"
+                  />
+                  <Label 
+                    htmlFor={`leader_${num}`} 
+                    className="cursor-pointer select-none text-sm mt-1"
+                  >
+                    {num}
+                  </Label>
+                </div>
+              ))}
+            </RadioGroup>
+          </div>
           
           <div className="space-y-2">
             <Label className="font-bold">Comment:</Label>
@@ -100,18 +111,29 @@ const AdditionalQuestions: React.FC<AdditionalQuestionsProps> = ({
           Rate the safety measures on tour (1=Excellent, 7=Poor)
         </div>
         <div className="p-4 space-y-4">
-          <RadioGroup 
-            value={(formData.safety_rating || 3).toString()} 
-            onValueChange={(value) => updateFormData('safety_rating', parseInt(value))}
-            className="flex gap-4"
-          >
-            {[1, 2, 3, 4, 5, 6, 7].map((num) => (
-              <div key={num} className="flex items-center space-x-2">
-                <RadioGroupItem value={num.toString()} id={`safety_${num}`} />
-                <Label htmlFor={`safety_${num}`} className="cursor-pointer">{num}</Label>
-              </div>
-            ))}
-          </RadioGroup>
+          <div className="flex justify-center">
+            <RadioGroup 
+              value={(formData.safety_rating || 3).toString()} 
+              onValueChange={(value) => updateFormData('safety_rating', parseInt(value))}
+              className="flex gap-2"
+            >
+              {[1, 2, 3, 4, 5, 6, 7].map((num) => (
+                <div key={num} className="flex flex-col items-center">
+                  <RadioGroupItem 
+                    value={num.toString()} 
+                    id={`safety_${num}`}
+                    className="w-5 h-5 border-2 cursor-pointer"
+                  />
+                  <Label 
+                    htmlFor={`safety_${num}`} 
+                    className="cursor-pointer select-none text-sm mt-1"
+                  >
+                    {num}
+                  </Label>
+                </div>
+              ))}
+            </RadioGroup>
+          </div>
           
           <div className="space-y-2">
             <Label className="font-bold">Comment:</Label>

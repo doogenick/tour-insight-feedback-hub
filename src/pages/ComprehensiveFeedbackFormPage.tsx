@@ -53,7 +53,29 @@ const ComprehensiveFeedbackFormPage: React.FC = () => {
     if (tours.length > 0 && tourId) {
       const tour = tours.find(t => t.id === tourId);
       if (tour) {
-        setCurrentTour(tour);
+        // Map the Supabase tour data to our Tour interface
+        const mappedTour: Tour = {
+          tour_id: tour.id,
+          tour_name: tour.tour_name,
+          tour_code: tour.tour_code,
+          date_start: tour.date_start,
+          date_end: tour.date_end,
+          passenger_count: tour.passenger_count,
+          guide_name: tour.guide?.full_name || tour.guide_name || '',
+          driver_name: tour.driver?.full_name || tour.driver_name || '',
+          truck_name: tour.truck_name,
+          tour_leader: tour.tour_leader,
+          third_crew_name: tour.third_crew_name,
+          tour_type: tour.tour_type,
+          vehicle_name: tour.vehicle_name,
+          vehicle_type: tour.vehicle_type,
+          crew_count: tour.crew_count,
+          status: tour.status,
+          feedback_gathering_status: tour.feedback_gathering_status,
+          created_at: tour.created_at,
+          updated_at: tour.updated_at
+        };
+        setCurrentTour(mappedTour);
         updateFormData('tour_id', tour.id);
       }
     }

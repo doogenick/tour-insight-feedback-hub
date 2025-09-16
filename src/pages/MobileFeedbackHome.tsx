@@ -26,7 +26,7 @@ const MobileFeedbackHome: React.FC = () => {
   const [tours, setTours] = useState<OfflineTour[]>([]);
   const [loading, setLoading] = useState(true);
   
-  const { isSyncing, itemsToSync, manualSync, checkItemsToSync, isOnline } = useAutoSync();
+  const { isSyncing, itemsToSync, manualSync, checkItemsToSync, refreshTourData, isOnline } = useAutoSync();
 
   useEffect(() => {
     loadData();
@@ -68,6 +68,7 @@ const MobileFeedbackHome: React.FC = () => {
     console.log('🔄 Sync result:', result);
     
     if (result.success) {
+      // Refresh tour data after successful sync
       await loadData();
     }
   };
@@ -89,44 +90,20 @@ const MobileFeedbackHome: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4 space-y-6 max-w-2xl">
-      {/* Header */}
-      <div className="text-center space-y-2">
-        <div className="flex items-center justify-center gap-3 mb-4">
-          <img src="/logo.svg" alt="Nomadtours Logo" className="h-12 w-auto" />
-        </div>
-        <h1 className="text-2xl font-bold text-slate-800">Nomadtours Feedback</h1>
-        <p className="text-sm text-slate-600">African Safari Adventures</p>
-        <div className="flex items-center justify-center gap-2">
-          {isOnline ? (
-            <div className="flex items-center gap-1 text-green-600">
-              <Wifi className="w-4 h-4" />
-              <span className="text-sm">Online</span>
-            </div>
-          ) : (
-            <div className="flex items-center gap-1 text-red-600">
-              <WifiOff className="w-4 h-4" />
-              <span className="text-sm">Offline</span>
-            </div>
-          )}
-        </div>
+      {/* Connection Status */}
+      <div className="flex items-center justify-center gap-2 text-sm">
+        {isOnline ? (
+          <div className="flex items-center gap-2 text-green-600">
+            <Wifi className="w-4 h-4" />
+            <span>Connected</span>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 text-red-600">
+            <WifiOff className="w-4 h-4" />
+            <span>Offline</span>
+          </div>
+        )}
       </div>
-
-
-      {/* Create New Tour */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Plus className="w-5 h-5" />
-            Start New Feedback Collection
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground mb-4">
-            Create a new tour to start collecting client feedback
-          </p>
-          <ManualTourEntryDialog onCreate={handleTourCreated} />
-        </CardContent>
-      </Card>
 
       {/* Active Tours */}
       <div className="space-y-4">
@@ -135,9 +112,11 @@ const MobileFeedbackHome: React.FC = () => {
         {activeTours.length === 0 ? (
           <Card>
             <CardContent className="p-6 text-center">
-              <p className="text-muted-foreground">
-                No active tours. Start by creating your first tour above.
-              </p>
+              <div className="text-muted-foreground">
+                <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p className="text-lg font-medium mb-2">No Active Tours</p>
+                <p className="text-sm">Create a new tour to start collecting feedback</p>
+              </div>
             </CardContent>
           </Card>
         ) : (
@@ -189,6 +168,19 @@ const MobileFeedbackHome: React.FC = () => {
           ))
         )}
       </div>
+
+      {/* Create New Tour */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Plus className="w-5 h-5" />
+            Create New Tour
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ManualTourEntryDialog onCreate={handleTourCreated} />
+        </CardContent>
+      </Card>
 
       {/* Completed Tours */}
       {completedTours.length > 0 && (

@@ -1,16 +1,10 @@
+import { supabase } from '@/integrations/supabase/client';
 import { offlineStorage, OfflineTour, OfflineFeedback } from './offlineStorage';
-import { supabase } from '../integrations/supabase/client';
 import { feedbackSupabaseService, tourSupabaseService } from './supabaseServices';
-import { useWifiConnection } from '../hooks/useWifiConnection';
-// import { validateComprehensiveFeedback, validateTour } from '../schemas/feedbackSchemas';
 
 class SyncService {
   private maxRetries = 3;
   private retryDelay = 1000; // 1 second
-
-  private async delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
 
   private async retryOperation<T>(
     operation: () => Promise<T>,
@@ -20,11 +14,11 @@ class SyncService {
     try {
       return await operation();
     } catch (error) {
-      console.error(`❌ ${operationName} failed (attempt ${this.maxRetries - retries + 1}/${this.maxRetries}):`, error);
+      console.error(`❌ ${operationName} failed (${retries} retries left):`, error);
       
       if (retries > 0) {
-        console.log(`⏳ Retrying ${operationName} in ${this.retryDelay}ms...`);
-        await this.delay(this.retryDelay);
+        console.log(`🔄 Retrying ${operationName} in ${this.retryDelay}ms...`);
+        await new Promise(resolve => setTimeout(resolve, this.retryDelay));
         return this.retryOperation(operation, operationName, retries - 1);
       }
       
@@ -33,70 +27,55 @@ class SyncService {
   }
 
   async syncToSupabase(): Promise<{ success: boolean; message: string; synced: number }> {
-    console.log('🔄 Starting sync process...');
-    console.log('📱 User agent:', navigator.userAgent);
-    console.log('🌐 Network status:', navigator.onLine ? 'online' : 'offline');
+    console.log('🔄 Starting sync to Supabase...');
     
     try {
       // Test Supabase connection first with retry
       console.log('🔗 Testing Supabase connection...');
       await this.retryOperation(async () => {
-        const { data: testData, error: testError } = await supabase
-          .from('tours')
-          .select('count')
-          .limit(1);
-        
-        if (testError) {
-          throw new Error(`Supabase connection failed: ${testError.message}`);
-        }
-      }, 'Supabase connection test');
-      
-      console.log('✅ Supabase connection verified, proceeding with sync');
-      let syncedCount = 0;
-      
-      // Get unsynced tours and feedback
+        const { data, error } = await supabase.from('tours').select('id').limit(1);
+        if (error) throw error;
+      }, 'Connection test');
+
+      // Get unsynced data
       const unsyncedTours = await offlineStorage.getUnsyncedTours();
       const unsyncedFeedback = await offlineStorage.getUnsyncedFeedback();
       
       console.log(`📊 Found ${unsyncedTours.length} unsynced tours and ${unsyncedFeedback.length} unsynced feedback items`);
-      
-      if (unsyncedTours.length === 0 && unsyncedFeedback.length === 0) {
-        console.log('✅ No items to sync');
-        return {
-          success: true,
-          message: 'No items to sync',
-          synced: 0
-        };
-      }
+
+      let syncedCount = 0;
 
       // Sync tours first
-      console.log('🎫 Syncing tours...');
+      console.log('🚌 Syncing tours...');
       for (const tour of unsyncedTours) {
-        console.log(`📝 Syncing tour: ${tour.tour_code} - ${tour.tour_name}`);
+        console.log(`📋 Syncing tour: ${tour.tour_code}`);
         
         try {
           await this.retryOperation(async () => {
+            // Map tour data to match Supabase schema
             const tourData = {
               tour_code: tour.tour_code,
               tour_name: tour.tour_name,
               date_start: tour.date_start,
               date_end: tour.date_end,
               passenger_count: tour.passenger_count,
-              guide_id: null,
-              driver_id: null,
+              guide_id: tour.guide_id,
+              driver_id: tour.driver_id,
               truck_name: tour.truck_name,
               tour_leader: tour.tour_leader,
-              tour_type: 'camping' as const,
-              vehicle_name: tour.truck_name,
-              crew_count: 2,
-              vehicle_type: 'truck',
-              status: tour.status
+              tour_type: tour.tour_type,
+              vehicle_name: tour.vehicle_name,
+              crew_count: tour.crew_count,
+              vehicle_type: tour.vehicle_type,
+              status: tour.status,
+              feedback_gathering_status: 'active',
+              app_version: '1.0.6',
+              created_by_client: 'nomad-feedback-mobile'
             };
-            
-            // Validate tour data before syncing
-            // const validation = validateTour(tourData);
+
+            // Validate tour data before sending
+            // const validation = tourSchema.safeParse(tourData);
             // if (!validation.success) {
-            //   console.error('❌ Tour validation failed:', validation.errors);
             //   throw new Error(`Tour validation failed: ${validation.errors?.map(e => e.message).join(', ')}`);
             // }
             
@@ -175,23 +154,19 @@ class SyncService {
               truck_comfort_rating: feedback.truck_comfort_rating,
               food_quantity_rating: feedback.food_quantity_rating,
               food_quality_rating: feedback.food_quality_rating,
-              food_rating: feedback.food_rating,
               driving_rating: feedback.driving_rating,
               guiding_rating: feedback.guiding_rating,
-              guide_rating: feedback.guide_rating,
-              driver_rating: feedback.driver_rating,
               organisation_rating: feedback.organisation_rating,
               guide_individual_rating: feedback.guide_individual_rating,
               driver_individual_rating: feedback.driver_individual_rating,
+              third_crew_rating: feedback.third_crew_rating,
               pace_rating: feedback.pace_rating,
               route_rating: feedback.route_rating,
               activity_level_rating: feedback.activity_level_rating,
               price_rating: feedback.price_rating,
               value_rating: feedback.value_rating,
-              vehicle_rating: feedback.vehicle_rating,
-              safety_rating: feedback.safety_rating,
               
-              // Guide ratings
+              // Guide detailed ratings
               guide_professionalism: feedback.guide_professionalism,
               guide_organisation: feedback.guide_organisation,
               guide_people_skills: feedback.guide_people_skills,
@@ -228,43 +203,34 @@ class SyncService {
               
               // Free text
               tour_highlight: feedback.tour_highlight,
-              highlights: feedback.highlights,
               improvement_suggestions: feedback.improvement_suggestions,
-              improvements: feedback.improvements,
               additional_comments: feedback.additional_comments,
+              
+              // Demographics
+              age: feedback.age,
+              gender: feedback.gender,
+              nationality: feedback.nationality,
               
               // Marketing
               heard_about_source: feedback.heard_about_source,
               heard_about_other: feedback.heard_about_other,
-              
-              // Personal details
-              age: feedback.age,
-              gender: feedback.gender,
               newsletter_signup: feedback.newsletter_signup,
               
-              // Review preferences
+              // Review consent
               willing_to_review_google: feedback.willing_to_review_google,
               willing_to_review_tripadvisor: feedback.willing_to_review_tripadvisor,
               
-              // Signatures
-              client_signature: feedback.client_signature,
-              client_signature_date: feedback.client_signature_date,
-              crew_signature: feedback.crew_signature,
-              signature_data_url: feedback.signature_data_url,
+              // Safety
+              safety_rating: feedback.safety_rating,
               
-              // Status
+              // Status and metadata
               status: feedback.status || 'submitted',
-              submitted_at: feedback.submitted_at || new Date().toISOString()
+              submitted_at: feedback.submitted_at || new Date().toISOString(),
+              app_version: '1.0.6',
+              submitted_by_client: 'nomad-feedback-mobile'
             };
-            
-            // Validate feedback data before syncing
-            // const validation = validateComprehensiveFeedback(feedbackData);
-            // if (!validation.success) {
-            //   console.error('❌ Feedback validation failed:', validation.errors);
-            //   throw new Error(`Feedback validation failed: ${validation.errors?.map(e => e.message).join(', ')}`);
-            // }
-            
-            console.log('🚀 Inserting feedback data:', feedbackData);
+
+            console.log('🚀 Inserting feedback data for:', feedback.client_name);
             
             const { data, error } = await supabase
               .from('comprehensive_feedback')
@@ -293,19 +259,8 @@ class SyncService {
         }
       }
 
-      // Update sync status - calculate remaining unsynced items after successful sync
-      const remainingTours = await offlineStorage.getUnsyncedTours();
-      const remainingFeedback = await offlineStorage.getUnsyncedFeedback();
-      const remainingItems = remainingTours.length + remainingFeedback.length;
+      console.log(`✅ Sync completed. Synced ${syncedCount} items.`);
       
-      await offlineStorage.setSyncStatus({
-        lastSync: new Date(),
-        itemsToSync: remainingItems
-      });
-
-      console.log(`🎉 Sync completed successfully! Synced ${syncedCount} items total.`);
-      console.log(`📊 Remaining unsynced items: ${remainingItems} (${remainingTours.length} tours + ${remainingFeedback.length} feedback)`);
-
       return {
         success: true,
         message: `Successfully synced ${syncedCount} items`,
@@ -313,8 +268,7 @@ class SyncService {
       };
 
     } catch (error) {
-      console.error('💥 Sync error:', error);
-      console.error('Full sync error details:', JSON.stringify(error, null, 2));
+      console.error('❌ Sync failed:', error);
       return {
         success: false,
         message: `Failed to sync data: ${error.message || 'Unknown error'}`,
@@ -343,53 +297,60 @@ class SyncService {
     }
   }
 
-  async syncActiveToursOnly(): Promise<{ success: boolean; message: string; synced: number }> {
-    console.log('🔄 Syncing only active tours...');
+  async syncActiveToursOnly(): Promise<{ success: boolean; message: string }> {
+    console.log('🔄 Syncing active tours only...');
     
-    // Get all tours from Supabase that are marked as active
-    const { data: activeTours, error: toursError } = await supabase
-      .from('tours')
-      .select('*')
-      .eq('feedback_gathering_status', 'active');
-    
-    if (toursError) {
-      console.error('❌ Error fetching active tours:', toursError);
-      return { success: false, message: 'Failed to fetch active tours', synced: 0 };
-    }
-    
-    console.log(`📊 Found ${activeTours?.length || 0} active tours on server`);
-    
-    // Get all offline tours
-    const offlineTours = await offlineStorage.getTours();
-    console.log(`📱 Found ${offlineTours.length} offline tours`);
-    
-    // Remove offline tours that are no longer active
-    const activeTourIds = new Set(activeTours?.map(tour => tour.id) || []);
-    const toursToRemove = offlineTours.filter(tour => 
-      tour.tour_id && !activeTourIds.has(tour.tour_id)
-    );
-    
-    console.log(`🗑️ Removing ${toursToRemove.length} inactive tours from mobile`);
-    
-    // Remove inactive tours and their feedback
-    for (const tour of toursToRemove) {
-      await offlineStorage.deleteTour(tour.offline_id);
-      // Also remove associated feedback
-      const tourFeedback = await offlineStorage.getFeedbackByTour(tour.offline_id);
-      for (const feedback of tourFeedback) {
-        await offlineStorage.deleteFeedback(feedback.offline_id);
+    try {
+      // Get all tours from Supabase with active feedback gathering status
+      const { data: activeTours, error: fetchError } = await supabase
+        .from('tours')
+        .select('id, tour_code, feedback_gathering_status')
+        .eq('feedback_gathering_status', 'active');
+
+      if (fetchError) {
+        throw new Error(`Failed to fetch active tours: ${fetchError.message}`);
       }
+
+      console.log(`📊 Found ${activeTours?.length || 0} active tours on server`);
+
+      // Get local tours
+      const localTours = await offlineStorage.getTours();
+      console.log(`📱 Found ${localTours.length} local tours`);
+
+      // Find tours that should be removed (completed on server but still local)
+      const activeTourIds = new Set(activeTours?.map(tour => tour.id) || []);
+      const toursToRemove = localTours.filter(tour => 
+        tour.tour_id && !activeTourIds.has(tour.tour_id)
+      );
+
+      console.log(`🗑️ Found ${toursToRemove.length} tours to remove from mobile`);
+
+      // Remove completed tours and their feedback
+      for (const tour of toursToRemove) {
+        console.log(`🗑️ Removing completed tour: ${tour.tour_code}`);
+        
+        // Remove associated feedback
+        const tourFeedback = await offlineStorage.getFeedbackByTour(tour.offline_id);
+        for (const feedback of tourFeedback) {
+          await offlineStorage.deleteFeedback(feedback.offline_id);
+        }
+        
+        // Remove tour
+        await offlineStorage.deleteTour(tour.offline_id);
+      }
+
+      return {
+        success: true,
+        message: `Refreshed tour data. Removed ${toursToRemove.length} completed tours.`
+      };
+
+    } catch (error) {
+      console.error('❌ Error syncing active tours:', error);
+      return {
+        success: false,
+        message: `Failed to refresh tour data: ${error.message || 'Unknown error'}`
+      };
     }
-    
-    // Sync remaining active tours
-    const remainingTours = offlineTours.filter(tour => 
-      !tour.tour_id || activeTourIds.has(tour.tour_id)
-    );
-    
-    console.log(`🔄 Syncing ${remainingTours.length} remaining active tours`);
-    
-    // Perform normal sync for active tours
-    return await this.syncToSupabase();
   }
 
   async endTourFeedbackGathering(tourId: string): Promise<{ success: boolean; message: string }> {
