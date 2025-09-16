@@ -23,6 +23,12 @@ const PageOne: React.FC<PageOneProps> = ({
   updateFormData,
   onNext
 }) => {
+  // Determine what sections to show based on tour configuration
+  const showCrewRatings = selectedTour?.crew_count && selectedTour.crew_count > 0;
+  const showVehicleRatings = selectedTour?.vehicle_type && selectedTour.vehicle_type !== 'none';
+  const showNomadCrewRatings = selectedTour?.vehicle_type && 
+    ['truck', 'rental'].includes(selectedTour.vehicle_type);
+
   return (
     <div className="space-y-8">
       <TourDetailsSection 
@@ -41,14 +47,18 @@ const PageOne: React.FC<PageOneProps> = ({
         guideName={selectedTour?.guide_name || ''}
         driverName={selectedTour?.driver_name || ''}
         thirdCrewName={selectedTour?.third_crew_name}
+        showVehicleRatings={showVehicleRatings}
+        showNomadCrewRatings={showNomadCrewRatings}
       />
       
-      <CrewDetailedRatings
-        formData={formData}
-        updateFormData={updateFormData}
-        guideName={selectedTour?.guide_name || ''}
-        driverName={selectedTour?.driver_name || ''}
-      />
+      {showCrewRatings && showNomadCrewRatings && (
+        <CrewDetailedRatings
+          formData={formData}
+          updateFormData={updateFormData}
+          guideName={selectedTour?.guide_name || ''}
+          driverName={selectedTour?.driver_name || ''}
+        />
+      )}
       
       <div className="flex justify-center">
         <Button 

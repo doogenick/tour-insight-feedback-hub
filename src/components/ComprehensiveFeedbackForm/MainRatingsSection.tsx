@@ -9,6 +9,8 @@ interface MainRatingsSectionProps {
   guideName: string;
   driverName: string;
   thirdCrewName?: string;
+  showVehicleRatings?: boolean;
+  showNomadCrewRatings?: boolean;
 }
 
 const MainRatingsSection: React.FC<MainRatingsSectionProps> = ({
@@ -16,27 +18,40 @@ const MainRatingsSection: React.FC<MainRatingsSectionProps> = ({
   updateFormData,
   guideName,
   driverName,
-  thirdCrewName
+  thirdCrewName,
+  showVehicleRatings = true,
+  showNomadCrewRatings = true
 }) => {
-  const ratingItems = [
+  // Base rating items that are always shown
+  const baseRatingItems = [
     { key: 'accommodation', label: 'Accommodation on Tour' },
     { key: 'information', label: 'Information on Tour' },
     { key: 'quality_equipment', label: 'Quality of Equipment' },
-    { key: 'truck_comfort', label: 'Practicality & Comfort of Truck' },
     { key: 'food_quantity', label: 'Food Quantity' },
     { key: 'food_quality', label: 'Food Quality' },
-    { key: 'driving', label: 'Driving on Tour' },
-    { key: 'guiding', label: 'Guiding on Tour' },
-    { key: 'organisation', label: 'Organisation on Tour' },
-    { key: 'guide_individual', label: guideName || 'Guide' },
-    { key: 'driver_individual', label: driverName || 'Driver' },
-    ...(thirdCrewName ? [{ key: 'third_crew', label: thirdCrewName }] : []),
     { key: 'pace', label: 'The Pace of the Tour' },
     { key: 'route', label: 'The Route and Highlights' },
     { key: 'activity_level', label: 'The Level of Activity' },
     { key: 'value', label: 'Value for Money' },
     { key: 'overview', label: 'Tour Overview' }
   ];
+
+  // Vehicle-related ratings (only show if vehicle is provided)
+  const vehicleRatingItems = showVehicleRatings ? [
+    { key: 'truck_comfort', label: 'Practicality & Comfort of Vehicle' }
+  ] : [];
+
+  // Nomad crew ratings (only show if using Nomad crew)
+  const nomadCrewRatingItems = showNomadCrewRatings ? [
+    { key: 'driving', label: 'Driving on Tour' },
+    { key: 'guiding', label: 'Guiding on Tour' },
+    { key: 'organisation', label: 'Organisation on Tour' },
+    { key: 'guide_individual', label: guideName || 'Guide' },
+    { key: 'driver_individual', label: driverName || 'Driver' },
+    ...(thirdCrewName ? [{ key: 'third_crew', label: thirdCrewName }] : [])
+  ] : [];
+
+  const ratingItems = [...baseRatingItems, ...vehicleRatingItems, ...nomadCrewRatingItems];
 
   return (
     <div className="space-y-4">

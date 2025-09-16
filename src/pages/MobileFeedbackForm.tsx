@@ -142,7 +142,23 @@ const MobileFeedbackForm: React.FC = () => {
     try {
       // Check for duplicate feedback before saving
       if (formData.client_name && formData.client_email) {
-        // Import the service to check for duplicates
+        // First check local storage for duplicates
+        const localFeedback = await offlineStorage.getFeedbackByTour(tour.offline_id);
+        const duplicateLocal = localFeedback.find(f => 
+          f.client_name === formData.client_name && 
+          f.client_email === formData.client_email
+        );
+        
+        if (duplicateLocal) {
+          toast({
+            variant: "destructive",
+            title: "Duplicate Feedback",
+            description: `Feedback already submitted by ${formData.client_name} (${formData.client_email}) for this tour. Please check your submitted feedback.`
+          });
+          return; // Exit early - don't save anything
+        }
+
+        // Then check server for duplicates
         const { feedbackSupabaseService } = await import('../services/supabaseServices');
         
         try {

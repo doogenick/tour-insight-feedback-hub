@@ -13,6 +13,8 @@ export interface Tour {
   third_crew_name?: string;
   tour_type?: 'camping' | 'camping_accommodated' | 'accommodated';
   vehicle_name?: string;
+  vehicle_type?: 'truck' | 'rental' | 'subcontracted' | 'none';
+  crew_count?: number;
   hotels?: Hotel[];
   properties?: Property[];
   status?: 'planned' | 'active' | 'completed' | 'cancelled';
